@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { View, Text, Button, KeyboardAvoidingView } from "react-native";
 import { Header, Divider } from "react-native-elements";
 import ActionSheet from "react-native-actions-sheet";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, Alert } from "react-native";
 import { TextInput } from "react-native";
 import { ApplicationStyles } from "../../styles/AppStyles";
 
@@ -27,6 +27,8 @@ function FeedScreen() {
         targetType: "user",
         targetId: client.userId,
       });
+      createPostSheet.current.setModalVisible(false);
+      Alert.alert("successfull!");
     } catch (error) {
       console.log(error.response);
     }
