@@ -84,7 +84,7 @@ class LoginPage extends Component {
       <SafeAreaView style={ApplicationStyles.container}>
         <Image
           style={{ width: 150, height: 93, marginBottom: 20 }}
-          source={require("../../demo-chat-app/assets/amity-social-cloud-logo.png")}
+          source={require("../assets/amity-social-cloud-logo.png")}
         />
 
         <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>

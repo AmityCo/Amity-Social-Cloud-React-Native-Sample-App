@@ -88,7 +88,7 @@ function FeedScreen() {
               placeholder="Type anything in your mind."
               multiline={true}
               onChangeText={setPostStatusChange}
-              value={textChange}
+              value={postStatus}
             />
 
             <TouchableOpacity style={{ marginTop: 10, alignItems: "center" }}>
