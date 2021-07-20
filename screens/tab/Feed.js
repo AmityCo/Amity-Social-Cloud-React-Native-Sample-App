@@ -12,10 +12,9 @@ import { createPost } from "@amityco/ts-sdk";
 
 import { client } from "../LoginPage";
 
-function FeedScreen() {
-  const [isPostFile, setIsPostFile] = useState(false);
-  const [isCommunityPost, setIsCommunityPost] = useState(false);
+import Files from "./files";
 
+function FeedScreen() {
   const [postStatus, setPostStatusChange] = useState("");
 
   const createPostSheet = useRef();
@@ -93,40 +92,7 @@ function FeedScreen() {
               value={postStatus}
             />
 
-            <TouchableOpacity style={{ marginTop: 10, alignItems: "center" }}>
-              <Text style={{ color: "#0091EA" }}>Attach Image</Text>
-            </TouchableOpacity>
-            <Text
-              style={{
-                margin: 8,
-                color: "#a9a9a9",
-                textAlign: "center",
-              }}
-            >
-              0 image attached
-            </Text>
-            <View style={{ flexDirection: "row", marginTop: 30 }}>
-              <ToggleSwitch
-                labelStyle={{ fontSize: 18 }}
-                label="File Post"
-                onColor="#26cb7c"
-                isOn={isPostFile}
-                onToggle={(val) => {
-                  setIsPostFile(val);
-                }}
-              />
-            </View>
-            <View style={{ flexDirection: "row", marginTop: 30 }}>
-              <ToggleSwitch
-                labelStyle={{ fontSize: 18 }}
-                label="Community Post"
-                onColor="#26cb7c"
-                isOn={isCommunityPost}
-                onToggle={(val) => {
-                  setIsCommunityPost(val);
-                }}
-              />
-            </View>
+            <Files />
 
             <TextInput
               style={{

@@ -33,8 +33,8 @@ class LoginPage extends Component {
       logoAnime: new Animated.Value(0),
       checked: false,
       form: {
-        username: { value: "" },
-        password: { value: "" },
+        username: { value: "test" },
+        password: { value: "test" },
       },
     };
   }
@@ -93,11 +93,15 @@ class LoginPage extends Component {
 
         <TextInput
           style={ApplicationStyles.input}
+          autoCapitalize="none"
+          autoCompleteType="off"
+          value={this.state.form.username.value}
           placeholder={ApplicationConstants.loginUsernamePlaceHolder}
           onChangeText={(val) => this.updateForm("username", val)}
         />
 
         <TextInput
+          value={this.state.form.password.value}
           style={ApplicationStyles.input}
           placeholder={ApplicationConstants.loginPasswordPlaceHolder}
           onChangeText={(val) => this.updateForm("password", val)}

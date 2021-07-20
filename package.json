@@ -5,7 +5,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "reinstall": "yarn cache clean && yarn install --update-checksums"
   },
   "dependencies": {
     "@amityco/ts-sdk": "1.0.3",
@@ -16,6 +17,7 @@
     "axios": "^0.21.1",
     "debug": "^4.3.1",
     "expo": "^42.0.0",
+    "expo-document-picker": "~9.2.4",
     "expo-status-bar": "~1.0.4",
     "react": "16.13.1",
     "react-dom": "16.13.1",
@@ -26,6 +28,7 @@
     "react-native-gifted-chat": "^0.16.3",
     "react-native-screens": "^3.4.0",
     "react-native-web": "~0.13.12",
+    "react-native-webview": "11.6.2",
     "react-navigation": "^4.4.4",
     "react-navigation-stack": "^2.10.4",
     "socket.io-client": "^2.2.0",
