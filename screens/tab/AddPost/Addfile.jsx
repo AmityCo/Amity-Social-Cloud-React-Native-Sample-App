@@ -1,16 +1,12 @@
 import React, { useState } from "react";
 import { createFile } from "@amityco/ts-sdk";
-import { View, Text, StyleSheet, Platform } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import { View, Text, StyleSheet } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import { Pressable, Alert, ActivityIndicator } from "react-native";
 
-import File from "./File";
-import Viewer from "./Viewer";
-import Addfile from "./Addfile";
-
-const PostFiles = () => {
+const AddPostFiles = () => {
   const [files, setFiles] = useState([]);
-  const [modal, setModal] = useState({});
   const [isUploading, setIsUploading] = useState(false);
 
   const selectFile = async () => {
@@ -65,52 +61,26 @@ const PostFiles = () => {
     }
   };
   return (
-    <View style={styles.container}>
-      <View style={styles.addFileArea}>
-        <Pressable
-          style={styles.addFileBtn}
-          onPress={selectFile}
-          disabled={isUploading}
-        >
-          {isUploading ? (
-            <ActivityIndicator />
-          ) : (
-            <Text style={styles.attachFileBtnText}>Attach File</Text>
-          )}
-        </Pressable>
-      </View>
-
-      <View style={styles.filesArea}>
-        {files.map((file) => (
-          <File
-            key={`${file.fileId}`}
-            file={file}
-            onOpen={() => setModal(file)}
-          />
-        ))}
-      </View>
-
-      <Viewer
-        file={modal}
-        visible={!!modal?.fileId}
-        onClose={() => setModal({})}
-      />
+    <View style={styles.addFileArea}>
+      <Pressable
+        style={styles.addFileBtn}
+        onPress={selectFile}
+        disabled={isUploading}
+      >
+        {isUploading ? (
+          <ActivityIndicator />
+        ) : (
+          <Text style={styles.attachFileBtnText}>Attach File</Text>
+        )}
+      </Pressable>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: "column",
-  },
   addFileArea: { marginBottom: 10, height: 30, justifyContent: "space-evenly" },
   addFileBtn: { alignItems: "center" },
   addFileBtnText: { color: "#0091EA" },
-  filesArea: {
-    justifyContent: "flex-start",
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
 });
 
-export default PostFiles;
+export default AddPostFiles;
