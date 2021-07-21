@@ -1,5 +1,13 @@
 import React, { useRef, useState } from "react";
-import { View, Text, Button, KeyboardAvoidingView } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  KeyboardAvoidingView,
+  StyleSheet,
+  FlatList,
+  Image,
+} from "react-native";
 import { Header, Divider } from "react-native-elements";
 import ActionSheet from "react-native-actions-sheet";
 import { TouchableOpacity, Alert } from "react-native";
@@ -13,6 +21,8 @@ import { createPost } from "@amityco/ts-sdk";
 import { client } from "../LoginPage";
 
 import Files from "./files";
+
+import FeedPosts from "./files/QueryPost";
 
 function FeedScreen() {
   const [postStatus, setPostStatusChange] = useState("");
@@ -44,7 +54,8 @@ function FeedScreen() {
           onPress: () => createPostSheet.current.setModalVisible(),
         }}
       />
-      <Text>FeedScreen!</Text>
+
+      <FeedPosts />
 
       <KeyboardAvoidingView>
         <ActionSheet ref={createPostSheet} indicatorColor="#db0707">
