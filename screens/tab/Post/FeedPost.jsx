@@ -4,9 +4,9 @@ import { FlatList, StyleSheet } from "react-native";
 import { queryPosts } from "@amityco/ts-sdk";
 import { client } from "../../LoginPage";
 
-import PostItem from "./PostItem";
+import PostItems from "./PostItems";
 
-const FeedPosts = () => {
+const FeedPosts = ({ showPostOption }) => {
   const [postData, setPostData] = useState([]);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const FeedPosts = () => {
         feedType: "published",
       };
       const queryPostFromApi = await queryPosts(query);
-      // console.log(queryPostFromApi)
+      // console.log(queryPostFromApi);
       setPostData(...postData, queryPostFromApi);
     } catch (error) {
       //  console.error(error, error.name, error.message, error.toString());
@@ -45,7 +45,14 @@ const FeedPosts = () => {
     <FlatList
       style={styles.feed}
       data={postData}
-      renderItem={({ item }) => <PostItem post={item} />}
+      renderItem={({ item }) => (
+        <PostItems
+          post={item}
+          showPostItemOption={(id) => {
+            showPostOption(id);
+          }}
+        />
+      )}
       keyExtractor={(item) => item.postId}
       showsVerticalScrollIndicator={false}
     ></FlatList>

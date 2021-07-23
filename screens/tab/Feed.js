@@ -4,10 +4,14 @@ import { View, Text, Alert } from "react-native";
 
 import AddPost from "./AddPost";
 
-import FeedPosts from "./files/QueryPost";
+import FeedPosts from "./Post/FeedPost";
+
+import PostOption from "./Post/PostOption";
 
 function FeedScreen() {
   const [showAddPost, setShowAddPost] = useState(false);
+  const [showMoreOption, setShowMoreOption] = useState(false);
+  const [optionPostId, setOptionPostId] = useState("");
 
   return (
     <View style={{ flex: 1 }}>
@@ -21,7 +25,13 @@ function FeedScreen() {
         }}
       />
 
-      <FeedPosts />
+      <FeedPosts
+        showPostOption={(postId) => {
+          setShowMoreOption(true);
+          setOptionPostId(postId);
+          console.log(postId);
+        }}
+      />
 
       <AddPost
         onAddPost={() => {
@@ -30,9 +40,20 @@ function FeedScreen() {
             console.log(123);
             Alert.alert("successfull!");
           }, 1000);
+          refresh();
         }}
         visible={showAddPost}
         onClose={() => setShowAddPost(false)}
+      />
+
+      <PostOption
+        postId={optionPostId}
+        visible={showMoreOption}
+        onClose={() => {
+          setShowMoreOption(false);
+          FeedPosts.onQueryPost();
+          refresh();
+        }}
       />
     </View>
   );

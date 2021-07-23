@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import Moment from "moment";
 import {
   Ionicons,
@@ -10,7 +10,7 @@ import {
 import { observeUser, observeFile, getPost } from "@amityco/ts-sdk";
 import { useEffect } from "react";
 
-const PostItem = ({ post }) => {
+const PostItems = ({ post, showPostItemOption }) => {
   const [user, setUser] = useState({});
   const [file, setFile] = useState({});
   const [childPost, setChildPost] = useState({});
@@ -45,61 +45,85 @@ const PostItem = ({ post }) => {
 
   return (
     <View style={styles.feedItem}>
-      <Image source={{ uri: file?.fileUrl }} style={styles.avatar} />
-      <View style={{ flex: 1 }}>
+      <View style={styles.feedItemHeader}>
+        <Image source={{ uri: file?.fileUrl }} style={styles.avatar} />
+        <View style={{ flex: 1 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <View>
+              <Text style={styles.name}>{user.displayName}</Text>
+              <Text style={styles.timestamp}>{postCreateAt}</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                showPostItemOption(post.postId);
+                console.log(post.postId);
+              }}
+            >
+              <Ionicons
+                name="ellipsis-vertical-sharp"
+                size={20}
+                color="#C4C6CE"
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+      <Text style={styles.post}>{post.data.text}</Text>
+      {post.children.length > 0 ? (
+        <Image
+          source={{ uri: postImage?.fileUrl }}
+          style={{
+            marginHorizontal: 16,
+            marginVertical: 8,
+            width: 100,
+            height: 100,
+          }}
+          resizeMode="stretch"
+        />
+      ) : null}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-around",
+          alignItems: "center",
+        }}
+      >
         <View
           style={{
             flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
+            alignItems: "flex-start",
+            padding: 10,
           }}
         >
-          <View>
-            <Text style={styles.name}>{user.displayName}</Text>
-            <Text style={styles.timestamp}>{postCreateAt}</Text>
-          </View>
-        </View>
-        <Text style={styles.post}>{post.data.text}</Text>
-        {post.children.length > 0 ? (
-          <Image
-            source={{ uri: postImage?.fileUrl }}
-            style={{ width: 100, height: 100 }}
-            resizeMode="stretch"
+          <MaterialCommunityIcons
+            name="thumb-up-outline"
+            size={20}
+            color="#838899"
           />
-        ) : null}
-
-        <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "flex-start",
-              padding: 10,
-            }}
-          >
-            <MaterialCommunityIcons
-              name="thumb-up-outline"
-              size={20}
-              color="#838899"
-            />
-            <Text style={{ marginStart: 10 }}>Like</Text>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              alignSelf: "flex-end",
-              padding: 10,
-            }}
-          >
-            <FontAwesome5 name="heart" size={20} color="#838899" />
-            <Text style={{ marginStart: 10 }}>Love</Text>
-          </View>
+          <Text style={{ marginStart: 10 }}>Like</Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            alignSelf: "flex-end",
+            padding: 10,
+          }}
+        >
+          <FontAwesome5 name="heart" size={20} color="#838899" />
+          <Text style={{ marginStart: 10 }}>Love</Text>
         </View>
       </View>
     </View>
   );
 };
 
-export default PostItem;
+export default PostItems;
 
 const styles = StyleSheet.create({
   container: {
@@ -131,8 +155,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     borderRadius: 5,
     padding: 8,
-    flexDirection: "row",
+    flexDirection: "column",
     marginVertical: 8,
+  },
+  feedItemHeader: {
+    backgroundColor: "#FFF",
+    flexDirection: "row",
   },
   avatar: {
     width: 40,
@@ -151,7 +179,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   post: {
-    marginTop: 16,
+    marginVertical: 8,
+    marginHorizontal: 16,
     fontSize: 14,
     color: "black",
   },
