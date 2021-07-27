@@ -19,7 +19,8 @@ import { PreferencesContext } from 'context/preferencesContext';
 
 import { DrawerContentProps } from 'types';
 
-// eslint-disable-next-line import/extensions
+import { t } from 'i18n';
+
 import AvatarHolder from 'assets/images/avatar.png';
 
 const DrawerContent: FC<DrawerContentProps> = props => {
@@ -71,7 +72,7 @@ const DrawerContent: FC<DrawerContentProps> = props => {
             icon={({ color, size }) => (
               <MaterialCommunityIcons name="account-outline" color={color} size={size} />
             )}
-            label="Profile"
+            label={t('profile')}
             onPress={() => {
               //
             }}

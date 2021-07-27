@@ -5,7 +5,6 @@ import { Appbar, Avatar, useTheme } from 'react-native-paper';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 
 import ASCLogo from 'assets/svg/ASCLogo';
-// eslint-disable-next-line import/extensions
 import AvatarHolder from 'assets/images/avatar.png';
 
 const Header: React.FC<Pick<StackHeaderProps, 'navigation' | 'previous' | 'scene'>> = ({
