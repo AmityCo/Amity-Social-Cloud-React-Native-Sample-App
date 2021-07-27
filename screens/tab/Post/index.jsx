@@ -2,21 +2,24 @@ import React, { useState } from "react";
 import { Header } from "react-native-elements";
 import { View, Text, Alert } from "react-native";
 
-import AddPost from "./AddPost";
+import AddPost from "../AddPost";
 
-import FeedPosts from "./Post/FeedPost";
+import FeedPosts from "./FeedPost";
 
-import PostOption from "./Post/PostOption";
+import PostOption from "./PostOption";
+import CommentScreen from "../Comment";
 
 function FeedScreen() {
   const [showAddPost, setShowAddPost] = useState(false);
   const [showMoreOption, setShowMoreOption] = useState(false);
-  const [optionPostId, setOptionPostId] = useState("");
+  const [showComment, setShowComment] = useState(false);
+  const [postId, setPostId] = useState("");
 
   const [isRefresh, setUpIsRefresh] = useState(false);
 
   const refresh = () => {
     setUpIsRefresh(true);
+    setUpIsRefresh(false);
   };
 
   return (
@@ -34,7 +37,7 @@ function FeedScreen() {
       <FeedPosts
         showPostOption={(postId) => {
           setShowMoreOption(true);
-          setOptionPostId(postId);
+          setPostId(postId);
           console.log(postId);
         }}
         refresh={isRefresh}
@@ -54,11 +57,23 @@ function FeedScreen() {
       />
 
       <PostOption
-        postId={optionPostId}
+        postId={postId}
         visible={showMoreOption}
         onClose={() => {
           setShowMoreOption(false);
           refresh();
+        }}
+        openCommentScreen={() => {
+          setShowComment(true);
+          setShowMoreOption(false);
+        }}
+      />
+
+      <CommentScreen
+        postId={postId}
+        visible={showComment}
+        onClose={() => {
+          setShowComment(false);
         }}
       />
     </View>

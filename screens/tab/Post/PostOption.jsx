@@ -14,19 +14,20 @@ import PostOptionItem from "./PostOptionItem";
 
 import { deletePost } from "@amityco/ts-sdk";
 
-const PostOption = ({ postId, visible, onClose }) => {
+const PostOption = ({ postId, visible, onClose, openCommentScreen }) => {
   const createPostSheet = useRef();
 
   const onSubmitOption = async (optionId) => {
     switch (optionId) {
       case "1": {
+        return openCommentScreen(postId);
       }
       case "3": {
         try {
           console.log("Delete This Post Id", postId);
           const v = await deletePost(postId);
           console.log(v);
-          onClose();
+          return onClose();
         } catch (error) {
           if (error.response) {
             console.log("error response", error.response.data);

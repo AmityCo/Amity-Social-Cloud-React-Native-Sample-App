@@ -1,22 +1,24 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer } from "@react-navigation/native";
 
-import TabList from './tab/TabList';
+import TabList from "./tab/TabList";
 
 export default class Main extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-    };
+    this.state = {};
   }
+
+  openCommentScreen = () => {
+    this.props.navigation.navigate("Comment", { props: this.props });
+  };
 
   render() {
     return (
-        <NavigationContainer>
-          <TabList/>
-        </NavigationContainer>
+      <NavigationContainer>
+        <TabList />
+      </NavigationContainer>
     );
   }
 }
-
