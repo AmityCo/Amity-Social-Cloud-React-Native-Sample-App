@@ -35,7 +35,7 @@
     ],
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["error", { "variables": false }],
-    "import/extensions": ["error", "never"],
+    "import/extensions": ["error", "never", { "json": "always", "png": "always" }],
     "react/prop-types": 0,
     "no-shadow": "off",
     "@typescript-eslint/no-shadow": ["error"]
