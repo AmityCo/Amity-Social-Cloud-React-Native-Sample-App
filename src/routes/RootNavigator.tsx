@@ -6,13 +6,14 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import { DrawerContent } from 'components';
 
-import { RootStackParamList, DrawerContentProps } from 'types';
+import { DrawerContentProps } from 'types';
+
 import StackNavigator from './StackNavigator';
 import LinkingConfiguration from './LinkingConfiguration';
 
 const Drawer = createDrawerNavigator();
 
-const RootNavigator: React.FC<RootStackParamList> = () => {
+const RootNavigator: React.FC = () => {
   const theme = useTheme();
   const navigationTheme = theme.dark ? DarkTheme : DefaultTheme;
 

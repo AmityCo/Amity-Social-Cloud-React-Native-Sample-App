@@ -13,7 +13,7 @@ const Stack = createStackNavigator();
 const StackNavigator: React.FC = () => {
   return (
     <Stack.Navigator
-      initialRouteName="FeedList"
+      initialRouteName="ChatStack"
       headerMode="screen"
       screenOptions={{
         header: ({ scene, previous, navigation }) => (
@@ -22,7 +22,7 @@ const StackNavigator: React.FC = () => {
       }}
     >
       <Stack.Screen
-        name="Feed"
+        name="ChatStack"
         component={BottomTabNavigator}
         options={({ route }) => {
           const routeName = getFocusedRouteNameFromRoute(route) ?? 'Feed';

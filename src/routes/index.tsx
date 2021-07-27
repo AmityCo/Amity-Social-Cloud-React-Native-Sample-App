@@ -24,21 +24,20 @@ const Navigation: React.FC = () => {
     [theme],
   );
 
+  const themeObj =
+    theme === 'light'
+      ? {
+          ...DefaultTheme,
+          colors: { ...DefaultTheme.colors, primary: '#05be8b' },
+        }
+      : {
+          ...DarkTheme,
+          colors: { ...DarkTheme.colors, primary: '#05be8b' },
+        };
+
   return (
     <PreferencesContext.Provider value={preferences}>
-      <PaperProvider
-        theme={
-          theme === 'light'
-            ? {
-                ...DefaultTheme,
-                colors: { ...DefaultTheme.colors, primary: '#1ba1f2' },
-              }
-            : {
-                ...DarkTheme,
-                colors: { ...DarkTheme.colors, primary: '#1ba1f2' },
-              }
-        }
-      >
+      <PaperProvider theme={themeObj}>
         <RootNavigator />
       </PaperProvider>
     </PreferencesContext.Provider>
