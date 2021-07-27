@@ -12,7 +12,7 @@ export const twitts: Omit<TwittProps, 'onPress'>[] = [
 		content:
 			'🔥 Automatically use "smart" directional curly quotes with the `quotes` CSS property! Even handles nested quotes with the <q> tag :o',
 		image: 'https://pbs.twimg.com/media/EOUrCOcWAAA71rA?format=png&name=small',
-		avatar: 'https://pbs.twimg.com/profile_images/1242807739681845248/HeUb7BAt_400x400.jpg',
+		avatar: 'https://pbs.twimg.com/profile_images/1362432748011536385/vRY-trfG_400x400.jpg',
 		comments: 12,
 		retweets: 36,
 		hearts: 175,
@@ -24,7 +24,7 @@ export const twitts: Omit<TwittProps, 'onPress'>[] = [
 		date: '20h',
 		content: 'Not sure if I should be proud or ashamed of this piece of art 😅\n\n#Typescript',
 		image: 'https://pbs.twimg.com/media/EONH4KWX4AEV-JP?format=jpg&name=medium',
-		avatar: 'https://pbs.twimg.com/profile_images/1203032057875771393/x0nVAZPL_400x400.jpg',
+		avatar: 'https://pbs.twimg.com/profile_images/1407151142606344192/X4WNOP1P_400x400.jpg',
 		comments: 64,
 		retweets: 87,
 		hearts: 400,
@@ -38,7 +38,7 @@ export const twitts: Omit<TwittProps, 'onPress'>[] = [
 			'Hid the home indicator from the app so the device resembles an actual iPod even more. Thanks @flipeesposito for the suggestion!',
 		image:
 			'https://static.antyweb.pl/uploads/2014/09/IPod_classic_6G_80GB_packaging-2007-09-22-1420x670.jpg',
-		avatar: 'https://pbs.twimg.com/profile_images/1274435026482937858/JZmznbJO_400x400.jpg',
+		avatar: 'https://pbs.twimg.com/profile_images/1408961428183076870/L87s2ppJ_400x400.jpg',
 		comments: 23,
 		retweets: 21,
 		hearts: 300,
@@ -51,7 +51,7 @@ export const twitts: Omit<TwittProps, 'onPress'>[] = [
 		content:
 			'🔥 Automatically use "smart" directional curly quotes with the `quotes` CSS property! Even handles nested quotes with the <q> tag :o',
 		image: 'https://pbs.twimg.com/media/EOUrCOcWAAA71rA?format=png&name=small',
-		avatar: 'https://pbs.twimg.com/profile_images/1242807739681845248/HeUb7BAt_400x400.jpg',
+		avatar: 'https://pbs.twimg.com/profile_images/1362432748011536385/vRY-trfG_400x400.jpg',
 		comments: 12,
 		retweets: 36,
 		hearts: 175,
@@ -63,7 +63,7 @@ export const twitts: Omit<TwittProps, 'onPress'>[] = [
 		date: '20h',
 		content: 'Not sure if I should be proud or ashamed of this piece of art 😅\n\n#Typescript',
 		image: 'https://pbs.twimg.com/media/EONH4KWX4AEV-JP?format=jpg&name=medium',
-		avatar: 'https://pbs.twimg.com/profile_images/1203032057875771393/x0nVAZPL_400x400.jpg',
+		avatar: 'https://pbs.twimg.com/profile_images/1407151142606344192/X4WNOP1P_400x400.jpg',
 		comments: 64,
 		retweets: 87,
 		hearts: 400,
@@ -77,7 +77,7 @@ export const twitts: Omit<TwittProps, 'onPress'>[] = [
 			'Hid the home indicator from the app so the device resembles an actual iPod even more. Thanks @flipeesposito for the suggestion!',
 		image:
 			'https://static.antyweb.pl/uploads/2014/09/IPod_classic_6G_80GB_packaging-2007-09-22-1420x670.jpg',
-		avatar: 'https://pbs.twimg.com/profile_images/1274435026482937858/JZmznbJO_400x400.jpg',
+		avatar: 'https://pbs.twimg.com/profile_images/1408961428183076870/L87s2ppJ_400x400.jpg',
 		comments: 23,
 		retweets: 21,
 		hearts: 300,
@@ -95,7 +95,7 @@ export const notificationTweets: Array<NotificationTwittProps> = [
 		people: [
 			{
 				name: 'Evan Bacon 🥓',
-				image: 'https://pbs.twimg.com/profile_images/1274435026482937858/JZmznbJO_400x400.jpg',
+				image: 'https://pbs.twimg.com/profile_images/1308332115919020032/jlqFOD33_400x400.jpg',
 			},
 			{
 				name: 'Leandro Favre',
@@ -134,7 +134,7 @@ export const notificationTweets: Array<NotificationTwittProps> = [
 		people: [
 			{
 				name: 'Evan Bacon 🥓',
-				image: 'https://pbs.twimg.com/profile_images/1274435026482937858/JZmznbJO_400x400.jpg',
+				image: 'https://pbs.twimg.com/profile_images/1308332115919020032/jlqFOD33_400x400.jpg',
 			},
 			{
 				name: 'Leandro Favre',
