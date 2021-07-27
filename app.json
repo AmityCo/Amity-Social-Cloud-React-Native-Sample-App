@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Amity Social",
+    "name": "Amity Social Cloud",
     "slug": "amity-social",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "ascapp",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./src/assets/images/splash.png",

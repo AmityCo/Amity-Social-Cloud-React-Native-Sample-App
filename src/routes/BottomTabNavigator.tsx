@@ -1,86 +1,102 @@
-/**
- * Learn more about createBottomTabNavigator:
- * https://reactnavigation.org/docs/bottom-tab-navigator
- */
+import React from "react";
+import color from "color";
+import { useTheme, Portal, FAB } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useIsFocused, RouteProp } from "@react-navigation/native";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 
-import { Ionicons } from "@expo/vector-icons";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack";
-import * as React from "react";
+import Feed from "screens/Feed";
+import Messages from "screens/Messages";
+import Notifications from "screens/Notifications";
 
-import Colors from "../constants/Colors";
-import useColorScheme from "../hooks/useColorScheme";
-import TabOneScreen from "../view/pages/TabOneScreen";
-import TabTwoScreen from "../view/pages/TabTwoScreen";
-import { BottomTabParamList, TabOneParamList, TabTwoParamList } from "../types";
+import overlay from "utils/overlay";
 
-const BottomTab = createBottomTabNavigator<BottomTabParamList>();
+import { StackNavigatorParamlist } from "types";
 
-export default function BottomTabNavigator() {
-  const colorScheme = useColorScheme();
+const Tab = createMaterialBottomTabNavigator();
+
+type Props = {
+  route: RouteProp<StackNavigatorParamlist, "FeedList">;
+};
+
+const BottomTabsNavigator = (props: Props) => {
+  const routeName = getFocusedRouteNameFromRoute(props.route) ?? "Feed";
+
+  const theme = useTheme();
+  const isFocused = useIsFocused();
+  const safeArea = useSafeAreaInsets();
+
+  let icon = "feather";
+
+  switch (routeName) {
+    case "Messages":
+      icon = "email-plus-outline";
+      break;
+    default:
+      icon = "feather";
+      break;
+  }
+
+  const tabBarColor = theme.dark
+    ? (overlay(6, theme.colors.surface) as string)
+    : theme.colors.surface;
 
   return (
-    <BottomTab.Navigator
-      initialRouteName="TabOne"
-      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint }}
-    >
-      <BottomTab.Screen
-        name="TabOne"
-        component={TabOneNavigator}
-        options={{
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="ios-code" color={color} />
-          ),
-        }}
-      />
-      <BottomTab.Screen
-        name="TabTwo"
-        component={TabTwoNavigator}
-        options={{
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="ios-code" color={color} />
-          ),
-        }}
-      />
-    </BottomTab.Navigator>
+    <React.Fragment>
+      <Tab.Navigator
+        initialRouteName="Feed"
+        backBehavior="initialRoute"
+        shifting={true}
+        activeColor={theme.colors.primary}
+        inactiveColor={color(theme.colors.text).alpha(0.6).rgb().string()}
+        sceneAnimationEnabled={false}
+      >
+        <Tab.Screen
+          name="Feed"
+          component={Feed}
+          options={{
+            tabBarIcon: "home-account",
+            tabBarColor,
+          }}
+        />
+        <Tab.Screen
+          name="Notifications"
+          component={Notifications}
+          options={{
+            tabBarIcon: "bell-outline",
+            tabBarColor,
+          }}
+        />
+        <Tab.Screen
+          name="Messages"
+          component={Messages}
+          options={{
+            tabBarIcon: "message-text-outline",
+            tabBarColor,
+          }}
+        />
+      </Tab.Navigator>
+      <Portal>
+        <FAB
+          visible={isFocused}
+          icon={icon}
+          style={{
+            position: "absolute",
+            bottom: safeArea.bottom + 65,
+            right: 16,
+          }}
+          color="white"
+          theme={{
+            colors: {
+              accent: theme.colors.primary,
+            },
+          }}
+          onPress={() => {}}
+        />
+      </Portal>
+    </React.Fragment>
   );
-}
+};
 
-// You can explore the built-in icon families and icons on the web at:
-// https://icons.expo.fyi/
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof Ionicons>["name"];
-  color: string;
-}) {
-  return <Ionicons size={30} style={{ marginBottom: -3 }} {...props} />;
-}
-
-// Each tab has its own navigation stack, you can read more about this pattern here:
-// https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
-const TabOneStack = createStackNavigator<TabOneParamList>();
-
-function TabOneNavigator() {
-  return (
-    <TabOneStack.Navigator>
-      <TabOneStack.Screen
-        name="TabOneScreen"
-        component={TabOneScreen}
-        options={{ headerTitle: "Tab One Title" }}
-      />
-    </TabOneStack.Navigator>
-  );
-}
-
-const TabTwoStack = createStackNavigator<TabTwoParamList>();
-
-function TabTwoNavigator() {
-  return (
-    <TabTwoStack.Navigator>
-      <TabTwoStack.Screen
-        name="TabTwoScreen"
-        component={TabTwoScreen}
-        options={{ headerTitle: "Tab Two Title" }}
-      />
-    </TabTwoStack.Navigator>
-  );
-}
+export default BottomTabsNavigator;

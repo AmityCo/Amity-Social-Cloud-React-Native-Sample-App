@@ -1,45 +1,50 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  NavigationContainer,
-} from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
 import * as React from "react";
-import { ColorSchemeName } from "react-native";
+import { useColorScheme } from "react-native-appearance";
+import {
+  Provider as PaperProvider,
+  DefaultTheme,
+  DarkTheme,
+} from "react-native-paper";
 
-import NotFoundScreen from "screens/NotFoundScreen";
+import RootNavigator from "./RootNavigator";
 
-import BottomTabNavigator from "./BottomTabNavigator";
-import LinkingConfiguration from "./LinkingConfiguration";
+import { PreferencesContext } from "context/preferencesContext";
 
-// import { RootStackParamList } from "types";
-
-export default function Navigation({
-  colorScheme,
-}: {
-  colorScheme: ColorSchemeName;
-}) {
-  return (
-    <NavigationContainer
-      linking={LinkingConfiguration}
-      theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-    >
-      <RootNavigator />
-    </NavigationContainer>
+export default function Navigation() {
+  const colorScheme = useColorScheme();
+  const [theme, setTheme] = React.useState<"light" | "dark">(
+    colorScheme === "dark" ? "dark" : "light"
   );
-}
 
-const Stack = createStackNavigator();
+  function toggleTheme() {
+    setTheme((theme) => (theme === "light" ? "dark" : "light"));
+  }
 
-function RootNavigator() {
+  const preferences = React.useMemo(
+    () => ({
+      toggleTheme,
+      theme,
+    }),
+    [theme]
+  );
+
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Root" component={BottomTabNavigator} />
-      <Stack.Screen
-        name="NotFound"
-        component={NotFoundScreen}
-        options={{ title: "Oops!" }}
-      />
-    </Stack.Navigator>
+    <PreferencesContext.Provider value={preferences}>
+      <PaperProvider
+        theme={
+          theme === "light"
+            ? {
+                ...DefaultTheme,
+                colors: { ...DefaultTheme.colors, primary: "#1ba1f2" },
+              }
+            : {
+                ...DarkTheme,
+                colors: { ...DarkTheme.colors, primary: "#1ba1f2" },
+              }
+        }
+      >
+        <RootNavigator />
+      </PaperProvider>
+    </PreferencesContext.Provider>
   );
 }
