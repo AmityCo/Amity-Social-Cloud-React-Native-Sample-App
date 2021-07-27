@@ -7,8 +7,8 @@
     "web": "expo start --web",
     "eject": "expo eject",
     "test": "jest --watchAll",
-    "lint": "eslint **/**/*.{ts,tsx}",
-    "lint-and-fix": "eslint **/**/*.{ts,tsx} --fix",
+    "lint": "eslint .",
+    "lint-and-fix": "eslint . --fix",
     "prepare": "husky install"
   },
   "jest": {

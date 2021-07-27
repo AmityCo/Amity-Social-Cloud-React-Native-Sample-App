@@ -1,40 +1,40 @@
-import React from "react";
-import color from "color";
-import { useTheme, Portal, FAB } from "react-native-paper";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useIsFocused, RouteProp } from "@react-navigation/native";
-import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
-import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
+import React, { FC } from 'react';
+import color from 'color';
+import { useTheme, Portal, FAB } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useIsFocused, RouteProp, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
-import Feed from "screens/Feed";
-import Messages from "screens/Messages";
-import Notifications from "screens/Notifications";
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
-import overlay from "utils/overlay";
+import Feed from 'screens/Feed';
+import Messages from 'screens/Messages';
+import Notifications from 'screens/Notifications';
 
-import { StackNavigatorParamlist } from "types";
+import overlay from 'utils/overlay';
+
+import { StackNavigatorParamlist } from 'types';
 
 const Tab = createMaterialBottomTabNavigator();
 
 type Props = {
-  route: RouteProp<StackNavigatorParamlist, "FeedList">;
+  route: RouteProp<StackNavigatorParamlist, 'FeedList'>;
 };
 
-const BottomTabsNavigator = (props: Props) => {
-  const routeName = getFocusedRouteNameFromRoute(props.route) ?? "Feed";
+const BottomTabsNavigator: FC<Props> = ({ route }) => {
+  const routeName = getFocusedRouteNameFromRoute(route) ?? 'Feed';
 
   const theme = useTheme();
   const isFocused = useIsFocused();
   const safeArea = useSafeAreaInsets();
 
-  let icon = "feather";
+  let icon = 'feather';
 
   switch (routeName) {
-    case "Messages":
-      icon = "email-plus-outline";
+    case 'Messages':
+      icon = 'email-plus-outline';
       break;
     default:
-      icon = "feather";
+      icon = 'feather';
       break;
   }
 
@@ -43,11 +43,11 @@ const BottomTabsNavigator = (props: Props) => {
     : theme.colors.surface;
 
   return (
-    <React.Fragment>
+    <>
       <Tab.Navigator
         initialRouteName="Feed"
         backBehavior="initialRoute"
-        shifting={true}
+        shifting
         activeColor={theme.colors.primary}
         inactiveColor={color(theme.colors.text).alpha(0.6).rgb().string()}
         sceneAnimationEnabled={false}
@@ -56,7 +56,7 @@ const BottomTabsNavigator = (props: Props) => {
           name="Feed"
           component={Feed}
           options={{
-            tabBarIcon: "home-account",
+            tabBarIcon: 'home-account',
             tabBarColor,
           }}
         />
@@ -64,7 +64,7 @@ const BottomTabsNavigator = (props: Props) => {
           name="Notifications"
           component={Notifications}
           options={{
-            tabBarIcon: "bell-outline",
+            tabBarIcon: 'bell-outline',
             tabBarColor,
           }}
         />
@@ -72,7 +72,7 @@ const BottomTabsNavigator = (props: Props) => {
           name="Messages"
           component={Messages}
           options={{
-            tabBarIcon: "message-text-outline",
+            tabBarIcon: 'message-text-outline',
             tabBarColor,
           }}
         />
@@ -82,7 +82,7 @@ const BottomTabsNavigator = (props: Props) => {
           visible={isFocused}
           icon={icon}
           style={{
-            position: "absolute",
+            position: 'absolute',
             bottom: safeArea.bottom + 65,
             right: 16,
           }}
@@ -92,10 +92,10 @@ const BottomTabsNavigator = (props: Props) => {
               accent: theme.colors.primary,
             },
           }}
-          onPress={() => {}}
+          // onPress={() => {}}
         />
       </Portal>
-    </React.Fragment>
+    </>
   );
 };
 

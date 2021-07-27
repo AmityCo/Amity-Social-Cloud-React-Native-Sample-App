@@ -1,15 +1,17 @@
-import React from "react";
-import { RouteProp } from "@react-navigation/native";
+import React, { FC } from 'react';
+import { RouteProp } from '@react-navigation/native';
 
-import { DetailedTwitt } from "components/detailedTwitt";
-import { StackNavigatorParamlist } from "types";
+import DetailedTwitt from 'components/Twitt/DetailedTwitt';
+
+import { StackNavigatorParamlist } from 'types';
 
 type Props = {
-  route: RouteProp<StackNavigatorParamlist, "Details">;
+  route: RouteProp<StackNavigatorParamlist, 'Details'>;
 };
 
-const Details = (props: Props) => {
-  return <DetailedTwitt {...props.route.params} />;
+const Details: FC<Props> = ({ route: { params } }) => {
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <DetailedTwitt {...params} />;
 };
 
 export default Details;

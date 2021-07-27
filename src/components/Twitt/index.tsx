@@ -1,5 +1,5 @@
-import React from "react";
-import { StyleSheet, View, Image, TouchableOpacity } from "react-native";
+import React, { FC } from 'react';
+import { StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import {
   Surface,
   Title,
@@ -8,9 +8,9 @@ import {
   Avatar,
   TouchableRipple,
   useTheme,
-} from "react-native-paper";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import color from "color";
+} from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import color from 'color';
 
 type Props = {
   id: number;
@@ -26,7 +26,19 @@ type Props = {
   onPress: (id: number) => void;
 };
 
-export const Twitt = (props: Props) => {
+const Twitt: FC<Props> = ({
+  onPress,
+  id,
+  avatar,
+  name,
+  handle,
+  content,
+  image,
+  comments,
+  retweets,
+  hearts,
+  date,
+}) => {
   const theme = useTheme();
 
   const iconColor = color(theme.colors.text).alpha(0.54).rgb().string();
@@ -36,21 +48,21 @@ export const Twitt = (props: Props) => {
   const imageBorderColor = color(theme.colors.text).alpha(0.15).rgb().string();
 
   return (
-    <TouchableRipple onPress={() => props.onPress(props.id)}>
+    <TouchableRipple onPress={() => onPress(id)}>
       <Surface style={styles.container}>
         <View style={styles.leftColumn}>
-          <Avatar.Image source={{ uri: props.avatar }} size={60} />
+          <Avatar.Image source={{ uri: avatar }} size={60} />
         </View>
         <View style={styles.rightColumn}>
           <View style={styles.topRow}>
-            <Title>{props.name}</Title>
-            <Caption style={styles.handle}>{props.handle}</Caption>
-            <Caption style={[styles.handle, styles.dot]}>{"\u2B24"}</Caption>
-            <Caption>{props.date}</Caption>
+            <Title>{name}</Title>
+            <Caption style={styles.handle}>{handle}</Caption>
+            <Caption style={[styles.handle, styles.dot]}>{'\u2B24'}</Caption>
+            <Caption>{date}</Caption>
           </View>
-          <Text style={{ color: contentColor }}>{props.content}</Text>
+          <Text style={{ color: contentColor }}>{content}</Text>
           <Image
-            source={{ uri: props.image }}
+            source={{ uri: image }}
             style={[
               styles.image,
               {
@@ -60,46 +72,30 @@ export const Twitt = (props: Props) => {
           />
           <View style={styles.bottomRow}>
             <TouchableOpacity
-              onPress={() => {}}
+              // onPress={() => {}}
               hitSlop={{ top: 10, bottom: 10 }}
             >
               <View style={styles.iconContainer}>
-                <MaterialCommunityIcons
-                  name="comment-outline"
-                  size={12}
-                  color={iconColor}
-                />
-                <Caption style={styles.iconDescription}>
-                  {props.comments}
-                </Caption>
+                <MaterialCommunityIcons name="comment-outline" size={12} color={iconColor} />
+                <Caption style={styles.iconDescription}>{comments}</Caption>
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => {}}
+              // onPress={() => {}}
               hitSlop={{ top: 10, bottom: 10 }}
             >
               <View style={styles.iconContainer}>
-                <MaterialCommunityIcons
-                  name="share-outline"
-                  size={14}
-                  color={iconColor}
-                />
-                <Caption style={styles.iconDescription}>
-                  {props.retweets}
-                </Caption>
+                <MaterialCommunityIcons name="share-outline" size={14} color={iconColor} />
+                <Caption style={styles.iconDescription}>{retweets}</Caption>
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => {}}
+              //  onPress={() => {}}
               hitSlop={{ top: 10, bottom: 10 }}
             >
               <View style={styles.iconContainer}>
-                <MaterialCommunityIcons
-                  name="heart-outline"
-                  size={12}
-                  color={iconColor}
-                />
-                <Caption style={styles.iconDescription}>{props.hearts}</Caption>
+                <MaterialCommunityIcons name="heart-outline" size={12} color={iconColor} />
+                <Caption style={styles.iconDescription}>{hearts}</Caption>
               </View>
             </TouchableOpacity>
           </View>
@@ -111,20 +107,20 @@ export const Twitt = (props: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
+    flexDirection: 'row',
     paddingTop: 15,
     paddingRight: 15,
   },
   leftColumn: {
     width: 100,
-    alignItems: "center",
+    alignItems: 'center',
   },
   rightColumn: {
     flex: 1,
   },
   topRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
+    flexDirection: 'row',
+    alignItems: 'baseline',
   },
   handle: {
     marginRight: 3,
@@ -136,21 +132,23 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     marginTop: 10,
     borderRadius: 20,
-    width: "100%",
+    width: '100%',
     height: 150,
   },
   bottomRow: {
     paddingVertical: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   iconContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   iconDescription: {
     marginLeft: 2,
     lineHeight: 12,
   },
 });
+
+export default Twitt;

@@ -1,7 +1,7 @@
-import * as React from "react";
-import Svg, { Path } from "react-native-svg";
+import * as React from 'react';
+import Svg, { Path } from 'react-native-svg';
 
-function SvgComponent() {
+const SvgComponent: React.FC = () => {
   return (
     <Svg
       width={170}
@@ -24,6 +24,6 @@ function SvgComponent() {
       />
     </Svg>
   );
-}
+};
 
 export default SvgComponent;

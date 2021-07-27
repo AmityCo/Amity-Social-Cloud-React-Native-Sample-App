@@ -1,23 +1,19 @@
-import * as React from "react";
-import { useColorScheme } from "react-native-appearance";
-import {
-  Provider as PaperProvider,
-  DefaultTheme,
-  DarkTheme,
-} from "react-native-paper";
+import * as React from 'react';
+import { useColorScheme } from 'react-native-appearance';
+import { Provider as PaperProvider, DefaultTheme, DarkTheme } from 'react-native-paper';
 
-import RootNavigator from "./RootNavigator";
+import { PreferencesContext } from 'context/preferencesContext';
 
-import { PreferencesContext } from "context/preferencesContext";
+import RootNavigator from './RootNavigator';
 
-export default function Navigation() {
+const Navigation: React.FC = () => {
   const colorScheme = useColorScheme();
-  const [theme, setTheme] = React.useState<"light" | "dark">(
-    colorScheme === "dark" ? "dark" : "light"
+  const [theme, setTheme] = React.useState<'light' | 'dark'>(
+    colorScheme === 'dark' ? 'dark' : 'light',
   );
 
   function toggleTheme() {
-    setTheme((theme) => (theme === "light" ? "dark" : "light"));
+    setTheme(theme_ => (theme_ === 'light' ? 'dark' : 'light'));
   }
 
   const preferences = React.useMemo(
@@ -25,21 +21,21 @@ export default function Navigation() {
       toggleTheme,
       theme,
     }),
-    [theme]
+    [theme],
   );
 
   return (
     <PreferencesContext.Provider value={preferences}>
       <PaperProvider
         theme={
-          theme === "light"
+          theme === 'light'
             ? {
                 ...DefaultTheme,
-                colors: { ...DefaultTheme.colors, primary: "#1ba1f2" },
+                colors: { ...DefaultTheme.colors, primary: '#1ba1f2' },
               }
             : {
                 ...DarkTheme,
-                colors: { ...DarkTheme.colors, primary: "#1ba1f2" },
+                colors: { ...DarkTheme.colors, primary: '#1ba1f2' },
               }
         }
       >
@@ -47,4 +43,6 @@ export default function Navigation() {
       </PaperProvider>
     </PreferencesContext.Provider>
   );
-}
+};
+
+export default Navigation;

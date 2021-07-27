@@ -1,14 +1,15 @@
-import React from "react";
-import { View, FlatList, StyleSheet } from "react-native";
-import { useTheme } from "react-native-paper";
+import React, { FC } from 'react';
+import { View, FlatList, StyleSheet } from 'react-native';
+import { useTheme } from 'react-native-paper';
 
-import { NotificationTwitt } from "components/notificationTwitt";
+import NotificationTwitt from 'components/Twitt/NotificationTwitt';
 
-import { notificationTweets } from "constants/data";
+import { notificationTweets } from 'constants/data';
 
 type NotificationTwittProps = React.ComponentProps<typeof NotificationTwitt>;
 
 function renderItem({ item }: { item: NotificationTwittProps }) {
+  // eslint-disable-next-line react/jsx-props-no-spreading
   return <NotificationTwitt {...item} />;
 }
 
@@ -16,7 +17,7 @@ function keyExtractor(item: NotificationTwittProps) {
   return item.id.toString();
 }
 
-const Notifications = () => {
+const Notifications: FC = () => {
   const theme = useTheme();
 
   return (
@@ -26,9 +27,7 @@ const Notifications = () => {
       data={notificationTweets}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
-      ItemSeparatorComponent={() => (
-        <View style={{ height: StyleSheet.hairlineWidth }} />
-      )}
+      ItemSeparatorComponent={() => <View style={{ height: StyleSheet.hairlineWidth }} />}
     />
   );
 };

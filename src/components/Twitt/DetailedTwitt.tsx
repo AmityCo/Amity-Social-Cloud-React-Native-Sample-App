@@ -1,14 +1,7 @@
-import React from "react";
-import { StyleSheet, View, Image } from "react-native";
-import {
-  Surface,
-  Title,
-  Caption,
-  Avatar,
-  Subheading,
-  useTheme,
-} from "react-native-paper";
-import color from "color";
+import React, { FC } from 'react';
+import { StyleSheet, View, Image } from 'react-native';
+import { Surface, Title, Caption, Avatar, Subheading, useTheme } from 'react-native-paper';
+import color from 'color';
 
 type Props = {
   id: number;
@@ -23,7 +16,7 @@ type Props = {
   hearts: number;
 };
 
-export const DetailedTwitt = (props: Props) => {
+const DetailedTwitt: FC<Props> = ({ avatar, name, handle, content, image }) => {
   const theme = useTheme();
 
   const contentColor = color(theme.colors.text).alpha(0.8).rgb().string();
@@ -33,21 +26,15 @@ export const DetailedTwitt = (props: Props) => {
   return (
     <Surface style={styles.container}>
       <View style={styles.topRow}>
-        <Avatar.Image
-          style={styles.avatar}
-          source={{ uri: props.avatar }}
-          size={60}
-        />
+        <Avatar.Image style={styles.avatar} source={{ uri: avatar }} size={60} />
         <View>
-          <Title>{props.name}</Title>
-          <Caption style={styles.handle}>{props.handle}</Caption>
+          <Title>{name}</Title>
+          <Caption style={styles.handle}>{handle}</Caption>
         </View>
       </View>
-      <Subheading style={[styles.content, { color: contentColor }]}>
-        {props.content}
-      </Subheading>
+      <Subheading style={[styles.content, { color: contentColor }]}>{content}</Subheading>
       <Image
-        source={{ uri: props.image }}
+        source={{ uri: image }}
         style={[
           styles.image,
           {
@@ -68,8 +55,8 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   topRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   handle: {
     marginRight: 3,
@@ -84,7 +71,9 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     marginTop: 25,
     borderRadius: 20,
-    width: "100%",
+    width: '100%',
     height: 280,
   },
 });
+
+export default DetailedTwitt;

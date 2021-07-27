@@ -1,11 +1,10 @@
-import React from "react";
-import { ScrollView, StyleSheet } from "react-native";
-import { MaterialBottomTabNavigationProp } from "@react-navigation/material-bottom-tabs";
-import { Headline, Caption, useTheme, Button } from "react-native-paper";
+import React, { FC } from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
+import { Headline, Caption, useTheme, Button } from 'react-native-paper';
 
-import overlay from "utils/overlay";
+import overlay from 'utils/overlay';
 
-const Messages = () => {
+const Messages: FC = () => {
   const theme = useTheme();
 
   const backgroundColor = overlay(2, theme.colors.surface) as string;
@@ -15,18 +14,16 @@ const Messages = () => {
       style={{ backgroundColor }}
       contentContainerStyle={[styles.scrollViewContent, { backgroundColor }]}
     >
-      <Headline style={styles.centerText}>
-        Send a message, get a message
-      </Headline>
+      <Headline style={styles.centerText}>Send a message, get a message</Headline>
       <Caption style={styles.centerText}>
-        Private Messages are private conversations between you and other people
-        on Twitter. Share Tweets, media, and more!
+        Private Messages are private conversations between you and other people on Twitter. Share
+        Tweets, media, and more!
       </Caption>
       <Button
-        onPress={() => {}}
+        // onPress={() => {}}
         style={styles.button}
         mode="contained"
-        labelStyle={{ color: "white" }}
+        labelStyle={{ color: 'white' }}
       >
         Write a message
       </Button>
@@ -38,11 +35,11 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flex: 1,
     paddingHorizontal: 30,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   centerText: {
-    textAlign: "center",
+    textAlign: 'center',
   },
   button: {
     marginTop: 20,

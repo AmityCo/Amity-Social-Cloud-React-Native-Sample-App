@@ -1,15 +1,16 @@
-import * as React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
-import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+import * as React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
-import Details from "screens/Details";
-import BottomTabNavigator from "./BottomTabNavigator";
+import { Header } from 'components';
 
-import { Header } from "components";
+import Details from 'screens/Details';
+
+import BottomTabNavigator from './BottomTabNavigator';
 
 const Stack = createStackNavigator();
 
-const StackNavigator = () => {
+const StackNavigator: React.FC = () => {
   return (
     <Stack.Navigator
       initialRouteName="FeedList"
@@ -24,15 +25,11 @@ const StackNavigator = () => {
         name="Feed"
         component={BottomTabNavigator}
         options={({ route }) => {
-          const routeName = getFocusedRouteNameFromRoute(route) ?? "Feed";
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'Feed';
           return { headerTitle: routeName };
         }}
       />
-      <Stack.Screen
-        name="Details"
-        component={Details}
-        options={{ headerTitle: "Tweet" }}
-      />
+      <Stack.Screen name="Details" component={Details} options={{ headerTitle: 'Tweet' }} />
     </Stack.Navigator>
   );
 };

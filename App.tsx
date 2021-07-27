@@ -1,26 +1,27 @@
-import "react-native-gesture-handler";
-import React from "react";
-import { StatusBar } from "expo-status-bar";
-import { AppearanceProvider } from "react-native-appearance";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import 'react-native-gesture-handler';
+import React, { FC } from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { AppearanceProvider } from 'react-native-appearance';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import Navigation from "routes";
+import Navigation from 'routes';
 
-import useCachedResources from "hooks/useCachedResources";
+import useCachedResources from 'hooks/useCachedResources';
 
-export default function App() {
+const App: FC = () => {
   const isLoadingComplete = useCachedResources();
 
   if (!isLoadingComplete) {
     return null;
-  } else {
-    return (
-      <SafeAreaProvider>
-        <AppearanceProvider>
-          <Navigation />
-          <StatusBar />
-        </AppearanceProvider>
-      </SafeAreaProvider>
-    );
   }
-}
+  return (
+    <SafeAreaProvider>
+      <AppearanceProvider>
+        <Navigation />
+        <StatusBar />
+      </AppearanceProvider>
+    </SafeAreaProvider>
+  );
+};
+
+export default App;
