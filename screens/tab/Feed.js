@@ -13,6 +13,12 @@ function FeedScreen() {
   const [showMoreOption, setShowMoreOption] = useState(false);
   const [optionPostId, setOptionPostId] = useState("");
 
+  const [isRefresh, setUpIsRefresh] = useState(false);
+
+  const refresh = () => {
+    setUpIsRefresh(true);
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <Header
@@ -31,6 +37,7 @@ function FeedScreen() {
           setOptionPostId(postId);
           console.log(postId);
         }}
+        refresh={isRefresh}
       />
 
       <AddPost
@@ -51,7 +58,6 @@ function FeedScreen() {
         visible={showMoreOption}
         onClose={() => {
           setShowMoreOption(false);
-          FeedPosts.onQueryPost();
           refresh();
         }}
       />

@@ -17,15 +17,27 @@ import { deletePost } from "@amityco/ts-sdk";
 const PostOption = ({ postId, visible, onClose }) => {
   const createPostSheet = useRef();
 
-  const onSubmitOption = (optionId) => {
+  const onSubmitOption = async (optionId) => {
     switch (optionId) {
       case "1": {
       }
       case "3": {
-        console.log("Delete This Post Id", postId);
-        const v = deletePost(postId);
-        console.log(v.response);
-        onClose();
+        try {
+          console.log("Delete This Post Id", postId);
+          const v = await deletePost(postId);
+          console.log(v);
+          onClose();
+        } catch (error) {
+          if (error.response) {
+            console.log("error response", error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+          } else if (error.request) {
+            console.log("error request", error.request);
+          } else {
+            console.log("error message", error.message);
+          }
+        }
       }
     }
   };

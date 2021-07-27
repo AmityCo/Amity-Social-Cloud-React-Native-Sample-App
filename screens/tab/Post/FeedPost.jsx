@@ -6,12 +6,12 @@ import { client } from "../../LoginPage";
 
 import PostItems from "./PostItems";
 
-const FeedPosts = ({ showPostOption }) => {
+const FeedPosts = ({ showPostOption, refresh }) => {
   const [postData, setPostData] = useState([]);
 
   useEffect(() => {
     onQueryPost();
-  }, []);
+  }, [refresh]);
 
   const onQueryPost = async () => {
     try {
@@ -19,23 +19,20 @@ const FeedPosts = ({ showPostOption }) => {
         targetId: client.userId,
         targetType: "user",
         sortBy: "lastCreated",
+        isDeleted: false,
         feedType: "published",
       };
       const queryPostFromApi = await queryPosts(query);
       // console.log(queryPostFromApi);
-      setPostData(...postData, queryPostFromApi);
+      setPostData(queryPostFromApi);
     } catch (error) {
-      //  console.error(error, error.name, error.message, error.toString());
       if (error.response) {
-        // Request made and server responded
         console.log("error response", error.response.data);
         console.log(error.response.status);
         console.log(error.response.headers);
       } else if (error.request) {
-        // The request was made but no response was received
         console.log("error request", error.request);
       } else {
-        // Something happened in setting up the request that triggered an Error
         console.log("error message", error.message);
       }
     }
