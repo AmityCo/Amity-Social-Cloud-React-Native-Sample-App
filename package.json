@@ -8,8 +8,7 @@
     "eject": "expo eject",
     "test": "jest --watchAll",
     "lint": "eslint **/**/*.{ts,tsx}",
-    "lint-and-fix": "eslint **/**/*.{ts,tsx} --fix",
-    "prepare": "husky install"
+    "lint-and-fix": "eslint **/**/*.{ts,tsx} --fix"
   },
   "jest": {
     "preset": "jest-expo"
@@ -60,9 +59,9 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^1.7.0",
-    "husky": ">=6",
+    "husky": "^4.3.0",
     "jest-expo": "~41.0.0-beta.0",
-    "lint-staged": ">=10",
+    "lint-staged": "^10.5.2",
     "prettier": "^2.3.2",
     "typescript": "~4.0.0"
   },
