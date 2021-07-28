@@ -5,8 +5,6 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { Header } from 'components';
 import Details from 'screens/Details';
 
-import { t } from 'i18n';
-
 import BottomTabNavigator from './BottomTabNavigator';
 
 const Stack = createStackNavigator();
@@ -26,7 +24,7 @@ const AppNavigator: React.FC = () => {
         name="ASCApp"
         component={BottomTabNavigator}
         options={({ route }) => {
-          const routeName = getFocusedRouteNameFromRoute(route) ?? 'ASCApp';
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'Chat';
           return { headerTitle: routeName };
         }}
       />

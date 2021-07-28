@@ -10,7 +10,6 @@ import ChatScreen from 'screens/Chat';
 import UserListScreen from 'screens/UserList';
 import CommunitiesScreen from 'screens/Communities';
 
-import { t } from 'i18n';
 import overlay from 'utils/overlay';
 import { StackNavigatorParamlist } from 'types';
 
@@ -21,7 +20,7 @@ type Props = {
 };
 
 const BottomTabsNavigator: FC<Props> = ({ route }) => {
-  const routeName = getFocusedRouteNameFromRoute(route) ?? 'ASCApp';
+  const routeName = getFocusedRouteNameFromRoute(route) ?? 'Chat';
 
   const theme = useTheme();
   const isFocused = useIsFocused();
@@ -57,7 +56,7 @@ const BottomTabsNavigator: FC<Props> = ({ route }) => {
           name="Chat"
           component={ChatScreen}
           options={{
-            tabBarIcon: ['Chat', 'ASCApp'].includes(routeName) ? 'chat' : 'chat-outline',
+            tabBarIcon: routeName === 'Chat' ? 'chat' : 'chat-outline',
             tabBarColor,
           }}
         />
