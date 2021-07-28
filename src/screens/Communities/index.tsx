@@ -4,7 +4,7 @@ import { Headline, Caption, useTheme, Button } from 'react-native-paper';
 
 import overlay from 'utils/overlay';
 
-const Messages: FC = () => {
+const CommunitiesScreen: FC = () => {
   const theme = useTheme();
 
   const backgroundColor = overlay(2, theme.colors.surface) as string;
@@ -46,4 +46,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Messages;
+export default CommunitiesScreen;

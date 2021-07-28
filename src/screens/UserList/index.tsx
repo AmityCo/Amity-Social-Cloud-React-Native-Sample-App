@@ -25,7 +25,7 @@ type State = NavigationState<{
   title: string;
 }>;
 
-const Notifications: FC = () => {
+const UserListScreen: FC = () => {
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     { key: 'all', title: 'All' },
@@ -73,4 +73,4 @@ const Notifications: FC = () => {
   );
 };
 
-export default Notifications;
+export default UserListScreen;

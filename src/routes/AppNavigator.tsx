@@ -3,18 +3,19 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 import { Header } from 'components';
-
 import Details from 'screens/Details';
+
+import { t } from 'i18n';
 
 import BottomTabNavigator from './BottomTabNavigator';
 
 const Stack = createStackNavigator();
 
-const StackNavigator: React.FC = () => {
+const AppNavigator: React.FC = () => {
   return (
     <Stack.Navigator
-      initialRouteName="ChatStack"
       headerMode="screen"
+      initialRouteName="ASCApp"
       screenOptions={{
         header: ({ scene, previous, navigation }) => (
           <Header scene={scene} previous={previous} navigation={navigation} />
@@ -22,10 +23,10 @@ const StackNavigator: React.FC = () => {
       }}
     >
       <Stack.Screen
-        name="ChatStack"
+        name="ASCApp"
         component={BottomTabNavigator}
         options={({ route }) => {
-          const routeName = getFocusedRouteNameFromRoute(route) ?? 'Feed';
+          const routeName = getFocusedRouteNameFromRoute(route) ?? t('asc');
           return { headerTitle: routeName };
         }}
       />
@@ -34,4 +35,4 @@ const StackNavigator: React.FC = () => {
   );
 };
 
-export default StackNavigator;
+export default AppNavigator;

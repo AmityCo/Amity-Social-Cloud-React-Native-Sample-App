@@ -1,17 +1,17 @@
-import React, { FC } from 'react';
 import color from 'color';
+import React, { FC } from 'react';
 import { useTheme, Portal, FAB } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { useIsFocused, RouteProp, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import FeedScreen from 'screens/Feed';
+import ChatScreen from 'screens/Chat';
+import UserListScreen from 'screens/UserList';
+import CommunitiesScreen from 'screens/Communities';
 
-import Feed from 'screens/Feed';
-import Messages from 'screens/Messages';
-import Notifications from 'screens/Notifications';
-
+import { t } from 'i18n';
 import overlay from 'utils/overlay';
-
 import { StackNavigatorParamlist } from 'types';
 
 const Tab = createMaterialBottomTabNavigator();
@@ -21,7 +21,7 @@ type Props = {
 };
 
 const BottomTabsNavigator: FC<Props> = ({ route }) => {
-  const routeName = getFocusedRouteNameFromRoute(route) ?? 'Feed';
+  const routeName = getFocusedRouteNameFromRoute(route) ?? t('asc');
 
   const theme = useTheme();
   const isFocused = useIsFocused();
@@ -30,7 +30,7 @@ const BottomTabsNavigator: FC<Props> = ({ route }) => {
   let icon = 'feather';
 
   switch (routeName) {
-    case 'Messages':
+    case 'ChatScreen':
       icon = 'email-plus-outline';
       break;
     default:
@@ -45,34 +45,43 @@ const BottomTabsNavigator: FC<Props> = ({ route }) => {
   return (
     <>
       <Tab.Navigator
-        initialRouteName="Feed"
-        backBehavior="initialRoute"
         shifting
-        activeColor={theme.colors.primary}
-        inactiveColor={color(theme.colors.text).alpha(0.6).rgb().string()}
+        initialRouteName="Chat"
+        backBehavior="initialRoute"
         sceneAnimationEnabled={false}
+        activeColor={theme.colors.primary}
+        safeAreaInsets={{ bottom: safeArea.bottom }}
+        inactiveColor={color(theme.colors.text).alpha(0.6).rgb().string()}
       >
         <Tab.Screen
+          name="Chat"
+          component={ChatScreen}
+          options={{
+            tabBarIcon: routeName === 'Chat' ? 'chat' : 'chat-outline',
+            tabBarColor,
+          }}
+        />
+        <Tab.Screen
           name="Feed"
-          component={Feed}
+          component={FeedScreen}
           options={{
-            tabBarIcon: 'home-account',
+            tabBarIcon: routeName === 'Feed' ? 'message-text' : 'message-text-outline',
             tabBarColor,
           }}
         />
         <Tab.Screen
-          name="Notifications"
-          component={Notifications}
+          name="UserList"
+          component={UserListScreen}
           options={{
-            tabBarIcon: 'bell-outline',
+            tabBarIcon: routeName === 'UserList' ? 'account-multiple' : 'account-multiple-outline',
             tabBarColor,
           }}
         />
         <Tab.Screen
-          name="Messages"
-          component={Messages}
+          name="Communities"
+          component={CommunitiesScreen}
           options={{
-            tabBarIcon: 'message-text-outline',
+            tabBarIcon: routeName === 'Communities' ? 'account-group' : 'account-group-outline',
             tabBarColor,
           }}
         />

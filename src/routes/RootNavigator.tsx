@@ -1,14 +1,14 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import * as React from 'react';
-import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 
 import { DrawerContent } from 'components';
 
 import { DrawerContentProps } from 'types';
 
-import StackNavigator from './StackNavigator';
+import AppNavigator from './AppNavigator';
 import LinkingConfiguration from './LinkingConfiguration';
 
 const Drawer = createDrawerNavigator();
@@ -20,7 +20,7 @@ const RootNavigator: React.FC = () => {
   return (
     <NavigationContainer theme={navigationTheme} linking={LinkingConfiguration}>
       <Drawer.Navigator drawerContent={(props: DrawerContentProps) => <DrawerContent {...props} />}>
-        <Drawer.Screen name="Home" component={StackNavigator} />
+        <Drawer.Screen name="ASC" component={AppNavigator} />
       </Drawer.Navigator>
     </NavigationContainer>
   );
