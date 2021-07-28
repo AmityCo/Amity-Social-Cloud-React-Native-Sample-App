@@ -1,7 +1,8 @@
 import React from 'react';
+import { ColorSchemeName } from 'react-native-appearance';
 
 type PreferencesContextType = {
-	theme: 'light' | 'dark';
+	theme: ColorSchemeName;
 	toggleTheme: () => void;
 };
 

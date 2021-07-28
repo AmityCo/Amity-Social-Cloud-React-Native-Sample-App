@@ -26,7 +26,7 @@ const AppNavigator: React.FC = () => {
         name="ASCApp"
         component={BottomTabNavigator}
         options={({ route }) => {
-          const routeName = getFocusedRouteNameFromRoute(route) ?? t('asc');
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'ASCApp';
           return { headerTitle: routeName };
         }}
       />
