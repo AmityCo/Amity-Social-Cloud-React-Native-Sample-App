@@ -21,7 +21,7 @@ type Props = {
 };
 
 const BottomTabsNavigator: FC<Props> = ({ route }) => {
-  const routeName = getFocusedRouteNameFromRoute(route) ?? t('asc');
+  const routeName = getFocusedRouteNameFromRoute(route) ?? 'ASCApp';
 
   const theme = useTheme();
   const isFocused = useIsFocused();
@@ -30,7 +30,7 @@ const BottomTabsNavigator: FC<Props> = ({ route }) => {
   let icon = 'feather';
 
   switch (routeName) {
-    case 'ChatScreen':
+    case 'Chat':
       icon = 'email-plus-outline';
       break;
     default:
@@ -57,7 +57,7 @@ const BottomTabsNavigator: FC<Props> = ({ route }) => {
           name="Chat"
           component={ChatScreen}
           options={{
-            tabBarIcon: routeName === 'Chat' ? 'chat' : 'chat-outline',
+            tabBarIcon: ['Chat', 'ASCApp'].includes(routeName) ? 'chat' : 'chat-outline',
             tabBarColor,
           }}
         />
