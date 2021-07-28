@@ -5,7 +5,6 @@ import { AppearanceProvider } from 'react-native-appearance';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Navigation from 'routes';
-
 import useCachedResources from 'hooks/useCachedResources';
 
 const App: FC = () => {

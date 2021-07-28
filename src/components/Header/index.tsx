@@ -25,7 +25,7 @@ const Header: React.FC<Pick<StackHeaderProps, 'navigation' | 'previous' | 'scene
   return (
     <Appbar.Header theme={{ colors: { primary: theme.colors.surface } }}>
       {previous ? (
-        <Appbar.BackAction onPress={navigation.goBack} color={theme.colors.primary} />
+        <Appbar.BackAction onPress={navigation.goBack} color={theme.colors.accent} />
       ) : (
         <Pressable
           onPress={() => {
