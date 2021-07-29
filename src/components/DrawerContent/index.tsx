@@ -1,5 +1,4 @@
 import React, { FC } from 'react';
-import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import {
   Avatar,
   Caption,
@@ -13,17 +12,20 @@ import {
 } from 'react-native-paper';
 import Animated from 'react-native-reanimated';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Alert } from 'react-native';
+import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 
 import usePreferences from 'hooks/usePreferences';
 
-import { DrawerContentProps } from 'types';
-
 import { t } from 'i18n';
+import useAuth from 'hooks/useAuth';
+
+import { DrawerContentProps } from 'types';
 
 import AvatarHolder from 'assets/images/avatar.png';
 
 const DrawerContent: FC<DrawerContentProps> = props => {
+  const { logout } = useAuth();
   const paperTheme = useTheme();
   const { theme, toggleTheme } = usePreferences();
 
@@ -32,6 +34,27 @@ const DrawerContent: FC<DrawerContentProps> = props => {
     inputRange: [0, 0.5, 0.7, 0.8, 1],
     outputRange: [-100, -85, -70, -45, 0],
   });
+
+  const logOut = () => {
+    Alert.alert(
+      t('are_you_sure'),
+      '',
+      [
+        { text: t('cancel'), style: 'cancel' },
+        {
+          text: t('ok'),
+          onPress: () => {
+            props.navigation.toggleDrawer();
+
+            setTimeout(() => {
+              logout();
+            }, 400);
+          },
+        },
+      ],
+      { cancelable: false },
+    );
+  };
 
   return (
     // eslint-disable-next-line react/jsx-props-no-spreading
@@ -72,7 +95,7 @@ const DrawerContent: FC<DrawerContentProps> = props => {
             icon={({ color, size }) => (
               <MaterialCommunityIcons name="account-outline" color={color} size={size} />
             )}
-            label={t('profile')}
+            label={t('profile.title')}
             onPress={() => {
               //
             }}
@@ -96,6 +119,15 @@ const DrawerContent: FC<DrawerContentProps> = props => {
               </View>
             </View>
           </TouchableRipple>
+        </Drawer.Section>
+        <Drawer.Section style={styles.drawerSection}>
+          <DrawerItem
+            icon={({ color, size }) => (
+              <MaterialCommunityIcons name="logout" color={color} size={size} />
+            )}
+            label={t('auth.logout')}
+            onPress={logOut}
+          />
         </Drawer.Section>
       </Animated.View>
     </DrawerContentScrollView>
