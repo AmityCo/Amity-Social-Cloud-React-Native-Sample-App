@@ -15,7 +15,7 @@ import Animated from 'react-native-reanimated';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
-import { PreferencesContext } from 'context/preferencesContext';
+import usePreferences from 'hooks/usePreferences';
 
 import { DrawerContentProps } from 'types';
 
@@ -25,7 +25,7 @@ import AvatarHolder from 'assets/images/avatar.png';
 
 const DrawerContent: FC<DrawerContentProps> = props => {
   const paperTheme = useTheme();
-  const { theme, toggleTheme } = React.useContext(PreferencesContext);
+  const { theme, toggleTheme } = usePreferences();
 
   // eslint-disable-next-line react/destructuring-assignment
   const translateX = Animated.interpolateNode(props.progress, {

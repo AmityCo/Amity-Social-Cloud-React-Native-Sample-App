@@ -18,6 +18,7 @@ module.exports = function (api) {
             context: path.resolve(__dirname, 'src/context'),
             hooks: path.resolve(__dirname, 'src/hooks'),
             i18n: path.resolve(__dirname, 'src/i18n'),
+            providers: path.resolve(__dirname, 'src/providers'),
             routes: path.resolve(__dirname, 'src/routes'),
             screens: path.resolve(__dirname, 'src/screens'),
             styles: path.resolve(__dirname, 'src/styles'),

@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Navigation from 'routes';
 import useCachedResources from 'hooks/useCachedResources';
+import { PreferencesContextProvider } from 'providers/preferences-provider';
 
 const App: FC = () => {
   const isLoadingComplete = useCachedResources();
@@ -16,8 +17,10 @@ const App: FC = () => {
   return (
     <SafeAreaProvider>
       <AppearanceProvider>
-        <Navigation />
-        <StatusBar />
+        <PreferencesContextProvider>
+          <Navigation />
+          <StatusBar />
+        </PreferencesContextProvider>
       </AppearanceProvider>
     </SafeAreaProvider>
   );
