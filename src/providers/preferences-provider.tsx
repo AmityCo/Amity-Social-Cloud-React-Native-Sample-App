@@ -2,13 +2,10 @@ import React, { FC } from 'react';
 import { useColorScheme, ColorSchemeName } from 'react-native-appearance';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 
-type PreferencesContextType = {
-  theme: ColorSchemeName;
-  toggleTheme: () => void;
-};
+import type { PreferencesContextInterface } from 'types';
 
 // eslint-disable-next-line import/prefer-default-export
-export const PreferencesContext = React.createContext<PreferencesContextType>({
+export const PreferencesContext = React.createContext<PreferencesContextInterface>({
   theme: 'light',
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   toggleTheme: () => {},
