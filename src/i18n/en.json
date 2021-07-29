@@ -1,1 +1,12 @@
-{ "profile": "Profile" }
+{
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "username": "Username",
+    "password": "Password"
+  },
+  "profile": { "title": "Profile" },
+  "are_you_sure": "Are you sure?",
+  "ok": "OK",
+  "cancel": "Cancel"
+}
