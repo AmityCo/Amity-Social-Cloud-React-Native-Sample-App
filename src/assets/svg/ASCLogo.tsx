@@ -1,11 +1,14 @@
-import * as React from 'react';
+import React, { FC } from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-const SvgComponent: React.FC = () => {
+const SvgComponent: FC<{
+  width: number;
+  height: number;
+}> = ({ width = 170, height = 70 }) => {
   return (
     <Svg
-      width={170}
-      height={70}
+      width={width}
+      height={height}
       viewBox="0 0 170 97"
       fill="none"
       //   xmlns="http://www.w3.org/2000/svg"
