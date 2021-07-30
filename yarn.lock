@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@amityco/ts-sdk@1.0.6":
-  "integrity" "sha512-iBvfzvAEvlgcTdrL5lNCpuGXEiImZUaqMhG+HIRy/sNeSId8JqLHAYv/hfnZXtU55j4yabCYQ3DPTRu5EiTSPw=="
-  "resolved" "http://localhost:4873/@amityco%2fts-sdk/-/ts-sdk-1.0.6.tgz"
-  "version" "1.0.6"
+"@amityco/ts-sdk@1.0.0":
+  "integrity" "sha512-WICkWv1+wgo06Uy51cvi+4iG7i1dGsutec939fsCWT5qckFvqGg3Q8OF86SwQRw9rXjrZN25mNCIlDeYjsJx3w=="
+  "resolved" "http://localhost:4873/@amityco%2fts-sdk/-/ts-sdk-1.0.0.tgz"
+  "version" "1.0.0"
   dependencies:
     "agentkeepalive" "^4.1.3"
     "axios" "^0.21.1"
@@ -1973,7 +1973,7 @@
   "version" "0.1.4"
 
 "base64-arraybuffer@0.1.5":
-  "integrity" "sha1-c5JncZI7Whl0etZmqlzUv5xunOg="
+  "integrity" "sha1-c5JncZI7Whl0etZmqlzUv5xunOg= sha512-437oANT9tP582zZMwSvZGy2nmSeAb8DW2me3y+Uv1Wp2Rulr8Mqlyrv3E7MLxmsiaPSMMDmiDVzgE+e8zlMx9g=="
   "resolved" "http://localhost:4873/base64-arraybuffer/-/base64-arraybuffer-0.1.5.tgz"
   "version" "0.1.5"
 
@@ -1983,7 +1983,7 @@
   "version" "1.5.1"
 
 "better-assert@~1.0.0":
-  "integrity" "sha1-QIZrnhueC1W0gYlDEeaPr/rrxSI="
+  "integrity" "sha1-QIZrnhueC1W0gYlDEeaPr/rrxSI= sha512-bYeph2DFlpK1XmGs6fvlLRUN29QISM3GBuUwSFsMY2XRx4AvC0WNCS57j4c/xGrK2RS24C1w3YoBOsw9fT46tQ=="
   "resolved" "http://localhost:4873/better-assert/-/better-assert-1.0.2.tgz"
   "version" "1.0.2"
   dependencies:
@@ -2386,7 +2386,7 @@
   "version" "1.3.0"
 
 "component-emitter@1.2.1":
-  "integrity" "sha1-E3kY1teCg/ffemt8WmPhQOaUJeY="
+  "integrity" "sha1-E3kY1teCg/ffemt8WmPhQOaUJeY= sha512-jPatnhd33viNplKjqXKRkGU345p263OIWzDL2wH3LGIGp5Kojo+uXizHmOADRvhGFFTnJqX3jBAKP6vvmSDKcA=="
   "resolved" "http://localhost:4873/component-emitter/-/component-emitter-1.2.1.tgz"
   "version" "1.2.1"
 
@@ -3520,7 +3520,7 @@
   "version" "0.6.3"
 
 "immediate@~3.0.5":
-  "integrity" "sha1-nbHb0Pr43m++D13V5Wu2BigN5ps="
+  "integrity" "sha1-nbHb0Pr43m++D13V5Wu2BigN5ps= sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ=="
   "resolved" "http://localhost:4873/immediate/-/immediate-3.0.6.tgz"
   "version" "3.0.6"
 
@@ -4036,7 +4036,7 @@
   "version" "3.1.0"
 
 "lie@3.1.1":
-  "integrity" "sha1-mkNrLMd0bKWd56QfpGmz77dr2H4="
+  "integrity" "sha1-mkNrLMd0bKWd56QfpGmz77dr2H4= sha512-RiNhHysUjhrDQntfYSfY4MU24coXXdEOgw9WGcKHNeEwffDYbF//u87M1EWaMGzuFoSbqW0C9C6lEEhDOAswfw=="
   "resolved" "http://localhost:4873/lie/-/lie-3.1.1.tgz"
   "version" "3.1.1"
   dependencies:
@@ -4206,7 +4206,7 @@
 
 "material-design-icons@^3.0.1":
   "integrity" "sha1-mnHEh0chjrylHlGmbaaCA4zct78="
-  "resolved" "https://registry.npmjs.org/material-design-icons/-/material-design-icons-3.0.1.tgz"
+  "resolved" "http://localhost:4873/material-design-icons/-/material-design-icons-3.0.1.tgz"
   "version" "3.0.1"
 
 "md5-file@^3.2.3":
@@ -4570,7 +4570,7 @@
 
 "moment@^2.29.1":
   "integrity" "sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ=="
-  "resolved" "https://registry.npmjs.org/moment/-/moment-2.29.1.tgz"
+  "resolved" "http://localhost:4873/moment/-/moment-2.29.1.tgz"
   "version" "2.29.1"
 
 "ms@^2.0.0", "ms@2.1.2":
@@ -4713,7 +4713,7 @@
   "version" "4.1.1"
 
 "object-component@0.0.3":
-  "integrity" "sha1-8MaapQ78lbhmwYb0AKM3acsvEpE="
+  "integrity" "sha1-8MaapQ78lbhmwYb0AKM3acsvEpE= sha512-S0sN3agnVh2SZNEIGc0N1X4Z5K0JeFbGBrnuZpsxuUh5XLF0BnvWkMjRXo/zGKLd/eghvNIKcx1pQkmUjXIyrA=="
   "resolved" "http://localhost:4873/object-component/-/object-component-0.0.3.tgz"
   "version" "0.0.3"
 
@@ -4900,7 +4900,7 @@
   "version" "1.0.1"
 
 "parseqs@0.0.5":
-  "integrity" "sha1-1SCKNzjkZ2bikbouoXNoSSGouJ0="
+  "integrity" "sha1-1SCKNzjkZ2bikbouoXNoSSGouJ0= sha512-B3Nrjw2aL7aI4TDujOzfA4NsEc4u1lVcIRE0xesutH8kjeWF70uk+W5cBlIQx04zUH9NTBvuN36Y9xLRPK6Jjw=="
   "resolved" "http://localhost:4873/parseqs/-/parseqs-0.0.5.tgz"
   "version" "0.0.5"
   dependencies:
@@ -4912,7 +4912,7 @@
   "version" "0.0.6"
 
 "parseuri@0.0.5":
-  "integrity" "sha1-gCBKUNTbt3m/3G6+J3jZDkvOMgo="
+  "integrity" "sha1-gCBKUNTbt3m/3G6+J3jZDkvOMgo= sha512-ijhdxJu6l5Ru12jF0JvzXVPvsC+VibqeaExlNoMhWN6VQ79PGjkmc7oA4W1lp00sFkNyj0fx6ivPLdV51/UMog=="
   "resolved" "http://localhost:4873/parseuri/-/parseuri-0.0.5.tgz"
   "version" "0.0.5"
   dependencies:
@@ -6303,6 +6303,11 @@
   "resolved" "http://localhost:4873/warn-once/-/warn-once-0.1.0.tgz"
   "version" "0.1.0"
 
+"watchman@^1.0.0":
+  "integrity" "sha512-f7sP6DSVQzNUAXIBctvYyJyq6/j/FtWoEn6yh/Ot/E14a3am7JMH0tygWt6iE+T+DT+BNOUAT3hM/gZ7W9Ycmw=="
+  "resolved" "https://registry.npmjs.org/watchman/-/watchman-1.0.0.tgz"
+  "version" "1.0.0"
+
 "wcwidth@^1.0.1":
   "integrity" "sha1-8LDc+RW8X/FSivrbLA4XtTLaL+g="
   "resolved" "http://localhost:4873/wcwidth/-/wcwidth-1.0.1.tgz"
@@ -6450,7 +6455,7 @@
   "version" "0.5.0"
 
 "xmlhttprequest-ssl@~1.5.4":
-  "integrity" "sha1-wodrBhaKrcQOV9l+gRkayPQ5iz4="
+  "integrity" "sha1-wodrBhaKrcQOV9l+gRkayPQ5iz4= sha512-/bFPLUgJrfGUL10AIv4Y7/CUt6so9CLtB/oFxQSHseSDNNCdC6vwwKEqwLN6wNPBg9YWXAiMu8jkf6RPRS/75Q=="
   "resolved" "http://localhost:4873/xmlhttprequest-ssl/-/xmlhttprequest-ssl-1.5.5.tgz"
   "version" "1.5.5"
 

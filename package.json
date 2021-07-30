@@ -14,7 +14,7 @@
     "i": "yarn install --update-checksums"
   },
   "dependencies": {
-    "@amityco/ts-sdk": "1.0.6",
+    "@amityco/ts-sdk": "1.0.0",
     "@react-native-async-storage/async-storage": "^1.15.5",
     "@react-navigation/bottom-tabs": "^5.11.11",
     "@react-navigation/native": "^5.9.4",
@@ -41,7 +41,8 @@
     "react-navigation": "^4.4.4",
     "react-navigation-stack": "^2.10.4",
     "socket.io-client": "^2.2.0",
-    "toggle-switch-react-native": "^3.2.0"
+    "toggle-switch-react-native": "^3.2.0",
+    "watchman": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",

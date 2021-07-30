@@ -7,14 +7,29 @@ import {
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 
-import { observeUser, observeFile, getPost } from "@amityco/ts-sdk";
+import {
+  observeUser,
+  observeFile,
+  getPost,
+  addReaction,
+  removeReaction,
+} from "@amityco/ts-sdk";
 import { useEffect } from "react";
+import { render } from "react-dom";
+
+const PostItemReaction = {
+  like: "like",
+  love: "love",
+};
 
 const PostItems = ({ post, showPostItemOption }) => {
   const [user, setUser] = useState({});
   const [file, setFile] = useState({});
   const [childPost, setChildPost] = useState({});
   const [postImage, setPostImage] = useState({});
+  const [myReaction, setMyReaction] = useState([]);
+  const [likeColor, setLikeColor] = useState("");
+  const [loveColor, setLoveColor] = useState("");
 
   useEffect(() => post && observeUser(post.postedUserId, setUser), [post]);
 
@@ -33,6 +48,28 @@ const PostItems = ({ post, showPostItemOption }) => {
     fetchChildredPost();
   }, [post]);
 
+  useEffect(() => {
+    setMyReaction(post.myReactions);
+  }, [post]);
+
+  useEffect(() => {
+    updateColor();
+  }, [myReaction]);
+
+  const updateColor = () => {
+    if (myReaction.includes(PostItemReaction.like)) {
+      setLikeColor("#5890FF");
+    } else {
+      setLikeColor("#838899");
+    }
+
+    if (myReaction.includes(PostItemReaction.love)) {
+      setLoveColor("#F25268");
+    } else {
+      setLoveColor("#838899");
+    }
+  };
+
   useEffect(
     () =>
       childPost
@@ -40,6 +77,32 @@ const PostItems = ({ post, showPostItemOption }) => {
         : undefined,
     [childPost]
   );
+
+  const reactThePost = (reaction) => {
+    try {
+      var index = myReaction.indexOf(reaction);
+      if (index != -1) {
+        myReaction.splice(index, 1);
+        removeReaction("post", post.postId, reaction);
+      } else {
+        myReaction.push(reaction);
+        addReaction("post", post.postId, reaction);
+      }
+
+      setMyReaction(myReaction);
+      updateColor();
+    } catch (error) {
+      if (error.response) {
+        console.log("error response", error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+      } else if (error.request) {
+        console.log("error request", error.request);
+      } else {
+        console.log("error message", error.message);
+      }
+    }
+  };
 
   const postCreateAt = Moment(post.createdAt).format("MMM d, HH:mm");
 
@@ -62,7 +125,6 @@ const PostItems = ({ post, showPostItemOption }) => {
             <TouchableOpacity
               onPress={() => {
                 showPostItemOption(post.postId);
-                console.log(post.postId);
               }}
             >
               <Ionicons
@@ -94,30 +156,42 @@ const PostItems = ({ post, showPostItemOption }) => {
           alignItems: "center",
         }}
       >
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "flex-start",
-            padding: 10,
+        <TouchableOpacity
+          onPress={() => {
+            reactThePost(PostItemReaction.like);
           }}
         >
-          <MaterialCommunityIcons
-            name="thumb-up-outline"
-            size={20}
-            color="#838899"
-          />
-          <Text style={{ marginStart: 10 }}>Like</Text>
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignSelf: "flex-end",
-            padding: 10,
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "flex-start",
+              padding: 10,
+            }}
+          >
+            <MaterialCommunityIcons
+              name="thumb-up-outline"
+              size={20}
+              color={likeColor}
+            />
+            <Text style={{ marginStart: 10 }}>Like</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            reactThePost(PostItemReaction.love);
           }}
         >
-          <FontAwesome5 name="heart" size={20} color="#838899" />
-          <Text style={{ marginStart: 10 }}>Love</Text>
-        </View>
+          <View
+            style={{
+              flexDirection: "row",
+              alignSelf: "flex-end",
+              padding: 10,
+            }}
+          >
+            <FontAwesome5 name="heart" size={20} color={loveColor} />
+            <Text style={{ marginStart: 10 }}>Love</Text>
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
