@@ -21,6 +21,9 @@ const TextInput: VFC<TextInputProps> = ({
     <View style={containerStyle}>
       <TextInputComponent mode={mode} dense={dense} error={error} {...props} />
       {error && errorText !== '' && <Text>{errorText}</Text>}
+      {/* <HelperText type="error" visible={hasErrors()}>
+        Email address is invalid!
+      </HelperText> */}
     </View>
   );
 };
