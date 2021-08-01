@@ -14,10 +14,16 @@
     "sort_by_firstCreated": "First Created",
     "sort_by_lastCreated": "Last Created",
     "include_deleted": "Include Deleted",
-    "no_result": "No results :("
+    "no_result": "No results :(",
+    "commentsCount": {
+      "one": "1 Comment",
+      "other": "{{count}} Comments",
+      "zero": "No Comments"
+    }
   },
   "are_you_sure": "Are you sure?",
   "ok": "OK",
+  "retry": "Retry",
   "close": "Close",
   "cancel": "Cancel"
 }

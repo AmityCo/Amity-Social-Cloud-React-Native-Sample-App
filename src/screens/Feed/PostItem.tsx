@@ -1,109 +1,140 @@
 import Moment from 'moment';
-import { Surface, Text } from 'react-native-paper';
 import React, { VFC, useState, useEffect } from 'react';
-import { View, Image, StyleSheet, Pressable } from 'react-native';
-import { observeUser, observeFile, getPost } from '@amityco/ts-sdk';
+import { Image, StyleSheet, Pressable, View } from 'react-native';
 import { Ionicons, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Surface, Caption, Card, useTheme, Paragraph, Button } from 'react-native-paper';
+import { observeUser, observeFile, getPost, addReaction, removeReaction } from '@amityco/ts-sdk';
 
-import { PostProps } from 'types';
+import { t } from 'i18n';
 
-const PostItem: VFC<PostProps> = ({ data, onPress, posttedUserId }) => {
-  const [user, setUser] = useState({});
-  const [file, setFile] = useState({});
-  const [childPost, setChildPost] = useState({});
-  const [postImage, setPostImage] = useState({});
+import { PostProps, PostReactions } from 'types';
 
-  // TODO figure this out
-  // useEffect(() => post && observeUser(post.postedUserId, setUser), []);
-  // useEffect(() => {
-  //   console.log(1, post);
-  //   if (post) {
-  //     observeUser(post.postedUserId, setUser);
-  //   }
-  // }, [post]);
+type PostItemProps = PostProps & { onRefresh: () => void };
 
-  // useEffect(() => (user ? observeFile(user.avatarFileId, setFile) : undefined), [user]);
+const PostItem: VFC<PostItemProps> = ({
+  data,
+  postId,
+  onPress,
+  postedUserId,
+  commentsCount,
+  createdAt,
+  children,
+  myReactions,
+  onRefresh,
+  // ...args
+}) => {
+  const [user, setUser] = useState<ASC.User>();
+  const [file, setFile] = useState<ASC.File>();
+  const [postImage, setPostImage] = useState<ASC.File>();
+  const [childPost, setChildPost] = useState<ASC.Post[]>([]);
+  // const [myReaction, setMyReaction] = useState<Pick<ASC.Reactable, 'myReactions'>[]>([]);
 
-  // useEffect(() => {
-  //   async function fetchChildredPost() {
-  //     if (post.children && post.children.length > 0) {
-  //       const childrenPost = await getPost(post.children);
-  //       setChildPost(childrenPost);
-  //     }
-  //   }
-  //   fetchChildredPost();
-  // }, []);
+  const {
+    colors: { text: textColor, primary: primaryColor },
+  } = useTheme();
 
-  // useEffect(
-  //   () => (childPost ? observeFile(childPost?.data?.fileId, setPostImage) : undefined),
-  //   [childPost],
-  // );
+  useEffect(() => {
+    if (postedUserId) {
+      observeUser(postedUserId, setUser);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // const postCreateAt = Moment(post.createdAt).format('MMM d, HH:mm');
+  useEffect(() => {
+    if (user?.avatarFileId) {
+      observeFile(user.avatarFileId, setFile);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchChildredPost();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchChildredPost = async () => {
+    if (children && children.length > 0) {
+      const childrenPost = await getPost(children[0]);
+
+      setChildPost([childrenPost]);
+    }
+  };
+
+  useEffect(() => {
+    if (childPost[0]) {
+      observeFile(childPost[0].data?.fileId, setPostImage);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [childPost.length]);
+
+  // TODO api is not there!
+  const toggleReaction = async (type: PostReactions) => {
+    try {
+      const api = myReactions?.includes(type) ? addReaction : removeReaction;
+
+      await api('post', postId, type);
+      onRefresh();
+    } catch (e) {
+      console.log(123, e);
+      // TODO toastbar
+    }
+  };
+
+  const postCreateAt = Moment(createdAt).format('HH:mm, MMM d');
+
+  const LeftContent: VFC = () => <Image source={{ uri: file?.fileUrl }} style={styles.avatar} />;
+  const RightContent: VFC<{
+    size: number;
+  }> = ({ size }) => (
+    <Pressable
+      style={styles.ellipsis}
+      onPress={() => {
+        //
+      }}
+    >
+      <Ionicons name="ellipsis-vertical-sharp" size={size} color={textColor} />
+    </Pressable>
+  );
 
   return (
-    <Surface style={styles.feedItem}>
-      <View style={styles.feedItemHeader}>
-        {/* <Image source={{ uri: file?.fileUrl }} style={styles.avatar} /> */}
-        <View style={{ flex: 1 }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            {/* <View>
-              <Text style={styles.name}>{user.displayName}</Text>
-              <Text style={styles.timestamp}>{postCreateAt}</Text>
-            </View> */}
-            <Pressable onPress={onPress}>
-              <Ionicons name="ellipsis-vertical-sharp" size={20} color="#C4C6CE" />
-            </Pressable>
-          </View>
-        </View>
-      </View>
-      <Text style={styles.post}>{data.text}</Text>
-      {/* {post.children.length > 0 ? (
-        <Image
-          source={{ uri: postImage?.fileUrl }}
-          style={{
-            marginHorizontal: 16,
-            marginVertical: 8,
-            width: 100,
-            height: 100,
-          }}
-          resizeMode="stretch"
+    <Surface style={styles.container}>
+      <Card onPress={onPress}>
+        <Card.Title
+          right={RightContent}
+          subtitle={postCreateAt}
+          title={user?.displayName}
+          left={file?.fileUrl ? LeftContent : undefined}
         />
-      ) : null} */}
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          alignItems: 'center',
-        }}
-      >
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'flex-start',
-            padding: 10,
-          }}
-        >
-          <MaterialCommunityIcons name="thumb-up-outline" size={20} color="#838899" />
-          <Text style={{ marginStart: 10 }}>Like</Text>
-        </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignSelf: 'flex-end',
-            padding: 10,
-          }}
-        >
-          <FontAwesome5 name="heart" size={20} color="#838899" />
-          <Text style={{ marginStart: 10 }}>Love</Text>
-        </View>
-      </View>
+        <Card.Content>
+          <Paragraph style={styles.text}>{data.text}</Paragraph>
+          {postImage?.fileUrl && <Card.Cover source={{ uri: postImage?.fileUrl }} />}
+        </Card.Content>
+        <Card.Actions style={styles.footer}>
+          <View style={styles.footerLeft}>
+            <Button onPress={() => toggleReaction(PostReactions.LIKE)}>
+              <MaterialCommunityIcons
+                size={20}
+                color={myReactions?.includes(PostReactions.LIKE) ? primaryColor : textColor}
+                name={myReactions?.includes(PostReactions.LIKE) ? 'thumb-up' : 'thumb-up-outline'}
+              />
+            </Button>
+            <Button onPress={() => toggleReaction(PostReactions.LOVE)}>
+              <MaterialCommunityIcons
+                size={20}
+                name={myReactions?.includes(PostReactions.LOVE) ? 'heart' : 'heart-outline'}
+                color={myReactions?.includes(PostReactions.LOVE) ? primaryColor : textColor}
+              />
+            </Button>
+          </View>
+          <View style={styles.footerRight}>
+            <FontAwesome5
+              name="comment"
+              size={20}
+              color={commentsCount === 0 ? textColor : primaryColor}
+            />
+            <Caption> {t('posts.commentsCount', { count: commentsCount })}</Caption>
+          </View>
+        </Card.Actions>
+      </Card>
     </Surface>
   );
 };
@@ -113,39 +144,8 @@ export default PostItem;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: '#EBECF4',
-  },
-  header: {
-    paddingTop: 64,
-    paddingBottom: 16,
-    // backgroundColor: '#FFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#EBECF4',
-    // shadowColor: '#454D65',
-    // shadowOffset: { height: 5 },
-    // shadowRadius: 15,
-    // shadowOpacity: 0.2,
-    zIndex: 10,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '500',
-  },
-  feed: {
-    marginHorizontal: 16,
-  },
-  feedItem: {
-    // backgroundColor: 'green',
+    margin: 12,
     borderRadius: 5,
-    padding: 8,
-    flexDirection: 'column',
-    margin: 8,
-  },
-  feedItemHeader: {
-    // backgroundColor: '#FFF',
-    flexDirection: 'row',
   },
   avatar: {
     width: 40,
@@ -156,17 +156,10 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 20,
     fontWeight: '800',
-    // color: '#454D65',
   },
-  timestamp: {
-    fontSize: 11,
-    // color: '#C4C6CE',
-    marginTop: 4,
-  },
-  post: {
-    marginVertical: 8,
-    marginHorizontal: 16,
-    fontSize: 14,
-    // color: 'black',
-  },
+  ellipsis: { marginHorizontal: 10 },
+  text: { marginBottom: 10 },
+  footer: { justifyContent: 'space-between' },
+  footerLeft: { flexDirection: 'row' },
+  footerRight: { flexDirection: 'row', paddingEnd: 10 },
 });

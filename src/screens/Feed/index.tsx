@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { queryPosts } from '@amityco/ts-sdk';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { StackHeaderProps } from '@react-navigation/stack';
 import React, { VFC, useState, useLayoutEffect, useEffect } from 'react';
 import {
@@ -61,6 +61,8 @@ const FeedScreen: VFC = () => {
   }, []);
 
   useEffect(() => {
+    // setPosts([]);
+
     onQueryPost();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortBy, isDeleted]);
@@ -72,7 +74,6 @@ const FeedScreen: VFC = () => {
     }
 
     setError('');
-    setPosts([]);
     setLoading(true);
 
     try {
@@ -106,15 +107,18 @@ const FeedScreen: VFC = () => {
   return (
     <Surface style={styles.container}>
       {error !== '' ? (
-        <HelperText type="error" style={styles.errorText}>
-          {error}
-        </HelperText>
+        <View>
+          <HelperText type="error" style={styles.errorText}>
+            {error}
+          </HelperText>
+          <Button onPress={onQueryPost}>{t('retry')}</Button>
+        </View>
       ) : (
         <FlatList
           data={data}
           keyExtractor={post => post.postId}
           // eslint-disable-next-line react/jsx-props-no-spreading
-          renderItem={({ item }) => <PostItem {...item} />}
+          renderItem={({ item }) => <PostItem {...item} onRefresh={onQueryPost} />}
           ListEmptyComponent={<EmptyComponent loading={loading} errorText={t('posts.no_result')} />}
         />
       )}
@@ -228,7 +232,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
-  errorText: { fontSize: 18, alignSelf: 'center', marginTop: 25 },
+  errorText: { fontSize: 18, alignSelf: 'center', marginTop: 25, marginBottom: 15 },
 });
 
 export default FeedScreen;
