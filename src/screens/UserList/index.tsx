@@ -10,15 +10,15 @@ import {
   SceneRendererProps,
 } from 'react-native-tab-view';
 
-import Feed from 'screens/Feed';
+// import Feed from 'screens/Feed';
 import overlay from 'utils/overlay';
 import AllNotifications from './Notifications';
 
 const initialLayout = { width: Dimensions.get('window').width };
 
-const All = () => <AllNotifications />;
+// const All = () => <AllNotifications />;
 
-const Mentions = () => <Feed />;
+// const Mentions = () => <Feed />;
 
 type State = NavigationState<{
   key: string;
@@ -34,10 +34,10 @@ const UserListScreen: FC = () => {
 
   const theme = useTheme();
 
-  const renderScene = SceneMap({
-    all: All,
-    mentions: Mentions,
-  });
+  // const renderScene = SceneMap({
+  //   all: All,
+  //   mentions: Mentions,
+  // });
 
   const tabBarColor = theme.dark
     ? (overlay(4, theme.colors.surface) as string)
@@ -47,30 +47,29 @@ const UserListScreen: FC = () => {
     ? color(tabBarColor).lighten(0.5).toString()
     : color(tabBarColor).darken(0.2).toString();
 
-  const renderTabBar = (props: SceneRendererProps & { navigationState: State }) => (
-    <TabBar
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      {...props}
-      indicatorStyle={{ backgroundColor: theme.colors.primary }}
-      style={{
-        backgroundColor: theme.colors.backdrop,
-        shadowColor: theme.colors.text,
-      }}
-      pressColor={rippleColor}
-    />
-  );
+  // const renderTabBar = (props: SceneRendererProps & { navigationState: State }) => (
+  //   <TabBar
+  //     // eslint-disable-next-line react/jsx-props-no-spreading
+  //     {...props}
+  //     // indicatorStyle={{ backgroundColor: theme.colors.primary }}
+  //     style={{
+  //       // backgroundColor: theme.colors.backdrop,
+  //       shadowColor: theme.colors.text,
+  //     }}
+  //     pressColor={rippleColor}
+  //   />
+  // );
 
-  return (
-    <>
-      <TabView
-        navigationState={{ index, routes }}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={initialLayout}
-        renderTabBar={renderTabBar}
-      />
-    </>
-  );
+  return <AllNotifications />;
 };
+// <>
+//   <TabView
+//     navigationState={{ index, routes }}
+//     renderScene={renderScene}
+//     onIndexChange={setIndex}
+//     initialLayout={initialLayout}
+//     renderTabBar={renderTabBar}
+//   />
+// </>
 
 export default UserListScreen;

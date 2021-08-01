@@ -94,19 +94,12 @@ const Community = ({
 export const styles = StyleSheet.create({
   content: {
     flex: 1,
-    // alignItems: 'center',
-    // backgroundColor: 'white',
-    // marginTop: 50,
-    // borderTopRightRadius: 15,
-    // borderTopLeftRadius: 15,
-    // flexGrow: 1,
   },
 
   top: { flex: 8, width: '100%' },
   bottom: { flex: 1, alignItems: 'center' },
 
   btn: {
-    backgroundColor: '#F194FF',
     borderRadius: 20,
     padding: 10,
     elevation: 2,
