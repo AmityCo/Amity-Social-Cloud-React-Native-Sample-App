@@ -2,8 +2,8 @@ import React, { FC } from 'react';
 import Svg, { Path } from 'react-native-svg';
 
 const SvgComponent: FC<{
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
 }> = ({ width = 170, height = 70 }) => {
   return (
     <Svg
