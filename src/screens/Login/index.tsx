@@ -53,6 +53,7 @@ const LoginScreen: VFC = () => {
             />
           )}
           name="username"
+          defaultValue="test"
         />
 
         <Controller
@@ -73,6 +74,7 @@ const LoginScreen: VFC = () => {
             />
           )}
           name="password"
+          defaultValue="test"
         />
 
         <Button
