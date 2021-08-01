@@ -1,9 +1,10 @@
 import color from 'color';
-import React, { FC } from 'react';
-import { useTheme, Portal, FAB } from 'react-native-paper';
+import React, { VFC } from 'react';
+import { useTheme } from 'react-native-paper';
+import { createStackNavigator } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { RouteProp, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
-import { useIsFocused, RouteProp, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 import FeedScreen from 'screens/Feed';
 import ChatScreen from 'screens/Chat';
@@ -11,99 +12,106 @@ import UserListScreen from 'screens/UserList';
 import CommunitiesScreen from 'screens/Communities';
 
 import overlay from 'utils/overlay';
-import { StackNavigatorParamlist } from 'types';
+import { BottomTabParamList } from 'types';
 
+const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
 
-type Props = {
-  route: RouteProp<StackNavigatorParamlist, 'FeedList'>;
+const FeedNavigator: VFC = () => {
+  return (
+    <Stack.Navigator headerMode="screen" initialRouteName="Feed">
+      <Stack.Screen name="Feed" component={FeedScreen} />
+    </Stack.Navigator>
+  );
 };
 
-const BottomTabsNavigator: FC<Props> = ({ route }) => {
-  const routeName = getFocusedRouteNameFromRoute(route) ?? 'Chat';
+const ChatNavigator: VFC = () => {
+  return (
+    <Stack.Navigator headerMode="screen" initialRouteName="Chat">
+      <Stack.Screen name="Chat" component={ChatScreen} />
+    </Stack.Navigator>
+  );
+};
+
+const UserListNavigator: VFC = () => {
+  return (
+    <Stack.Navigator headerMode="screen" initialRouteName="UserList">
+      <Stack.Screen name="UserList" component={UserListScreen} />
+    </Stack.Navigator>
+  );
+};
+
+const CommunitiesNavigator: VFC = () => {
+  return (
+    <Stack.Navigator headerMode="screen" initialRouteName="Communities">
+      <Stack.Screen name="Communities" component={CommunitiesScreen} />
+    </Stack.Navigator>
+  );
+};
+
+type Props = {
+  route: RouteProp<BottomTabParamList, 'Chat' | 'Feed' | 'UserList' | 'Communities'>;
+};
+
+const BottomTabsNavigator: VFC<Props> = ({ route }) => {
+  const routeName = getFocusedRouteNameFromRoute(route) ?? 'Feed';
 
   const theme = useTheme();
-  const isFocused = useIsFocused();
   const safeArea = useSafeAreaInsets();
-
-  let icon = 'feather';
-
-  switch (routeName) {
-    case 'Chat':
-      icon = 'email-plus-outline';
-      break;
-    default:
-      icon = 'feather';
-      break;
-  }
 
   const tabBarColor = theme.dark
     ? (overlay(6, theme.colors.surface) as string)
     : theme.colors.surface;
 
   return (
-    <>
-      <Tab.Navigator
-        shifting
-        initialRouteName="Chat"
-        backBehavior="initialRoute"
-        sceneAnimationEnabled={false}
-        activeColor={theme.colors.primary}
-        safeAreaInsets={{ bottom: safeArea.bottom }}
-        inactiveColor={color(theme.colors.text).alpha(0.6).rgb().string()}
-      >
-        <Tab.Screen
-          name="Chat"
-          component={ChatScreen}
-          options={{
-            tabBarIcon: routeName === 'Chat' ? 'chat' : 'chat-outline',
-            tabBarColor,
-          }}
-        />
-        <Tab.Screen
-          name="Feed"
-          component={FeedScreen}
-          options={{
-            tabBarIcon: routeName === 'Feed' ? 'message-text' : 'message-text-outline',
-            tabBarColor,
-          }}
-        />
-        <Tab.Screen
-          name="UserList"
-          component={UserListScreen}
-          options={{
-            tabBarIcon: routeName === 'UserList' ? 'account-multiple' : 'account-multiple-outline',
-            tabBarColor,
-          }}
-        />
-        <Tab.Screen
-          name="Communities"
-          component={CommunitiesScreen}
-          options={{
-            tabBarIcon: routeName === 'Communities' ? 'account-group' : 'account-group-outline',
-            tabBarColor,
-          }}
-        />
-      </Tab.Navigator>
-      <Portal>
-        <FAB
-          visible={isFocused}
-          icon={icon}
-          style={{
-            position: 'absolute',
-            bottom: safeArea.bottom + 65,
-            right: 16,
-          }}
-          color="white"
-          theme={{
-            colors: {
-              accent: theme.colors.primary,
-            },
-          }}
-          // onPress={() => {}}
-        />
-      </Portal>
-    </>
+    <Tab.Navigator
+      shifting
+      initialRouteName="FeedNavigator"
+      backBehavior="initialRoute"
+      sceneAnimationEnabled={false}
+      activeColor={theme.colors.primary}
+      safeAreaInsets={{ bottom: safeArea.bottom }}
+      inactiveColor={color(theme.colors.text).alpha(0.6).rgb().string()}
+    >
+      <Tab.Screen
+        name="ChatNavigator"
+        component={ChatNavigator}
+        options={{
+          tabBarIcon: routeName === 'ChatNavigator' ? 'chat' : 'chat-outline',
+          tabBarColor,
+          tabBarLabel: 'Chat',
+        }}
+      />
+      <Tab.Screen
+        name="FeedNavigator"
+        component={FeedNavigator}
+        options={{
+          tabBarIcon: routeName === 'FeedNavigator' ? 'message-text' : 'message-text-outline',
+          tabBarColor,
+          tabBarLabel: 'Feed',
+        }}
+      />
+      <Tab.Screen
+        name="UserListNavigator"
+        component={UserListNavigator}
+        options={{
+          tabBarIcon:
+            routeName === 'UserListNavigator' ? 'account-multiple' : 'account-multiple-outline',
+          tabBarColor,
+          tabBarLabel: 'User List',
+        }}
+      />
+      <Tab.Screen
+        name="CommunitiesNavigator"
+        component={CommunitiesNavigator}
+        options={{
+          tabBarIcon:
+            routeName === 'CommunitiesNavigator' ? 'account-group' : 'account-group-outline',
+          tabBarColor,
+          tabBarLabel: 'Communities',
+        }}
+      />
+    </Tab.Navigator>
   );
 };
 

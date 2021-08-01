@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
-import { Header } from 'components';
 import Details from 'screens/Details';
+import Community from 'screens/Communities/Community';
 
 import BottomTabNavigator from './BottomTabNavigator';
 
@@ -15,20 +14,12 @@ const AppNavigator: React.FC = () => {
       headerMode="screen"
       initialRouteName="ASCApp"
       screenOptions={{
-        header: ({ scene, previous, navigation }) => (
-          <Header scene={scene} previous={previous} navigation={navigation} />
-        ),
+        header: () => false,
       }}
     >
-      <Stack.Screen
-        name="ASCApp"
-        component={BottomTabNavigator}
-        options={({ route }) => {
-          const routeName = getFocusedRouteNameFromRoute(route) ?? 'Chat';
-          return { headerTitle: routeName };
-        }}
-      />
+      <Stack.Screen name="ASCApp" component={BottomTabNavigator} />
       <Stack.Screen name="Details" component={Details} options={{ headerTitle: 'Tweet' }} />
+      <Stack.Screen name="Community" component={Community} options={{ headerTitle: 'Community' }} />
     </Stack.Navigator>
   );
 };
