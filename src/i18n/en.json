@@ -6,7 +6,18 @@
     "password": "Password"
   },
   "profile": { "title": "Profile" },
+  "posts": {
+    "feed_type": "Feed Type",
+    "feed_type_normal": "Normal",
+    "feed_type_global": "Global",
+    "sort_by": "Sort By",
+    "sort_by_firstCreated": "First Created",
+    "sort_by_lastCreated": "Last Created",
+    "include_deleted": "Include Deleted",
+    "no_result": "No results :("
+  },
   "are_you_sure": "Are you sure?",
   "ok": "OK",
+  "close": "Close",
   "cancel": "Cancel"
 }
