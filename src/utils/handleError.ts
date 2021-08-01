@@ -26,4 +26,5 @@ const handleError = (error: Error | AxiosError): string => {
 
 	return errorText;
 };
+
 export default handleError;

@@ -7,31 +7,16 @@ export type RootStackParamList = {
 export type DrawerContentProps = DrawerContentComponentProps<DrawerContentOptions>;
 
 export type BottomTabParamList = {
+	Chat: undefined;
 	Feed: undefined;
-	Messages: undefined;
-	Notifications: undefined;
+	UserList: undefined;
+	Communities: undefined;
 };
 
-export type TabOneParamList = {
-	TabOneScreen: undefined;
-};
+// export type TabOneParamList = {
+// 	TabOneScreen: undefined;
+// };
 
-export type TabTwoParamList = {
-	TabTwoScreen: undefined;
-};
-
-export type StackNavigatorParamlist = {
-	FeedList: undefined;
-	Details: {
-		id: number;
-		name: string;
-		handle: string;
-		date: string;
-		content: string;
-		image: string;
-		avatar: string;
-		comments: number;
-		retweets: number;
-		hearts: number;
-	};
-};
+// export type TabTwoParamList = {
+// 	TabTwoScreen: undefined;
+// };

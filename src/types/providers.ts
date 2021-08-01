@@ -7,11 +7,11 @@ export type PreferencesContextInterface = {
 	toggleTheme: () => void;
 };
 
-// TODO fix unknown
+// TODO fix client
 export type AuthContextInterface = {
-	client: unknown;
+	logout: () => void;
 	isConnected: boolean;
 	isAuthenticating: boolean;
-	logout: () => void;
+	client: Pick<ASC.Client, 'userId'>;
 	login: ({ username, password }: LoginFormData) => void;
 };
