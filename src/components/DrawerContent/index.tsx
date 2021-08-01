@@ -1,14 +1,14 @@
 import React, { FC } from 'react';
 import {
-  Avatar,
-  Caption,
+  // Avatar,
+  // Caption,
   Drawer,
-  Paragraph,
+  // Paragraph,
   Switch,
   Text,
   Title,
   TouchableRipple,
-  useTheme,
+  // useTheme,
 } from 'react-native-paper';
 import Animated from 'react-native-reanimated';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -22,11 +22,12 @@ import useAuth from 'hooks/useAuth';
 
 import { DrawerContentProps } from 'types';
 
-import AvatarHolder from 'assets/images/avatar.png';
+import ASCLogo from 'assets/svg/ASCLogo';
+// import AvatarHolder from 'assets/images/avatar.png';
 
 const DrawerContent: FC<DrawerContentProps> = props => {
-  const { logout } = useAuth();
-  const paperTheme = useTheme();
+  // const paperTheme = useTheme();
+  const { client, logout } = useAuth();
   const { theme, toggleTheme } = usePreferences();
 
   // eslint-disable-next-line react/destructuring-assignment
@@ -63,7 +64,6 @@ const DrawerContent: FC<DrawerContentProps> = props => {
         style={[
           styles.drawerContent,
           {
-            backgroundColor: paperTheme.colors.surface,
             transform: [{ translateX }],
           },
         ]}
@@ -75,11 +75,13 @@ const DrawerContent: FC<DrawerContentProps> = props => {
               props.navigation.toggleDrawer();
             }}
           >
-            <Avatar.Image source={AvatarHolder} size={50} />
+            {/* <Avatar.Image source={AvatarHolder} size={50} /> */}
+
+            <ASCLogo />
           </TouchableOpacity>
-          <Title style={styles.title}>Dawid Urbaniak</Title>
-          <Caption style={styles.caption}>@trensik</Caption>
-          <View style={styles.row}>
+          <Title style={styles.title}>@{client.userId}</Title>
+          {/* <Caption style={styles.caption}>@trensik</Caption> */}
+          {/* <View style={styles.row}>
             <View style={styles.section}>
               <Paragraph style={[styles.paragraph, styles.caption]}>202</Paragraph>
               <Caption style={styles.caption}>Obserwuje</Caption>
@@ -88,9 +90,9 @@ const DrawerContent: FC<DrawerContentProps> = props => {
               <Paragraph style={[styles.paragraph, styles.caption]}>159</Paragraph>
               <Caption style={styles.caption}>Obserwujący</Caption>
             </View>
-          </View>
+          </View> */}
         </View>
-        <Drawer.Section style={styles.drawerSection}>
+        {/* <Drawer.Section style={styles.drawerSection}>
           <DrawerItem
             icon={({ color, size }) => (
               <MaterialCommunityIcons name="account-outline" color={color} size={size} />
@@ -109,7 +111,7 @@ const DrawerContent: FC<DrawerContentProps> = props => {
               //
             }}
           />
-        </Drawer.Section>
+        </Drawer.Section> */}
         <Drawer.Section title="Preferences">
           <TouchableRipple onPress={toggleTheme}>
             <View style={styles.preference}>
