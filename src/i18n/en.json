@@ -21,9 +21,16 @@
       "zero": "No Comments"
     }
   },
+  "comments": {
+    "add_comment_placeholder": "Type some comment..."
+  },
   "are_you_sure": "Are you sure?",
   "ok": "OK",
+  "edit": "Edit",
+  "flag": "Flag",
   "retry": "Retry",
   "close": "Close",
-  "cancel": "Cancel"
+  "unflag": "Unflag",
+  "cancel": "Cancel",
+  "delete": "Delete"
 }

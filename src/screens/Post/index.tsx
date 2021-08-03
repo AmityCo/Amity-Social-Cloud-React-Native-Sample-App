@@ -1,8 +1,11 @@
 import Moment from 'moment';
-import React, { VFC, useState, useEffect } from 'react';
+import React, { VFC, useLayoutEffect, useState, useEffect } from 'react';
 import { Image, StyleSheet, Alert, View } from 'react-native';
-import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Surface, Caption, Card, useTheme, Paragraph, Button } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Card, useTheme, Paragraph, Button } from 'react-native-paper';
+import { StackHeaderProps } from '@react-navigation/stack';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {
   observeUser,
   observeFile,
@@ -12,38 +15,74 @@ import {
   deletePost,
 } from '@amityco/ts-sdk';
 
+import { Header, PostHeaderMenu, AddPost } from 'components';
+
 import { t } from 'i18n';
 import handleError from 'utils/handleError';
 
-import { PostProps, PostReactions } from 'types';
+import { PostReactions, PostProps } from 'types';
 
-import { PostHeaderMenu } from 'components';
+import Comments from './Comments';
+import AddComments from './AddComment';
 
-type PostItemProps = PostProps & { onRefresh: () => void; onEditPost: (postId: string) => void };
-
-const PostItem: VFC<PostItemProps> = ({
-  data,
-  postId,
-  onPress,
-  postedUserId,
-  commentsCount,
-  createdAt,
-  children,
-  myReactions,
-  onRefresh,
-  hasFlag,
-  onEditPost,
-  // ...args
-}) => {
+const PostScreen: VFC = () => {
+  const [post, setPost] = useState<ASC.Post>();
   const [user, setUser] = useState<ASC.User>();
   const [file, setFile] = useState<ASC.File>();
+  const [isEditId, setIsEditId] = useState('');
   const [openMenu, setOpenMenu] = useState(false);
   const [postImage, setPostImage] = useState<ASC.File>();
   const [childPost, setChildPost] = useState<ASC.Post[]>([]);
+  const [isEditCommentId, setIsEditCommentId] = useState('');
+  const [onRefershComments, setOnRefershComments] = useState(false);
 
+  const route = useRoute();
+  const navigation = useNavigation();
   const {
     colors: { text: textColor, primary: primaryColor },
   } = useTheme();
+
+  const {
+    data,
+    postId,
+    onPress,
+    postedUserId,
+    commentsCount,
+    createdAt,
+    children,
+    myReactions,
+    onRefresh,
+    hasFlag,
+    // ...args
+  } = route.params as PostProps & { onRefresh: () => void };
+
+  useEffect(() => {
+    getCuurrentPost();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId]);
+
+  const getCuurrentPost = async () => {
+    try {
+      const currentPost = await getPost(postId);
+
+      setPost(currentPost);
+    } catch (error) {
+      const errorText = handleError(error);
+      Alert.alert(
+        'Oooops!',
+        errorText,
+        [
+          {
+            text: t('close'),
+            onPress: async () => {
+              navigation.goBack();
+            },
+          },
+        ],
+        { cancelable: false },
+      );
+    }
+  };
 
   useEffect(() => {
     if (postedUserId) {
@@ -78,24 +117,32 @@ const PostItem: VFC<PostItemProps> = ({
     }
   };
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: user?.displayName ? `${user?.displayName}'s Post` : 'Post',
+      header: ({ scene, previous, navigation: nav }: StackHeaderProps) => (
+        <Header scene={scene} navigation={nav} previous={previous} />
+      ),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.displayName]);
+
   const toggleReaction = async (type: PostReactions) => {
     try {
       const api = myReactions?.includes(type) ? addReaction : removeReaction;
-      console.log('post', postId, type);
 
-      const a = await api('post', postId, type);
-      console.log('a', a);
+      await api('post', postId, type);
       onRefresh();
     } catch (e) {
-      console.log('e', e);
       // TODO toastbar
     }
   };
+
   // TODO
   const onEdit = () => {
     setOpenMenu(false);
 
-    onEditPost(postId);
+    setIsEditId(postId);
   };
 
   const onDelete = () => {
@@ -112,6 +159,10 @@ const PostItem: VFC<PostItemProps> = ({
 
               await deletePost(postId);
               onRefresh();
+
+              setTimeout(() => {
+                navigation.goBack();
+              }, 300);
             } catch (error) {
               const errorText = handleError(error);
 
@@ -124,7 +175,7 @@ const PostItem: VFC<PostItemProps> = ({
     );
   };
 
-  // // TODO
+  // TODO
   // const onFlag = () => {
   //   Alert.alert('soon :)');
   // };
@@ -137,7 +188,7 @@ const PostItem: VFC<PostItemProps> = ({
   const postCreateAt = Moment(createdAt).format('HH:mm, MMM d');
 
   return (
-    <Surface style={styles.container}>
+    <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
       <Card onPress={onPress}>
         <Card.Title
           right={({ size }) => (
@@ -161,7 +212,7 @@ const PostItem: VFC<PostItemProps> = ({
           }
         />
         <Card.Content>
-          <Paragraph style={styles.text}>{data.text}</Paragraph>
+          <Paragraph style={styles.text}>{post?.data.text ?? data.text}</Paragraph>
           {postImage?.fileUrl && <Card.Cover source={{ uri: postImage?.fileUrl }} />}
         </Card.Content>
         <Card.Actions style={styles.footer}>
@@ -181,41 +232,54 @@ const PostItem: VFC<PostItemProps> = ({
               />
             </Button>
           </View>
-          <View style={styles.footerRight}>
-            <FontAwesome5
-              name="comment"
-              size={20}
-              color={commentsCount === 0 ? textColor : primaryColor}
-            />
-            <Caption> {t('posts.commentsCount', { count: commentsCount })}</Caption>
-          </View>
         </Card.Actions>
+
+        <AddComments
+          postId={postId}
+          onRefresh={() => {
+            setIsEditCommentId('');
+            setOnRefershComments(prev => !prev);
+          }}
+          onCancel={() => {
+            setIsEditCommentId('');
+          }}
+          isEditCommentId={isEditCommentId}
+        />
       </Card>
-    </Surface>
+
+      <Comments
+        postId={postId}
+        onRefreshed={onRefershComments}
+        onRefresh={onRefresh}
+        onEditComment={setIsEditCommentId}
+      />
+
+      <AddPost
+        onClose={() => {
+          setIsEditId('');
+        }}
+        isEditId={isEditId}
+        onAddPost={() => {
+          onRefresh();
+          getCuurrentPost();
+        }}
+        visible={isEditId !== ''}
+      />
+    </KeyboardAwareScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    margin: 12,
-    borderRadius: 5,
-  },
+  container: { flex: 1 },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 18,
     marginRight: 16,
   },
-  name: {
-    fontSize: 20,
-    fontWeight: '800',
-  },
-  ellipsis: { marginHorizontal: 10 },
   text: { marginBottom: 10 },
   footer: { justifyContent: 'space-between' },
   footerLeft: { flexDirection: 'row' },
-  footerRight: { flexDirection: 'row', paddingEnd: 10 },
 });
 
-export default PostItem;
+export default PostScreen;
