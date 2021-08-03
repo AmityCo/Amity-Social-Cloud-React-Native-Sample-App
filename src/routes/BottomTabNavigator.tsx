@@ -1,4 +1,3 @@
-import color from 'color';
 import React, { VFC } from 'react';
 import { useTheme } from 'react-native-paper';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -7,8 +6,9 @@ import { RouteProp, getFocusedRouteNameFromRoute } from '@react-navigation/nativ
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
 import FeedScreen from 'screens/Feed';
-import ChatScreen from 'screens/Chat';
-import UserListScreen from 'screens/UserList';
+import PostScreen from 'screens/Post';
+// import ChatScreen from 'screens/Chat';
+// import UserListScreen from 'screens/UserList';
 import CommunitiesScreen from 'screens/Communities';
 
 import overlay from 'utils/overlay';
@@ -21,25 +21,26 @@ const FeedNavigator: VFC = () => {
   return (
     <Stack.Navigator headerMode="screen" initialRouteName="Feed">
       <Stack.Screen name="Feed" component={FeedScreen} />
+      <Stack.Screen name="Post" component={PostScreen} />
     </Stack.Navigator>
   );
 };
 
-const ChatNavigator: VFC = () => {
-  return (
-    <Stack.Navigator headerMode="screen" initialRouteName="Chat">
-      <Stack.Screen name="Chat" component={ChatScreen} />
-    </Stack.Navigator>
-  );
-};
+// const ChatNavigator: VFC = () => {
+//   return (
+//     <Stack.Navigator headerMode="screen" initialRouteName="Chat">
+//       <Stack.Screen name="Chat" component={ChatScreen} />
+//     </Stack.Navigator>
+//   );
+// };
 
-const UserListNavigator: VFC = () => {
-  return (
-    <Stack.Navigator headerMode="screen" initialRouteName="UserList">
-      <Stack.Screen name="UserList" component={UserListScreen} />
-    </Stack.Navigator>
-  );
-};
+// const UserListNavigator: VFC = () => {
+//   return (
+//     <Stack.Navigator headerMode="screen" initialRouteName="UserList">
+//       <Stack.Screen name="UserList" component={UserListScreen} />
+//     </Stack.Navigator>
+//   );
+// };
 
 const CommunitiesNavigator: VFC = () => {
   return (
@@ -71,9 +72,9 @@ const BottomTabsNavigator: VFC<Props> = ({ route }) => {
       sceneAnimationEnabled={false}
       activeColor={theme.colors.primary}
       safeAreaInsets={{ bottom: safeArea.bottom }}
-      inactiveColor={color(theme.colors.text).alpha(0.6).rgb().string()}
+      inactiveColor={theme.colors.text}
     >
-      <Tab.Screen
+      {/* <Tab.Screen
         name="ChatNavigator"
         component={ChatNavigator}
         options={{
@@ -81,7 +82,7 @@ const BottomTabsNavigator: VFC<Props> = ({ route }) => {
           tabBarColor,
           tabBarLabel: 'Chat',
         }}
-      />
+      /> */}
       <Tab.Screen
         name="FeedNavigator"
         component={FeedNavigator}
@@ -91,7 +92,7 @@ const BottomTabsNavigator: VFC<Props> = ({ route }) => {
           tabBarLabel: 'Feed',
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="UserListNavigator"
         component={UserListNavigator}
         options={{
@@ -100,7 +101,7 @@ const BottomTabsNavigator: VFC<Props> = ({ route }) => {
           tabBarColor,
           tabBarLabel: 'User List',
         }}
-      />
+      /> */}
       <Tab.Screen
         name="CommunitiesNavigator"
         component={CommunitiesNavigator}
