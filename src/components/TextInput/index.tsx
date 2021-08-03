@@ -9,23 +9,18 @@ type TextInputProps = React.ComponentProps<typeof TextInputComponent> & {
   containerStyle?: StyleProp<ViewStyle>;
 };
 
-const TextInput: VFC<TextInputProps> = ({
-  error,
-  errorText,
-  dense = true,
-  containerStyle,
-  mode = 'outlined',
-  ...props
-}) => {
-  return (
-    <View style={containerStyle}>
-      <TextInputComponent mode={mode} dense={dense} error={error} {...props} />
-      {error && errorText !== '' && <Text>{errorText}</Text>}
-      {/* <HelperText type="error" visible={hasErrors()}>
+const TextInput: VFC<TextInputProps> = React.forwardRef(
+  ({ error, errorText, dense = true, containerStyle, mode = 'outlined', ...props }, ref) => {
+    return (
+      <View style={containerStyle}>
+        <TextInputComponent mode={mode} dense={dense} error={error} ref={ref} {...props} />
+        {error && errorText !== '' && <Text>{errorText}</Text>}
+        {/* <HelperText type="error" visible={hasErrors()}>
         Email address is invalid!
       </HelperText> */}
-    </View>
-  );
-};
+      </View>
+    );
+  },
+);
 
 export default TextInput;

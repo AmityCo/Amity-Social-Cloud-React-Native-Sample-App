@@ -6,8 +6,7 @@ import axios, { AxiosError } from 'axios';
 const handleError = (error: Error | AxiosError): string => {
 	let errorText = 'Error while handling request!';
 
-	if (axios.isAxiosError(error)) {
-		//  console.error(error, error.name, error.message, error.toString());
+	if (axios.isAxiosError(error) || error.message) {
 		if (error.message) {
 			// Something happened in setting up the request that triggered an Error
 			errorText = error.message;
