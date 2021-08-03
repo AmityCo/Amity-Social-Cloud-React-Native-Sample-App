@@ -1,0 +1,78 @@
+import React, { VFC, useState } from 'react';
+import { createFile } from '@amityco/ts-sdk';
+import * as DocumentPicker from 'expo-document-picker';
+import { View, StyleSheet, Alert } from 'react-native';
+import { Text, Button, ActivityIndicator } from 'react-native-paper';
+
+const AddPostFile: VFC = () => {
+  const [files, setFiles] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const selectFile = async () => {
+    console.log(1100);
+    setIsUploading(true);
+    try {
+      // const result = await DocumentPicker.getDocumentAsync();
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'image/*',
+        copyToCacheDirectory: false,
+        multiple: false,
+      });
+
+      console.log(123, result);
+      if (result.type === 'success') {
+        const fileData = {
+          // ...result,
+          name: result.name,
+          size: result.size,
+          type: 'application/pdf',
+          uri: result.uri,
+          // uri: (Platform.OS = "android" ? "file://" : "") + result.uri,
+          // type: "application/pdf",
+          // uri: result.uri,
+        };
+
+        const data = new FormData();
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        data.append('file', result.file!);
+        console.log(1, fileData, data);
+        const response = await createFile(data);
+        console.log(2, response);
+
+        setFiles([...files, response[0]]);
+
+        Alert.alert('file successfully uploaded!');
+      }
+    } catch (error) {
+      Alert.alert('error in uploading file!');
+      //   console.error(error, error.name, error.message, error.toString());
+      if (error.response) {
+        // Request made and server responded
+        console.log('error1', error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log('error2', error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error3', error.message);
+      }
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  return (
+    <View style={styles.addFileArea}>
+      <Button onPress={selectFile} disabled={isUploading} mode="outlined">
+        {isUploading ? <ActivityIndicator /> : <Text>Attach File</Text>}
+      </Button>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  addFileArea: { marginBottom: 10, alignItems: 'center' },
+});
+
+export default AddPostFile;
