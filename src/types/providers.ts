@@ -9,6 +9,7 @@ export type PreferencesContextInterface = {
 
 // TODO fix client
 export type AuthContextInterface = {
+	error: string;
 	logout: () => void;
 	isConnected: boolean;
 	isAuthenticating: boolean;

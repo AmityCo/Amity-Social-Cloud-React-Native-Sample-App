@@ -2,12 +2,17 @@
 import React, { FC } from 'react';
 import { createClient, connectClient, isConnected, disconnectClient } from '@amityco/ts-sdk';
 
+import handleError from 'utils/handleError';
+
 import { AuthContextInterface, LoginFormData } from 'types';
 
 // TODO put it in env
 // TODO put it inside + useRef
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const client = createClient('b3bee90c39d9a5644831d84e5a0d1688d100ddebef3c6e78');
+const client = createClient(
+  'b3bee858328ef4344a308e4a5a091688d05fdee2be353a2b',
+  'https://api.staging.amity.co/',
+);
 
 // eslint-disable-next-line import/prefer-default-export
 export const AuthContext = React.createContext<AuthContextInterface>({
@@ -16,12 +21,14 @@ export const AuthContext = React.createContext<AuthContextInterface>({
   isConnected: false,
   client: { userId: '' },
   isAuthenticating: false,
+  error: '',
 });
 
 // TODO persistant strategy
 // TODO error handling
 // TODO consider react native offline like  https://github.com/nandorojo/swr-react-native
 export const AuthContextProvider: FC = ({ children }) => {
+  const [error, setError] = React.useState('');
   const [isAuth, setIsAuth] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
@@ -32,14 +39,17 @@ export const AuthContextProvider: FC = ({ children }) => {
   };
 
   const login = async (data: LoginFormData) => {
+    setError('');
     setLoading(true);
 
     try {
       await connectClient(data.username);
 
       checkConnected();
-    } catch (error) {
-      // console.log('error', error);
+    } catch (e) {
+      const errorText = handleError(e);
+
+      setError(errorText);
     } finally {
       setLoading(false);
     }
@@ -58,6 +68,7 @@ export const AuthContextProvider: FC = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
+        error,
         login,
         client,
         logout,
