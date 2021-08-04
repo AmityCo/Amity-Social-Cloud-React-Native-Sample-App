@@ -8,7 +8,7 @@ import {
 	deletePost,
 } from '@amityco/ts-sdk';
 
-import { PostReactions } from 'types';
+import { ReactionsType } from 'types';
 
 const usePost = (
 	postId: string,
@@ -20,7 +20,7 @@ const usePost = (
 	file?: ASC.File;
 	postImage?: ASC.File;
 	childPost?: ASC.Post[];
-	toggleReaction: (type: PostReactions) => void;
+	toggleReaction: (type: ReactionsType) => void;
 	onEdit: () => void;
 	onDelete: () => Promise<boolean> | Error;
 	onFlag: () => void;
@@ -66,7 +66,7 @@ const usePost = (
 	}, [childPost.length]);
 
 	// TODO api is not there!
-	const toggleReaction = async (type: PostReactions) => {
+	const toggleReaction = async (type: ReactionsType) => {
 		// try {
 		//   const api = myReactions?.includes(type) ? addReaction : removeReaction;
 		//   await api('post', postId, type);

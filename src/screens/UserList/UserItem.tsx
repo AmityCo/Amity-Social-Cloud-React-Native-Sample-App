@@ -15,7 +15,7 @@ import {
 import { t } from 'i18n';
 import handleError from 'utils/handleError';
 
-import { UserProps, PostReactions } from 'types';
+import { UserProps, ReactionsType } from 'types';
 
 import { HeaderMenu } from 'components';
 
@@ -78,7 +78,7 @@ const UserItem: VFC<UserItemProps> = ({
     }
   };
 
-  const toggleReaction = async (type: PostReactions) => {
+  const toggleReaction = async (type: ReactionsType) => {
     try {
       const api = myReactions?.includes(type) ? addReaction : removeReaction;
       console.log('post', postId, type);
@@ -166,18 +166,18 @@ const UserItem: VFC<UserItemProps> = ({
         </Card.Content>
         <Card.Actions style={styles.footer}>
           <View style={styles.footerLeft}>
-            <Button onPress={() => toggleReaction(PostReactions.LIKE)}>
+            <Button onPress={() => toggleReaction(ReactionsType.LIKE)}>
               <MaterialCommunityIcons
                 size={20}
-                color={myReactions?.includes(PostReactions.LIKE) ? primaryColor : textColor}
-                name={myReactions?.includes(PostReactions.LIKE) ? 'thumb-up' : 'thumb-up-outline'}
+                color={myReactions?.includes(ReactionsType.LIKE) ? primaryColor : textColor}
+                name={myReactions?.includes(ReactionsType.LIKE) ? 'thumb-up' : 'thumb-up-outline'}
               />
             </Button>
-            <Button onPress={() => toggleReaction(PostReactions.LOVE)}>
+            <Button onPress={() => toggleReaction(ReactionsType.LOVE)}>
               <MaterialCommunityIcons
                 size={20}
-                name={myReactions?.includes(PostReactions.LOVE) ? 'heart' : 'heart-outline'}
-                color={myReactions?.includes(PostReactions.LOVE) ? primaryColor : textColor}
+                name={myReactions?.includes(ReactionsType.LOVE) ? 'heart' : 'heart-outline'}
+                color={myReactions?.includes(ReactionsType.LOVE) ? primaryColor : textColor}
               />
             </Button>
           </View>

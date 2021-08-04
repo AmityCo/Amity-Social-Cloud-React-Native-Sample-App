@@ -22,7 +22,9 @@
     }
   },
   "comments": {
-    "add_comment_placeholder": "Type some comment..."
+    "add_comment_placeholder": "Type some comment...",
+    "edit_comment": "Edit Comment",
+    "reply_to": "Reply to"
   },
   "are_you_sure": "Are you sure?",
   "ok": "OK",

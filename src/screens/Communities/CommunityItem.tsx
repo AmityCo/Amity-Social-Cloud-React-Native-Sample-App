@@ -28,12 +28,10 @@ const CommunityItem: VFC<CommunityItemProps> = ({
     setLoading(true);
     try {
       const api = isJoined ? leaveCommunity : joinCommunity;
-      console.log(1, communityId);
 
       await api(communityId);
       onRefresh();
     } catch (error) {
-      console.log(3, error);
       const errorText = handleError(error);
 
       Alert.alert(errorText);
