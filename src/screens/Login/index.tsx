@@ -3,7 +3,7 @@ import Switch from 'expo-dark-mode-switch';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
-import { Surface, Button, Text } from 'react-native-paper';
+import { Surface, Button, Text, HelperText } from 'react-native-paper';
 
 import { TextInput } from 'components';
 
@@ -21,7 +21,7 @@ const LoginScreen: VFC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>();
-  const { login, isAuthenticating } = useAuth();
+  const { login, isAuthenticating, error } = useAuth();
   const { theme, toggleTheme } = usePreferences();
 
   const onSubmit: SubmitHandler<LoginFormData> = async data => {
@@ -76,6 +76,8 @@ const LoginScreen: VFC = () => {
           name="password"
           defaultValue="test"
         />
+
+        {error !== '' && <HelperText type="error">{error}</HelperText>}
 
         <Button
           mode="contained"

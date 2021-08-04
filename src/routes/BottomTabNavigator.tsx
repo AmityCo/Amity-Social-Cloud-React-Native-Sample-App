@@ -9,6 +9,7 @@ import FeedScreen from 'screens/Feed';
 import PostScreen from 'screens/Post';
 // import ChatScreen from 'screens/Chat';
 // import UserListScreen from 'screens/UserList';
+import CommunityScreen from 'screens/Community';
 import CommunitiesScreen from 'screens/Communities';
 
 import overlay from 'utils/overlay';
@@ -46,6 +47,7 @@ const CommunitiesNavigator: VFC = () => {
   return (
     <Stack.Navigator headerMode="screen" initialRouteName="Communities">
       <Stack.Screen name="Communities" component={CommunitiesScreen} />
+      <Stack.Screen name="Community" component={CommunityScreen} />
     </Stack.Navigator>
   );
 };

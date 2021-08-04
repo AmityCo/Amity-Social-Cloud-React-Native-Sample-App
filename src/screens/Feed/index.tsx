@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { queryPosts } from '@amityco/ts-sdk';
 import { FlatList, StyleSheet, View } from 'react-native';
@@ -6,7 +7,7 @@ import React, { VFC, useState, useLayoutEffect, useEffect } from 'react';
 import { Surface, Appbar, Button, HelperText } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 
-import { Header, FAB, EmptyComponent, AddPost } from 'components';
+import { Header, FAB, EmptyComponent, AddPost, PostItem } from 'components';
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
@@ -14,7 +15,6 @@ import handleError from 'utils/handleError';
 
 import { PostFeedType, PostFeedTypeeee, PostSortBy } from 'types';
 
-import PostItem from './PostItem';
 import FilterDialog from './FilterDialog';
 
 const FeedScreen: VFC = () => {
@@ -106,8 +106,9 @@ const FeedScreen: VFC = () => {
           data={data}
           keyExtractor={post => post.postId}
           renderItem={({ item }) => (
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            <PostItem {...item} onRefresh={onQueryPost} onEditPost={setIsEditId} />
+            <Surface style={styles.postItem}>
+              <PostItem {...item} onRefresh={onQueryPost} onEditPost={setIsEditId} />
+            </Surface>
           )}
           ListEmptyComponent={<EmptyComponent loading={loading} errorText={t('posts.no_result')} />}
         />
@@ -148,15 +149,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  radioArea: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  divider: { marginBottom: 25 },
-  includeDeletedArea: {
-    marginTop: 10,
-    marginBottom: 10,
+  postItem: {
+    flex: 1,
+    margin: 12,
+    borderRadius: 5,
   },
   errorText: { fontSize: 18, alignSelf: 'center', marginTop: 25, marginBottom: 15 },
 });
