@@ -15,11 +15,10 @@ import CommunityItem from './CommunityItem';
 const CommunitiesScreen: VFC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  // const [community, setCommunity] = useState({});
-  const [communities, setCommunities] = useState([]);
+  const [communities, setCommunities] = useState<ASC.Community[]>([]);
 
   const theme = useTheme();
-  const isFocused = useIsFocused();
+  // const isFocused = useIsFocused();
   const navigation = useNavigation();
   const safeArea = useSafeAreaInsets();
 
@@ -33,12 +32,13 @@ const CommunitiesScreen: VFC = () => {
   }, []);
 
   useEffect(() => {
+    setLoading(true);
+
     onQueryCommunities();
   }, []);
 
   const onQueryCommunities = async () => {
     setError('');
-    setLoading(true);
 
     try {
       const result = await queryCommunities();
@@ -53,6 +53,14 @@ const CommunitiesScreen: VFC = () => {
     }
   };
 
+  const data =
+    communities?.map(community => ({
+      ...community,
+      onPress: () => {
+        navigation.navigate('Community', { ...community, onRefresh: onQueryCommunities });
+      },
+    })) ?? [];
+
   return (
     <>
       <Surface style={styles.container}>
@@ -60,29 +68,17 @@ const CommunitiesScreen: VFC = () => {
           <ActivityIndicator style={{ marginTop: 25 }} />
         ) : (
           <FlatList
-            // style={styles.feed}
-            data={communities}
-            renderItem={({ item }) => (
-              <CommunityItem
-                community={item}
-                onUpdate={onQueryCommunities}
-                onViewCommunity={() => {
-                  navigation.navigate('Community', { community: item, navigation });
-                }} // setCommunity}
-              />
-            )}
+            data={data}
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            renderItem={({ item }) => <CommunityItem {...item} onRefresh={onQueryCommunities} />}
             keyExtractor={item => item.communityId}
             showsVerticalScrollIndicator={false}
           />
         )}
-
-        {/* {!!community?.communityId && (
-        <Community community={community} onClose={() => setCommunity({})} />
-      )} */}
       </Surface>
       <Portal>
         <FAB
-          visible={isFocused}
+          visible={false}
           icon="email-plus-outline"
           style={{
             position: 'absolute',
