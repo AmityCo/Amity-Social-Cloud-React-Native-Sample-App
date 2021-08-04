@@ -12,10 +12,10 @@ import {
 } from 'react-native';
 import { createComment, updateComment, getComment } from '@amityco/ts-sdk';
 
-import { TextInput } from 'components';
-
 import { t } from 'i18n';
 import handleError from 'utils/handleError';
+
+import TextInput from '../TextInput';
 
 type CommentsType = Pick<ASC.Post, 'postId'> & {
   onRefresh: () => void;

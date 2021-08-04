@@ -1,30 +1,26 @@
-import React, { VFC, useState, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { HelperText, ActivityIndicator } from 'react-native-paper';
 import { queryComments } from '@amityco/ts-sdk';
+import React, { VFC, useState, useEffect } from 'react';
+import { HelperText, ActivityIndicator } from 'react-native-paper';
 
 import Comment from './Comment';
+import AddComment from './AddComment';
 
 type CommentsType = Pick<ASC.Post, 'postId'> & {
-  onRefreshed: boolean;
   onRefresh: () => void;
-  onEditComment: (commendId: string) => void;
 };
 
-const Comments: VFC<CommentsType> = ({ postId, onRefreshed, onRefresh, onEditComment }) => {
-  const [init, setInit] = useState(false);
+const Comments: VFC<CommentsType> = ({ postId, onRefresh }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [comments, setComments] = useState<ASC.Comment[]>([]);
+  const [isEditCommentId, setIsEditCommentId] = useState('');
 
   useEffect(() => {
-    if (!init) {
-      setInit(true);
-      setIsLoading(true);
-    }
+    setIsLoading(true);
 
     onQueryComment();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onRefreshed]);
+  }, []);
 
   const onQueryComment = async () => {
     try {
@@ -47,6 +43,18 @@ const Comments: VFC<CommentsType> = ({ postId, onRefreshed, onRefresh, onEditCom
 
   return (
     <View>
+      <AddComment
+        postId={postId}
+        onRefresh={() => {
+          onQueryComment();
+          setIsEditCommentId('');
+        }}
+        onCancel={() => {
+          setIsEditCommentId('');
+        }}
+        isEditCommentId={isEditCommentId}
+      />
+
       {isLoadingOrEmpty ? (
         <View style={styles.isLoadingOrEmpty}>
           {isLoading ? (
@@ -67,7 +75,7 @@ const Comments: VFC<CommentsType> = ({ postId, onRefreshed, onRefresh, onEditCom
               onRefresh();
             }}
             key={comment.commentId}
-            onEditComment={onEditComment}
+            onEditComment={setIsEditCommentId}
           />
         ))
       )}

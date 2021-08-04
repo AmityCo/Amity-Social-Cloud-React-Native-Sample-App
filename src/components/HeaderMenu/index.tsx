@@ -5,7 +5,7 @@ import { Pressable, StyleSheet } from 'react-native';
 
 import { t } from 'i18n';
 
-type PostHeaderMenuProps = {
+type HeaderMenuProps = {
   size: number;
   onEdit: () => void;
   onDelete: () => void;
@@ -16,7 +16,7 @@ type PostHeaderMenuProps = {
   visible: boolean;
 };
 
-const PostHeaderMenu: VFC<PostHeaderMenuProps> = ({
+const HeaderMenu: VFC<HeaderMenuProps> = ({
   size,
   onEdit,
   onDelete,
@@ -53,4 +53,4 @@ const styles = StyleSheet.create({
   ellipsis: { marginHorizontal: 10 },
 });
 
-export default PostHeaderMenu;
+export default HeaderMenu;

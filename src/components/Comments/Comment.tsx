@@ -4,10 +4,10 @@ import { StyleSheet, Alert } from 'react-native';
 import { Card, Paragraph } from 'react-native-paper';
 import { observeUser, deleteComment } from '@amityco/ts-sdk';
 
-import { PostHeaderMenu } from 'components';
-
 import { t } from 'i18n';
 import handleError from 'utils/handleError';
+
+import HeaderMenu from '../HeaderMenu';
 
 type CommentProps = ASC.Comment & {
   onRefresh: () => void;
@@ -71,7 +71,7 @@ const Comment: VFC<CommentProps> = ({
         subtitle={commentCreateAt}
         title={user?.displayName}
         right={({ size }) => (
-          <PostHeaderMenu
+          <HeaderMenu
             size={size / 1.5}
             onEdit={onEdit}
             onDelete={onDelete}

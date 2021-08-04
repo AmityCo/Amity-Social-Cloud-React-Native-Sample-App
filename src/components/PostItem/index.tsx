@@ -2,7 +2,7 @@ import Moment from 'moment';
 import React, { VFC, useState, useEffect } from 'react';
 import { Image, StyleSheet, Alert, View } from 'react-native';
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Surface, Caption, Card, useTheme, Paragraph, Button } from 'react-native-paper';
+import { Caption, Card, useTheme, Paragraph, Button } from 'react-native-paper';
 import {
   observeUser,
   observeFile,
@@ -17,7 +17,7 @@ import handleError from 'utils/handleError';
 
 import { PostProps, PostReactions } from 'types';
 
-import { PostHeaderMenu } from 'components';
+import HeaderMenu from '../HeaderMenu';
 
 type PostItemProps = PostProps & { onRefresh: () => void; onEditPost: (postId: string) => void };
 
@@ -81,16 +81,17 @@ const PostItem: VFC<PostItemProps> = ({
   const toggleReaction = async (type: PostReactions) => {
     try {
       const api = myReactions?.includes(type) ? addReaction : removeReaction;
-      console.log('post', postId, type);
+      // console.log('post', postId, type);
 
-      const a = await api('post', postId, type);
-      console.log('a', a);
+      await api('post', postId, type);
+
       onRefresh();
     } catch (e) {
       console.log('e', e);
       // TODO toastbar
     }
   };
+
   // TODO
   const onEdit = () => {
     setOpenMenu(false);
@@ -137,61 +138,62 @@ const PostItem: VFC<PostItemProps> = ({
   const postCreateAt = Moment(createdAt).format('HH:mm, MMM d');
 
   return (
-    <Surface style={styles.container}>
-      <Card onPress={onPress}>
-        <Card.Title
-          right={({ size }) => (
-            <PostHeaderMenu
-              size={size}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              // onFlag={onFlag}
-              // onUnflag={onUnflag}
-              hasFlag={hasFlag}
-              visible={openMenu}
-              onToggleMenu={() => setOpenMenu(prev => !prev)}
-            />
-          )}
-          subtitle={postCreateAt}
-          title={user?.displayName}
-          left={
-            file?.fileUrl
-              ? () => <Image source={{ uri: file?.fileUrl }} style={styles.avatar} />
-              : undefined
-          }
-        />
-        <Card.Content>
-          <Paragraph style={styles.text}>{data.text}</Paragraph>
-          {postImage?.fileUrl && <Card.Cover source={{ uri: postImage?.fileUrl }} />}
-        </Card.Content>
-        <Card.Actions style={styles.footer}>
-          <View style={styles.footerLeft}>
-            <Button onPress={() => toggleReaction(PostReactions.LIKE)}>
-              <MaterialCommunityIcons
-                size={20}
-                color={myReactions?.includes(PostReactions.LIKE) ? primaryColor : textColor}
-                name={myReactions?.includes(PostReactions.LIKE) ? 'thumb-up' : 'thumb-up-outline'}
-              />
-            </Button>
-            <Button onPress={() => toggleReaction(PostReactions.LOVE)}>
-              <MaterialCommunityIcons
-                size={20}
-                name={myReactions?.includes(PostReactions.LOVE) ? 'heart' : 'heart-outline'}
-                color={myReactions?.includes(PostReactions.LOVE) ? primaryColor : textColor}
-              />
-            </Button>
-          </View>
-          <View style={styles.footerRight}>
-            <FontAwesome5
-              name="comment"
+    <Card onPress={onPress}>
+      <Card.Title
+        right={({ size }) => (
+          <HeaderMenu
+            size={size}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            // onFlag={onFlag}
+            // onUnflag={onUnflag}
+            hasFlag={hasFlag}
+            visible={openMenu}
+            onToggleMenu={() => setOpenMenu(prev => !prev)}
+          />
+        )}
+        subtitle={postCreateAt}
+        title={user?.displayName}
+        left={
+          file?.fileUrl
+            ? () => <Image source={{ uri: file?.fileUrl }} style={styles.avatar} />
+            : undefined
+        }
+      />
+
+      <Card.Content>
+        <Paragraph style={styles.text}>{data.text}</Paragraph>
+        {postImage?.fileUrl && <Card.Cover source={{ uri: postImage?.fileUrl }} />}
+      </Card.Content>
+
+      <Card.Actions style={styles.footer}>
+        <View style={styles.footerLeft}>
+          <Button onPress={() => toggleReaction(PostReactions.LIKE)}>
+            <MaterialCommunityIcons
               size={20}
-              color={commentsCount === 0 ? textColor : primaryColor}
+              color={myReactions?.includes(PostReactions.LIKE) ? primaryColor : textColor}
+              name={myReactions?.includes(PostReactions.LIKE) ? 'thumb-up' : 'thumb-up-outline'}
             />
-            <Caption> {t('posts.commentsCount', { count: commentsCount })}</Caption>
-          </View>
-        </Card.Actions>
-      </Card>
-    </Surface>
+          </Button>
+          <Button onPress={() => toggleReaction(PostReactions.LOVE)}>
+            <MaterialCommunityIcons
+              size={20}
+              name={myReactions?.includes(PostReactions.LOVE) ? 'heart' : 'heart-outline'}
+              color={myReactions?.includes(PostReactions.LOVE) ? primaryColor : textColor}
+            />
+          </Button>
+        </View>
+
+        <View style={styles.footerRight}>
+          <FontAwesome5
+            name="comment"
+            size={20}
+            color={commentsCount === 0 ? textColor : primaryColor}
+          />
+          <Caption> {t('posts.commentsCount', { count: commentsCount })}</Caption>
+        </View>
+      </Card.Actions>
+    </Card>
   );
 };
 
