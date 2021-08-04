@@ -16,11 +16,6 @@ export enum PostFeedType {
 	PUBLISHED = 'published',
 }
 
-export enum PostReactions {
-	LIKE = 'like',
-	LOVE = 'love',
-}
-
 export type PostProps = ASC.Post & { onPress: () => void };
 
 export type AddPostType = {

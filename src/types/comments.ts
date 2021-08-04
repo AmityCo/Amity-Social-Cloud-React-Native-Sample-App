@@ -5,3 +5,8 @@ export enum CommentSortBy {
 	LAST_UPDATED = 'lastUpdated',
 	FIRST_UPDATED = 'firstUpdated',
 }
+
+export type createCommentType = Pick<
+	ASC.Comment<'text'>,
+	'metadata' | 'parentId' | 'data' | 'referenceId' | 'referenceType'
+>;
