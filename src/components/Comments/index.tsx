@@ -11,9 +11,10 @@ type CommentsType = Pick<ASC.Post, 'postId'> & {
 };
 
 const Comments: VFC<CommentsType> = ({ postId, onRefresh }) => {
+  const [isEdit, setIsEdit] = useState('');
+  const [isReply, setIsReply] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [comments, setComments] = useState<ASC.Comment[]>([]);
-  const [isEditCommentId, setIsEditCommentId] = useState('');
 
   useEffect(() => {
     setIsLoading(true);
@@ -39,6 +40,7 @@ const Comments: VFC<CommentsType> = ({ postId, onRefresh }) => {
     }
   };
 
+  const parent = comments.find(cm => cm.commentId === isReply);
   const isLoadingOrEmpty = isLoading || (!isLoading && !comments.length);
 
   return (
@@ -47,12 +49,16 @@ const Comments: VFC<CommentsType> = ({ postId, onRefresh }) => {
         postId={postId}
         onRefresh={() => {
           onQueryComment();
-          setIsEditCommentId('');
+          setIsEdit('');
+          setIsReply('');
         }}
         onCancel={() => {
-          setIsEditCommentId('');
+          setIsEdit('');
+          setIsReply('');
         }}
-        isEditCommentId={isEditCommentId}
+        isEdit={isEdit}
+        isReply={isReply}
+        parentUserId={parent?.userId}
       />
 
       {isLoadingOrEmpty ? (
@@ -68,14 +74,17 @@ const Comments: VFC<CommentsType> = ({ postId, onRefresh }) => {
       ) : (
         comments.map(comment => (
           <Comment
+            postId={postId}
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...comment}
             onRefresh={() => {
               onQueryComment();
               onRefresh();
             }}
+            onEdit={setIsEdit}
+            onReply={setIsReply}
             key={comment.commentId}
-            onEditComment={setIsEditCommentId}
+            selectedComment={isEdit}
           />
         ))
       )}

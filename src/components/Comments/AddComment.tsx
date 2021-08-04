@@ -1,6 +1,7 @@
-import { Button, Text } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { VFC, useState, useEffect, useRef } from 'react';
+import { createComment, updateComment, getComment, observeUser } from '@amityco/ts-sdk';
 import {
   StyleSheet,
   Alert,
@@ -10,38 +11,62 @@ import {
   Pressable,
   Keyboard,
 } from 'react-native';
-import { createComment, updateComment, getComment } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
 import handleError from 'utils/handleError';
+
+import { createCommentType } from 'types';
 
 import TextInput from '../TextInput';
 
 type CommentsType = Pick<ASC.Post, 'postId'> & {
   onRefresh: () => void;
-  isEditCommentId: string;
+  isEdit: string;
   onCancel: () => void;
+  isReply: string;
+  parentUserId?: string;
 };
 
-const AddComment: VFC<CommentsType> = ({ postId, onRefresh, isEditCommentId, onCancel }) => {
+const AddComment: VFC<CommentsType> = ({
+  postId,
+  onRefresh,
+  isEdit,
+  onCancel,
+  isReply,
+  parentUserId,
+}) => {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const [user, setUser] = useState<ASC.User>();
   const textInputRef = useRef<TextInputType>(null);
 
   useEffect(() => {
-    if (isEditCommentId !== '') {
-      getCuurrentComment();
+    if (isReply !== '' && parentUserId) {
+      observeUser(parentUserId, setUser);
+    } else {
+      setUser(undefined);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditCommentId]);
+  }, [isReply]);
 
-  const getCuurrentComment = async () => {
+  useEffect(() => {
+    if (isEdit !== '') {
+      getCurrentComment(isEdit);
+    } else if (isReply !== '') {
+      getCurrentComment(isReply);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit, isReply]);
+
+  const getCurrentComment = async (id: string) => {
     try {
-      const post = await getComment(isEditCommentId);
+      const post = await getComment(id);
+
+      if (isEdit !== '') {
+        setText(post.data.text);
+      }
 
       textInputRef?.current?.focus();
-      setText(post.data.text);
     } catch (error) {
       const errorText = handleError(error);
       Alert.alert('Oooops!', errorText, [{ text: t('close') }], { cancelable: false });
@@ -52,18 +77,22 @@ const AddComment: VFC<CommentsType> = ({ postId, onRefresh, isEditCommentId, onC
     setLoading(true);
 
     try {
-      if (isEditCommentId !== '') {
+      if (isEdit !== '') {
         const updateCommentRequest = {
           data: { text },
         };
 
-        await updateComment(isEditCommentId, updateCommentRequest);
+        await updateComment(isEdit, updateCommentRequest);
       } else {
-        const createCommentRequest = {
+        const createCommentRequest: createCommentType = {
           data: { text },
           referenceId: postId,
           referenceType: 'post' as ASC.CommentReferenceType,
         };
+
+        if (isReply !== '') {
+          createCommentRequest.parentId = isReply;
+        }
 
         await createComment(createCommentRequest);
       }
@@ -85,12 +114,17 @@ const AddComment: VFC<CommentsType> = ({ postId, onRefresh, isEditCommentId, onC
     Keyboard.dismiss();
   };
 
+  const isEditOrReplay = isEdit !== '' || isReply !== '';
+
   return (
-    <View>
-      {isEditCommentId !== '' && (
+    <View style={styles.container}>
+      {isEditOrReplay && (
         <Pressable style={styles.onEditOrReply} onPress={onCancelEdit}>
-          <MaterialCommunityIcons size={20} name="close-circle-outline" />
-          <Text>Edit Comment</Text>
+          <Button mode="text" icon="close-circle-outline" compact uppercase={false}>
+            {isEdit !== ''
+              ? t('comments.edit_comment')
+              : `${t('comments.reply_to')} ${user?.displayName ?? parentUserId}`}
+          </Button>
         </Pressable>
       )}
       <View style={styles.inputArea}>
@@ -98,6 +132,8 @@ const AddComment: VFC<CommentsType> = ({ postId, onRefresh, isEditCommentId, onC
           mode="flat"
           value={text}
           ref={textInputRef}
+          autoCorrect={false}
+          autoCapitalize="none"
           onChangeText={setText}
           style={styles.textInput}
           outlineColor="transparent"
@@ -118,6 +154,7 @@ const AddComment: VFC<CommentsType> = ({ postId, onRefresh, isEditCommentId, onC
 };
 
 const styles = StyleSheet.create({
+  container: { paddingVertical: 5 },
   onEditOrReply: { paddingStart: 5, flexDirection: 'row' },
   inputArea: {
     flexDirection: 'row',
