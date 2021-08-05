@@ -1,53 +1,45 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import React, { useState, useRef, useEffect, VFC } from 'react';
+import React, { useState, useEffect, VFC } from 'react';
 import { Alert, View, StyleSheet, Modal, ScrollView } from 'react-native';
 import { Text, Surface, Button, ActivityIndicator } from 'react-native-paper';
-import { createPost, getPost, updatePost } from '@amityco/ts-sdk';
+import { getCommunity, createCommunity, updateCommunity, deleteCommunity } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
 import handleError from 'utils/handleError';
-import useCollection from 'hooks/useCollection';
 
-import { AddPostType, AddPostDataType, UploadedPostImageType, UpdatePostDataType } from 'types';
+import { AddCommunityType } from 'types';
 
-import Image from './Image';
-import AddFile from './AddImage';
 import TextInput from '../TextInput';
 
-type AddPostProps = AddPostType & { isEditId: string };
-
-const AddPost: VFC<AddPostProps> = ({ visible, onClose, onAddPost, isEditId }) => {
-  const [text, setText] = useState('');
+const AddCommunity: VFC<AddCommunityType> = ({ visible, onClose, onAddCommunity, isEditId }) => {
   const [loading, setLoading] = useState(false);
+  const [displayName, setDisplayName] = useState('');
+  const [description, setDescription] = useState('');
 
   const { client } = useAuth();
 
-  const [images, addImage, remImage, toggleImages, resetImages] =
-    useCollection<UploadedPostImageType>([], (arr, el) =>
-      arr.findIndex(({ fileId }) => fileId === el.fileId),
-    );
-
   useEffect(() => {
     if (!visible) {
-      setText('');
-      resetImages();
+      setDisplayName('');
+      setDescription('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   useEffect(() => {
     if (isEditId !== '' && visible) {
-      getCuurrentPost();
+      getCurrentCommunity();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditId]);
 
-  const getCuurrentPost = async () => {
+  const getCurrentCommunity = async () => {
     try {
-      const post = await getPost(isEditId);
+      const community = await getCommunity(isEditId);
 
-      setText(post.data.text);
+      setDisplayName(community.displayName ?? '');
+      setDescription(community.description ?? '');
     } catch (error) {
       const errorText = handleError(error);
       Alert.alert(
@@ -71,8 +63,8 @@ const AddPost: VFC<AddPostProps> = ({ visible, onClose, onAddPost, isEditId }) =
       Alert.alert('UserId is not reachable!');
     }
 
-    if (text === '') {
-      Alert.alert('Please input a text!');
+    if (displayName === '') {
+      Alert.alert('Please input display name!');
       return;
     }
 
@@ -80,25 +72,36 @@ const AddPost: VFC<AddPostProps> = ({ visible, onClose, onAddPost, isEditId }) =
       setLoading(true);
 
       if (isEditId !== '') {
-        const data: UpdatePostDataType = { data: { text } };
+        const data = { displayName, description };
 
-        await updatePost(isEditId, data);
+        await updateCommunity(isEditId, data);
       } else {
-        const data: AddPostDataType = {
-          data: { text },
-          targetType: 'user',
-          targetId: client.userId!,
-        };
+        const data = { displayName, description };
 
-        if (images.length) {
-          data.data.images = images.map(({ fileId }) => fileId);
-        }
+        // {
+        //   "isPublic": true,
+        //   "isOfficial": false,
+        //   "onlyAdminCanPost": false,
+        //   "tags": [
+        //     "string"
+        //   ],
+        //   "metadata": {},
+        //   "avatarFileId": "string",
+        //   "userIds": [
+        //     "string"
+        //   ],
+        //   "categoryIds": [
+        //     "string"
+        //   ],
+        //   "isUniqueDisplayName": false,
+        //   "needApprovalOnPostCreation": false
+        // }
 
-        await createPost(data);
+        await createCommunity(data);
       }
 
       onClose();
-      onAddPost();
+      onAddCommunity();
     } catch (error) {
       const errorText = handleError(error);
 
@@ -120,25 +123,20 @@ const AddPost: VFC<AddPostProps> = ({ visible, onClose, onAddPost, isEditId }) =
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.centeredView}>
           <View style={styles.content}>
             <TextInput
-              value={text}
+              value={displayName}
               multiline
-              onChangeText={setText}
-              style={styles.postInput}
-              containerStyle={styles.postInputContainer}
-              placeholder={t('posts.add_post_placeholder')}
+              onChangeText={setDisplayName}
+              style={styles.communityInput}
+              containerStyle={styles.communityInputContainer}
+              placeholder={t('users.add_user_display_name_placeholder')}
             />
-
-            {isEditId === '' && (
-              <View style={styles.filesContainer}>
-                <AddFile onAddImage={addImage} />
-
-                <View style={styles.filesArea}>
-                  {images.map(img => (
-                    <Image file={img} key={`${img.fileId}`} />
-                  ))}
-                </View>
-              </View>
-            )}
+            <TextInput
+              value={description}
+              style={styles.communityInput}
+              onChangeText={setDescription}
+              containerStyle={styles.communityInputContainer}
+              placeholder={t('users.add_user_description_placeholder')}
+            />
           </View>
 
           <View style={styles.btnArea}>
@@ -181,7 +179,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  postInputContainer: {
+  communityInputContainer: {
     width: '90%',
     height: 160,
     textAlignVertical: 'top',
@@ -189,7 +187,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  postInput: {
+  communityInput: {
     flex: 1,
     // height: 150,
     textAlignVertical: 'top',
@@ -220,4 +218,4 @@ export const styles = StyleSheet.create({
   },
 });
 
-export default AddPost;
+export default AddCommunity;

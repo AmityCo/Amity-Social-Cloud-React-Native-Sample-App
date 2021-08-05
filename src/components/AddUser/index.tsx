@@ -1,53 +1,45 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import React, { useState, useRef, useEffect, VFC } from 'react';
+import { getUser, updateUser } from '@amityco/ts-sdk';
+import React, { useState, useEffect, VFC } from 'react';
 import { Alert, View, StyleSheet, Modal, ScrollView } from 'react-native';
 import { Text, Surface, Button, ActivityIndicator } from 'react-native-paper';
-import { createPost, getPost, updatePost } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
 import handleError from 'utils/handleError';
-import useCollection from 'hooks/useCollection';
 
-import { AddPostType, AddPostDataType, UploadedPostImageType, UpdatePostDataType } from 'types';
+import { AddUserType } from 'types';
 
-import Image from './Image';
-import AddFile from './AddImage';
 import TextInput from '../TextInput';
 
-type AddPostProps = AddPostType & { isEditId: string };
-
-const AddPost: VFC<AddPostProps> = ({ visible, onClose, onAddPost, isEditId }) => {
-  const [text, setText] = useState('');
+const AddUser: VFC<AddUserType> = ({ visible, onClose, onAddUser, isEditId }) => {
   const [loading, setLoading] = useState(false);
+  const [displayName, setDisplayName] = useState('');
+  const [description, setDescription] = useState('');
 
   const { client } = useAuth();
 
-  const [images, addImage, remImage, toggleImages, resetImages] =
-    useCollection<UploadedPostImageType>([], (arr, el) =>
-      arr.findIndex(({ fileId }) => fileId === el.fileId),
-    );
-
   useEffect(() => {
     if (!visible) {
-      setText('');
-      resetImages();
+      setDisplayName('');
+      setDescription('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   useEffect(() => {
     if (isEditId !== '' && visible) {
-      getCuurrentPost();
+      getCurrentUser();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditId]);
 
-  const getCuurrentPost = async () => {
+  const getCurrentUser = async () => {
     try {
-      const post = await getPost(isEditId);
+      const user = await getUser(isEditId);
 
-      setText(post.data.text);
+      setDisplayName(user.displayName ?? '');
+      setDescription(user.description ?? '');
     } catch (error) {
       const errorText = handleError(error);
       Alert.alert(
@@ -71,34 +63,20 @@ const AddPost: VFC<AddPostProps> = ({ visible, onClose, onAddPost, isEditId }) =
       Alert.alert('UserId is not reachable!');
     }
 
-    if (text === '') {
-      Alert.alert('Please input a text!');
+    if (displayName === '') {
+      Alert.alert('Please input a display name!');
       return;
     }
 
     try {
       setLoading(true);
 
-      if (isEditId !== '') {
-        const data: UpdatePostDataType = { data: { text } };
+      const data = { displayName, description };
 
-        await updatePost(isEditId, data);
-      } else {
-        const data: AddPostDataType = {
-          data: { text },
-          targetType: 'user',
-          targetId: client.userId!,
-        };
-
-        if (images.length) {
-          data.data.images = images.map(({ fileId }) => fileId);
-        }
-
-        await createPost(data);
-      }
+      await updateUser(isEditId, data);
 
       onClose();
-      onAddPost();
+      onAddUser();
     } catch (error) {
       const errorText = handleError(error);
 
@@ -120,36 +98,28 @@ const AddPost: VFC<AddPostProps> = ({ visible, onClose, onAddPost, isEditId }) =
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.centeredView}>
           <View style={styles.content}>
             <TextInput
-              value={text}
-              multiline
-              onChangeText={setText}
-              style={styles.postInput}
-              containerStyle={styles.postInputContainer}
-              placeholder={t('posts.add_post_placeholder')}
+              value={displayName}
+              style={styles.userInput}
+              onChangeText={setDisplayName}
+              containerStyle={styles.userInputContainer}
+              placeholder={t('users.add_user_display_name_placeholder')}
             />
-
-            {isEditId === '' && (
-              <View style={styles.filesContainer}>
-                <AddFile onAddImage={addImage} />
-
-                <View style={styles.filesArea}>
-                  {images.map(img => (
-                    <Image file={img} key={`${img.fileId}`} />
-                  ))}
-                </View>
-              </View>
-            )}
+            <TextInput
+              value={description}
+              style={styles.userInput}
+              onChangeText={setDescription}
+              containerStyle={styles.userInputContainer}
+              placeholder={t('users.add_user_description_placeholder')}
+            />
           </View>
 
           <View style={styles.btnArea}>
-            <Button
-              style={styles.btn}
-              onPress={onSubmit}
-              disabled={loading}
-              mode="contained"
-              loading={loading}
-            >
-              {t(isEditId === '' ? 'add' : 'update')}
+            <Button style={styles.btn} onPress={onSubmit} disabled={loading} mode="contained">
+              {loading ? (
+                <ActivityIndicator />
+              ) : (
+                <Text>{t(isEditId === '' ? 'add' : 'update')}</Text>
+              )}
             </Button>
 
             <Button style={styles.btn} onPress={onClose} mode="contained">
@@ -181,7 +151,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  postInputContainer: {
+  userInputContainer: {
     width: '90%',
     height: 160,
     textAlignVertical: 'top',
@@ -189,7 +159,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  postInput: {
+  userInput: {
     flex: 1,
     // height: 150,
     textAlignVertical: 'top',
@@ -220,4 +190,4 @@ export const styles = StyleSheet.create({
   },
 });
 
-export default AddPost;
+export default AddUser;
