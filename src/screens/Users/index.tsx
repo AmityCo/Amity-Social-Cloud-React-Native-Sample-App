@@ -1,12 +1,13 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { queryUsers } from '@amityco/ts-sdk';
 import { useNavigation } from '@react-navigation/native';
 import { StackHeaderProps } from '@react-navigation/stack';
-import { FlatList, StyleSheet, View, Animated } from 'react-native';
+import { StyleSheet, View, Animated } from 'react-native';
 import React, { VFC, useState, useLayoutEffect, useEffect } from 'react';
 import { Surface, Appbar, HelperText, Button, Searchbar } from 'react-native-paper';
 
-import { Header, EmptyComponent, UserItem } from 'components';
+import { Header, EmptyComponent, UserItem, AddUser } from 'components';
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
@@ -17,12 +18,9 @@ import { UserSortBy, UserFilter } from 'types';
 
 import FilterDialog from './FilterDialog';
 
-const SEARCHBAR_HEIGHT = 60;
-
 const UserListScreen: VFC = () => {
   const [error, setError] = useState('');
   const [isEditId, setIsEditId] = useState('');
-  // const searchBarHeight = new Animated.Value(0);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [users, setUsers] = useState<ASC.User[]>([]);
@@ -98,34 +96,15 @@ const UserListScreen: VFC = () => {
     }
   };
 
-  // const onListScroll = (event: number) => {
-  //   if (event <= 60 && event > 0) {
-  //     setSearchBarHeight(SEARCHBAR_HEIGHT - event);
-  //   }
-  //   console.log(event);
-  //   // const headerHeight = HeaderHeight();
-  //   // if (event > headerHeight) {
-  //   //   SetHide(true);
-  //   //   props.navigation.setParams({
-  //   //     hide: true
-  //   //   });
-  //   //   SetPrevious(event);
-  //   // } else if (event < 0.1) {
-  //   //   SetHide(false);
-  //   //   props.navigation.setParams({
-  //   //     hide: false
-  //   //   });
-  //   //   SetPrevious(event);
-  //   // }
-  // };
-
   const data =
-    users?.map(user => ({
-      ...user,
-      onPress: () => {
-        // navigation.navigate('User', { ...user, onRefresh: onQueryUsers });
-      },
-    })) ?? [];
+    users.length > 0
+      ? users.map(user => ({
+          ...user,
+          onPress: () => {
+            navigation.navigate('User', { ...user, onRefresh: onQueryUsers });
+          },
+        }))
+      : [];
 
   return (
     <Surface style={styles.container}>
@@ -133,7 +112,7 @@ const UserListScreen: VFC = () => {
         placeholder="Search"
         onChangeText={setSearchText}
         value={searchText}
-        style={{ height: SEARCHBAR_HEIGHT }}
+        style={styles.searchBar}
       />
 
       {error !== '' ? (
@@ -147,28 +126,23 @@ const UserListScreen: VFC = () => {
         <Animated.FlatList
           data={data}
           keyExtractor={user => user.userId}
-          // onScroll={e => onListScroll(e.nativeEvent.contentOffset.y)}
-          // onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: searchBarHeight } } }], {
-          //   useNativeDriver: false,
-          // })}
           renderItem={({ item }) => (
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            <UserItem {...item} onEditUser={setIsEditId} />
+            <Surface style={styles.userItem}>
+              <UserItem {...item} onEditUser={setIsEditId} onRefresh={onQueryUsers} />
+            </Surface>
           )}
           ListEmptyComponent={<EmptyComponent loading={loading} errorText={t('no_result')} />}
         />
       )}
 
-      {/* <UpdateUser
+      <AddUser
         onClose={() => {
           setIsEditId('');
-          setShowAddPost(false);
         }}
-        // displayName' | 'description
         isEditId={isEditId}
-        onAddPost={onQueryPost}
-        visible={showAddPost || isEditId !== ''}
-      /> */}
+        onAddUser={onQueryUsers}
+        visible={isEditId !== ''}
+      />
 
       <FilterDialog
         sortBy={sortBy}
@@ -186,6 +160,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  userItem: {
+    flex: 1,
+    margin: 12,
+    borderRadius: 5,
+  },
+  searchBar: { height: 60 },
   errorText: { fontSize: 18, alignSelf: 'center', marginTop: 25, marginBottom: 15 },
 });
 

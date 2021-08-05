@@ -7,6 +7,7 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 
 import FeedScreen from 'screens/Feed';
 // import ChatScreen from 'screens/Chat';
+import UserScreen from 'screens/User';
 import UsersScreen from 'screens/Users';
 import CommunityScreen from 'screens/Community';
 import CommunitiesScreen from 'screens/Communities';
@@ -38,6 +39,7 @@ const UsersNavigator: VFC = () => {
   return (
     <Stack.Navigator headerMode="screen" initialRouteName="UserList">
       <Stack.Screen name="Users" component={UsersScreen} />
+      <Stack.Screen name="User" component={UserScreen} />
     </Stack.Navigator>
   );
 };
