@@ -2,7 +2,7 @@ import Moment from 'moment';
 import React, { VFC, useState, useEffect } from 'react';
 import { Image, StyleSheet, Alert, View } from 'react-native';
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Caption, Card, useTheme, Paragraph, Button } from 'react-native-paper';
+import { Caption, Card, useTheme, Paragraph, Button, Text } from 'react-native-paper';
 import {
   observeUser,
   observeFile,
@@ -13,13 +13,12 @@ import {
 } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
+import useAuth from 'hooks/useAuth';
 import handleError from 'utils/handleError';
 
-import { PostProps, ReactionsType } from 'types';
+import { ReactionsType, PostItemProps } from 'types';
 
 import HeaderMenu from '../HeaderMenu';
-
-type PostItemProps = PostProps & { onRefresh: () => void; onEditPost: (postId: string) => void };
 
 const PostItem: VFC<PostItemProps> = ({
   data,
@@ -33,7 +32,7 @@ const PostItem: VFC<PostItemProps> = ({
   onRefresh,
   hasFlag,
   onEditPost,
-  // ...args
+  reactions,
 }) => {
   const [user, setUser] = useState<ASC.User>();
   const [file, setFile] = useState<ASC.File>();
@@ -41,6 +40,7 @@ const PostItem: VFC<PostItemProps> = ({
   const [postImage, setPostImage] = useState<ASC.File>();
   const [childPost, setChildPost] = useState<ASC.Post[]>([]);
 
+  const { client } = useAuth();
   const {
     colors: { text: textColor, primary: primaryColor },
   } = useTheme();
@@ -90,11 +90,11 @@ const PostItem: VFC<PostItemProps> = ({
     }
   };
 
-  // TODO
   const onEdit = () => {
     setOpenMenu(false);
 
-    onEditPost(postId);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    onEditPost!(postId);
   };
 
   const onDelete = () => {
@@ -123,17 +123,11 @@ const PostItem: VFC<PostItemProps> = ({
     );
   };
 
-  // // TODO
-  // const onFlag = () => {
-  //   Alert.alert('soon :)');
-  // };
-
-  // // TODO
-  // const onUnflag = () => {
-  //   Alert.alert('soon :)');
-  // };
-
   const postCreateAt = Moment(createdAt).format('HH:mm, MMM d');
+
+  const isUser = client.userId === postedUserId;
+  const canEdit = isUser && onEditPost ? onEdit : undefined;
+  const canDelete = isUser ? onDelete : undefined;
 
   return (
     <Card onPress={onPress}>
@@ -141,12 +135,10 @@ const PostItem: VFC<PostItemProps> = ({
         right={({ size }) => (
           <HeaderMenu
             size={size}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            // onFlag={onFlag}
-            // onUnflag={onUnflag}
+            onEdit={canEdit}
             hasFlag={hasFlag}
             visible={openMenu}
+            onDelete={canDelete}
             onToggleMenu={() => setOpenMenu(prev => !prev)}
           />
         )}
@@ -172,6 +164,7 @@ const PostItem: VFC<PostItemProps> = ({
               color={myReactions?.includes(ReactionsType.LIKE) ? primaryColor : textColor}
               name={myReactions?.includes(ReactionsType.LIKE) ? 'thumb-up' : 'thumb-up-outline'}
             />
+            {reactions[ReactionsType.LIKE] > 0 && <Text>{reactions[ReactionsType.LIKE]}</Text>}
           </Button>
           <Button onPress={() => toggleReaction(ReactionsType.LOVE)}>
             <MaterialCommunityIcons
@@ -179,6 +172,7 @@ const PostItem: VFC<PostItemProps> = ({
               name={myReactions?.includes(ReactionsType.LOVE) ? 'heart' : 'heart-outline'}
               color={myReactions?.includes(ReactionsType.LOVE) ? primaryColor : textColor}
             />
+            {reactions[ReactionsType.LOVE] > 0 && <Text>{reactions[ReactionsType.LOVE]}</Text>}
           </Button>
         </View>
 

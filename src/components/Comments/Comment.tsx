@@ -1,7 +1,7 @@
 import Moment from 'moment';
 import React, { VFC, useState, useEffect } from 'react';
 import { StyleSheet, Alert, Pressable, View } from 'react-native';
-import { Card, Paragraph, useTheme } from 'react-native-paper';
+import { Card, Paragraph, useTheme, Text } from 'react-native-paper';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import {
   observeUser,
@@ -12,6 +12,7 @@ import {
 } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
+import useAuth from 'hooks/useAuth';
 import handleError from 'utils/handleError';
 
 import { ReactionsType } from 'types';
@@ -39,6 +40,7 @@ const Comment: VFC<CommentProps> = ({
   onReply,
   selectedComment,
   children,
+  reactions,
 }) => {
   const [user, setUser] = useState<ASC.User>();
   const [openMenu, setOpenMenu] = useState(false);
@@ -49,6 +51,7 @@ const Comment: VFC<CommentProps> = ({
   const {
     colors: { text: textColor, primary: primaryColor, background: backgroundColor },
   } = useTheme();
+  const { client } = useAuth();
 
   useEffect(() => {
     observeUser(userId, setUser);
@@ -142,6 +145,10 @@ const Comment: VFC<CommentProps> = ({
 
   const commentCreateAt = Moment(createdAt).format('HH:mm, MMM d');
 
+  const isUser = client.userId === userId;
+  const canEdit = isUser && onEdit ? onEditComment : undefined;
+  const canDelete = isUser ? onDelete : undefined;
+
   return (
     <Card style={[!postId && { backgroundColor }, !postId && styles.childComment]}>
       <Card.Title
@@ -150,16 +157,16 @@ const Comment: VFC<CommentProps> = ({
         right={({ size }) => (
           <HeaderMenu
             key={commentId}
+            onEdit={canEdit}
             size={size / 1.5}
             hasFlag={hasFlag}
-            onDelete={onDelete}
             visible={openMenu}
-            onEdit={onEditComment}
+            onDelete={canDelete}
             onToggleMenu={() => setOpenMenu(prev => !prev)}
           >
             {postId && (
               <Pressable style={styles.icon} onPress={onReplyComment}>
-                <Ionicons name="arrow-undo-sharp" size={20} />
+                <Ionicons name="arrow-undo-outline" size={20} />
               </Pressable>
             )}
             <Pressable style={styles.icon} onPress={() => toggleReaction(ReactionsType.LIKE)}>
@@ -168,6 +175,7 @@ const Comment: VFC<CommentProps> = ({
                 color={myReactions?.includes(ReactionsType.LIKE) ? primaryColor : textColor}
                 name={myReactions?.includes(ReactionsType.LIKE) ? 'thumb-up' : 'thumb-up-outline'}
               />
+              {reactions[ReactionsType.LIKE] > 0 && <Text>{reactions[ReactionsType.LIKE]}</Text>}
             </Pressable>
             <Pressable style={styles.icon} onPress={() => toggleReaction(ReactionsType.LOVE)}>
               <MaterialCommunityIcons
@@ -175,6 +183,7 @@ const Comment: VFC<CommentProps> = ({
                 name={myReactions?.includes(ReactionsType.LOVE) ? 'heart' : 'heart-outline'}
                 color={myReactions?.includes(ReactionsType.LOVE) ? primaryColor : textColor}
               />
+              {reactions[ReactionsType.LOVE] > 0 && <Text>{reactions[ReactionsType.LOVE]}</Text>}
             </Pressable>
           </HeaderMenu>
         )}
@@ -189,7 +198,7 @@ const Comment: VFC<CommentProps> = ({
             <Comment
               // eslint-disable-next-line react/jsx-props-no-spreading
               {...cm}
-              key={cm.commentId}
+              key={`${cm.commentId}_${cm.updatedAt}`}
               onEdit={childrenId => {
                 onEdit(childrenId);
                 setSelectedChild(childrenId);
@@ -208,7 +217,7 @@ const Comment: VFC<CommentProps> = ({
 
 const styles = StyleSheet.create({
   text: { marginBottom: 10 },
-  icon: { marginEnd: 15 },
+  icon: { marginEnd: 15, flexDirection: 'row' },
   comments: { paddingStart: 30 },
   childComment: { marginBottom: 5 },
 });

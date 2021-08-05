@@ -1,17 +1,17 @@
 import React, { FC, ReactChild } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { Menu, useTheme, Divider } from 'react-native-paper';
+import { Menu, useTheme } from 'react-native-paper';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { t } from 'i18n';
 
 type HeaderMenuProps = {
   size: number;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
   onFlag?: () => void;
   onUnflag?: () => void;
-  hasFlag: boolean;
+  hasFlag?: boolean;
   onToggleMenu: () => void;
   visible: boolean;
   additional?: ReactChild;
@@ -44,9 +44,8 @@ const HeaderMenu: FC<HeaderMenuProps> = ({
           </Pressable>
         }
       >
-        <Menu.Item onPress={onEdit} title={t('edit')} />
-        <Divider />
-        <Menu.Item onPress={onDelete} title={t('delete')} />
+        {onEdit && <Menu.Item onPress={onEdit} title={t('edit')} />}
+        {onDelete && <Menu.Item onPress={onDelete} title={t('delete')} />}
         {onFlag && hasFlag && <Menu.Item onPress={onUnflag} title={t('unflag')} />}
         {onUnflag && !hasFlag && <Menu.Item onPress={onFlag} title={t('flag')} />}
       </Menu>
