@@ -1,20 +1,21 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import { queryCommunities } from '@amityco/ts-sdk';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { StackHeaderProps } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import React, { VFC, useState, useEffect, useLayoutEffect } from 'react';
-import { Surface, ActivityIndicator, Portal, FAB, useTheme } from 'react-native-paper';
+import { Surface, Portal, FAB, useTheme, HelperText, Button } from 'react-native-paper';
 
-import { Header } from 'components';
+import { Header, CommunityItem, EmptyComponent } from 'components';
 
+import { t } from 'i18n';
 import handleError from 'utils/handleError';
-
-import CommunityItem from './CommunityItem';
 
 const CommunitiesScreen: VFC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [communities, setCommunities] = useState<ASC.Community[]>([]);
 
   const theme = useTheme();
@@ -37,6 +38,11 @@ const CommunitiesScreen: VFC = () => {
     onQueryCommunities();
   }, []);
 
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    onQueryCommunities();
+  };
+
   const onQueryCommunities = async () => {
     setError('');
 
@@ -50,32 +56,41 @@ const CommunitiesScreen: VFC = () => {
       setError(errorText);
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
   };
 
   const data =
-    communities?.map(community => ({
-      ...community,
-      onPress: () => {
-        navigation.navigate('Community', { ...community, onRefresh: onQueryCommunities });
-      },
-    })) ?? [];
+    communities.length > 0
+      ? communities.map(community => ({
+          ...community,
+          onPress: () => {
+            navigation.navigate('Community', { ...community, onRefresh: onQueryCommunities });
+          },
+        }))
+      : [];
 
   return (
-    <>
-      <Surface style={styles.container}>
-        {loading ? (
-          <ActivityIndicator style={{ marginTop: 25 }} />
-        ) : (
-          <FlatList
-            data={data}
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            renderItem={({ item }) => <CommunityItem {...item} onRefresh={onQueryCommunities} />}
-            keyExtractor={item => item.communityId}
-            showsVerticalScrollIndicator={false}
-          />
+    <Surface style={styles.container}>
+      <FlatList
+        data={data}
+        onRefresh={onRefresh}
+        refreshing={isRefreshing}
+        showsVerticalScrollIndicator={false}
+        keyExtractor={item => item.communityId}
+        renderItem={({ item }) => (
+          <Surface style={styles.communityItem}>
+            <CommunityItem {...item} onRefresh={onQueryCommunities} />
+          </Surface>
         )}
-      </Surface>
+        ListEmptyComponent={
+          <EmptyComponent
+            loading={loading}
+            onRetry={onRefresh}
+            errorText={error !== '' ? error : t('no_result')}
+          />
+        }
+      />
       <Portal>
         <FAB
           visible={false}
@@ -94,7 +109,7 @@ const CommunitiesScreen: VFC = () => {
           // onPress={() => {}}
         />
       </Portal>
-    </>
+    </Surface>
   );
 };
 
@@ -102,61 +117,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  // header: {
-  //   paddingTop: 64,
-  //   paddingBottom: 16,
-  //   backgroundColor: '#FFF',
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  //   borderBottomWidth: 1,
-  //   borderBottomColor: '#EBECF4',
-  //   shadowColor: '#454D65',
-  //   shadowOffset: { height: 5 },
-  //   shadowRadius: 15,
-  //   shadowOpacity: 0.2,
-  //   zIndex: 10,
-  // },
-  // headerTitle: {
-  //   fontSize: 20,
-  //   fontWeight: '500',
-  // },
-  feed: {
-    // margin: 16,
+  communityItem: {
+    flex: 1,
+    margin: 12,
+    borderRadius: 5,
   },
-  // feedItem: {
-  //   backgroundColor: '#FFF',
-  //   borderRadius: 5,
-  //   padding: 8,
-  //   flexDirection: 'row',
-  //   marginVertical: 8,
-  // },
-  // avatar: {
-  //   width: 36,
-  //   height: 36,
-  //   borderRadius: 18,
-  //   marginRight: 16,
-  // },
-  // name: {
-  //   fontSize: 15,
-  //   fontWeight: '500',
-  //   color: '#454D65',
-  // },
-  // timestamp: {
-  //   fontSize: 11,
-  //   color: '#C4C6CE',
-  //   marginTop: 4,
-  // },
-  // post: {
-  //   marginTop: 16,
-  //   fontSize: 14,
-  //   color: '#838899',
-  // },
-  // postImage: {
-  //   width: undefined,
-  //   height: 150,
-  //   borderRadius: 5,
-  //   marginVertical: 16,
-  // },
 });
 
 export default CommunitiesScreen;
