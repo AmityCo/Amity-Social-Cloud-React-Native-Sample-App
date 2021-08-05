@@ -2,8 +2,8 @@ import Moment from 'moment';
 import React, { VFC, useState } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { leaveCommunity, joinCommunity } from '@amityco/ts-sdk';
-import { Text, Card, Paragraph } from 'react-native-paper';
-import { View, Pressable, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Pressable, StyleSheet, Alert } from 'react-native';
+import { Text, Card, Paragraph, Button, useTheme } from 'react-native-paper';
 
 import { t } from 'i18n';
 import handleError from 'utils/handleError';
@@ -16,11 +16,15 @@ const CommunityItem: VFC<CommunityItemProps> = ({
   communityId,
   displayName,
   membersCount,
+  description,
   postsCount,
   onRefresh,
   onPress,
 }) => {
   const [loading, setLoading] = useState(false);
+  const {
+    colors: { text: textColor },
+  } = useTheme();
 
   const onToggleJoinCommunity = async () => {
     setLoading(true);
@@ -46,33 +50,32 @@ const CommunityItem: VFC<CommunityItemProps> = ({
         title={displayName}
         subtitle={
           <View style={styles.subtitle}>
-            <View style={styles.subtitleRow}>
-              <MaterialCommunityIcons size={18} name="account-group" />
-              <Text>{membersCount}</Text>
-            </View>
-            <View style={styles.subtitleRow}>
-              <MaterialCommunityIcons size={18} name="note-text-outline" />
-              <Text>{postsCount}</Text>
-            </View>
-
-            <Text style={styles.subtitleRow}>{communityCreateAt}</Text>
+            <Text style={styles.subtitleRow}>
+              {communityCreateAt} / {`${t('by')} ${displayName}`}
+            </Text>
           </View>
         }
       />
 
       <Card.Content>
-        <Paragraph style={styles.text}>{displayName}</Paragraph>
+        <Paragraph style={styles.text}>{description}</Paragraph>
       </Card.Content>
       <Card.Actions style={styles.footer}>
         <View style={styles.footerLeft}>
-          <Paragraph style={styles.text}>by {displayName}</Paragraph>
+          <View style={styles.subtitleRow}>
+            <MaterialCommunityIcons size={18} name="account-group" color={textColor} />
+            <Text>{membersCount}</Text>
+          </View>
+          <View style={styles.subtitleRow}>
+            <MaterialCommunityIcons size={18} name="note-text-outline" color={textColor} />
+            <Text>{postsCount}</Text>
+          </View>
         </View>
+
         <Pressable style={styles.footerRight} onPress={onToggleJoinCommunity}>
-          {loading ? (
-            <ActivityIndicator />
-          ) : (
-            <Text style={styles.footerBtn}>{isJoined ? t('leave') : t('join')}</Text>
-          )}
+          <Button compact mode="outlined" loading={loading} disabled={loading}>
+            {isJoined ? t('leave') : t('join')}
+          </Button>
         </Pressable>
       </Card.Actions>
     </Card>
@@ -93,5 +96,4 @@ const styles = StyleSheet.create({
   footer: { justifyContent: 'space-between' },
   footerLeft: { flexDirection: 'row' },
   footerRight: { flexDirection: 'row', paddingEnd: 10 },
-  footerBtn: { marginStart: 10 },
 });

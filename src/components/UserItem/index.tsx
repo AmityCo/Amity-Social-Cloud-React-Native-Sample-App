@@ -1,16 +1,16 @@
 import Moment from 'moment';
 import { observeFile } from '@amityco/ts-sdk';
 import { Image, StyleSheet } from 'react-native';
+import { Card, Paragraph } from 'react-native-paper';
 import React, { VFC, useState, useEffect } from 'react';
-import { Surface, Card, Paragraph } from 'react-native-paper';
+
+import useAuth from 'hooks/useAuth';
 
 import { UserProps } from 'types';
 
 import HeaderMenu from '../HeaderMenu';
 
-type UserItemProps = UserProps & { onRefresh?: () => void; onEditUser: (userId: string) => void };
-
-const UserItem: VFC<UserItemProps> = ({
+const UserItem: VFC<UserProps> = ({
   userId,
   onPress,
   displayName,
@@ -21,6 +21,8 @@ const UserItem: VFC<UserItemProps> = ({
 }) => {
   const [file, setFile] = useState<ASC.File>();
   const [openMenu, setOpenMenu] = useState(false);
+
+  const { client } = useAuth();
 
   useEffect(() => {
     if (avatarFileId) {
@@ -37,31 +39,32 @@ const UserItem: VFC<UserItemProps> = ({
 
   const postCreateAt = Moment(createdAt).format('HH:mm, MMM d');
 
+  const isUser = client.userId === userId;
+  const canEdit = isUser && onEditUser ? onEdit : undefined;
+
   return (
-    <Surface style={styles.container}>
-      <Card onPress={onPress}>
-        <Card.Title
-          right={({ size }) => (
-            <HeaderMenu
-              size={size}
-              onEdit={onEdit}
-              visible={openMenu}
-              onToggleMenu={() => setOpenMenu(prev => !prev)}
-            />
-          )}
-          left={
-            file?.fileUrl
-              ? () => <Image source={{ uri: file?.fileUrl }} style={styles.avatar} />
-              : undefined
-          }
-          title={displayName}
-          subtitle={postCreateAt}
-        />
-        <Card.Content>
-          <Paragraph style={styles.text}>{description}</Paragraph>
-        </Card.Content>
-      </Card>
-    </Surface>
+    <Card onPress={onPress}>
+      <Card.Title
+        right={({ size }) => (
+          <HeaderMenu
+            size={size}
+            onEdit={canEdit}
+            visible={openMenu}
+            onToggleMenu={() => setOpenMenu(prev => !prev)}
+          />
+        )}
+        left={
+          file?.fileUrl
+            ? () => <Image source={{ uri: file?.fileUrl }} style={styles.avatar} />
+            : undefined
+        }
+        title={displayName}
+        subtitle={postCreateAt}
+      />
+      <Card.Content>
+        <Paragraph style={styles.text}>{description}</Paragraph>
+      </Card.Content>
+    </Card>
   );
 };
 

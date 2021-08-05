@@ -32,6 +32,10 @@ const HeaderMenu: FC<HeaderMenuProps> = ({
     colors: { text: textColor },
   } = useTheme();
 
+  if (!onEdit && !onDelete && !onFlag && !onUnflag) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       {children}
