@@ -5,7 +5,22 @@
     "username": "Username",
     "password": "Password"
   },
+  "routes": {
+    "chat": "Chat",
+    "feed": "Feed",
+    "users": "User List",
+    "communities": "Communities"
+  },
   "profile": { "title": "Profile" },
+  "users": {
+    "filter": "Filterr",
+    "filter_all": "All",
+    "filter_flagged": "Flagged",
+    "sort_by": "Sort By",
+    "sort_by_firstCreated": "First Created",
+    "sort_by_lastCreated": "Last Created",
+    "sort_by_displayName": "Display Name"
+  },
   "posts": {
     "feed_type": "Feed Type",
     "feed_type_normal": "Normal",
@@ -14,7 +29,6 @@
     "sort_by_firstCreated": "First Created",
     "sort_by_lastCreated": "Last Created",
     "include_deleted": "Include Deleted",
-    "no_result": "No results :(",
     "commentsCount": {
       "one": "1 Comment",
       "other": "{{count}} Comments",
@@ -36,5 +50,6 @@
   "close": "Close",
   "unflag": "Unflag",
   "cancel": "Cancel",
-  "delete": "Delete"
+  "delete": "Delete",
+  "no_result": "No results :("
 }
