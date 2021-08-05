@@ -12,14 +12,14 @@ const handleError = (error: Error | AxiosError): string => {
 			errorText = error.message;
 		} else if (error.response) {
 			// Request made and server responded
-			// console.log('error response', error.response.data);
-			// console.log(error.response.status);
-			// console.log(error.response.headers);
+			// consolee.log('error response', error.response.data);
+			// consolee.log(error.response.status);
+			// consolee.log(error.response.headers);
 
 			errorText = String(error.response.status);
 		} else if (error.request) {
 			// The request was made but no response was received
-			// console.log('error request', error.request);
+			// consolee.log('error request', error.request);
 		}
 	}
 

@@ -20,6 +20,7 @@ export type PostProps = ASC.Post & { onPress: () => void };
 
 export type AddPostType = {
 	visible: boolean;
+	isEditId: string;
 	onClose: () => void;
 	onAddPost: () => void;
 };

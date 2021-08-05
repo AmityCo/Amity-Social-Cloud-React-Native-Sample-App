@@ -1,4 +1,8 @@
-export type UserProps = ASC.User & { onPress: () => void };
+export type UserProps = ASC.User & {
+	onPress: () => void;
+	onRefresh: () => void;
+	onEditUser: (userId: string) => void;
+};
 
 export enum UserSortBy {
 	FIRST_CREATED = 'firstCreated',
@@ -10,3 +14,15 @@ export enum UserFilter {
 	ALL = 'all',
 	FLAGGED = 'flagged',
 }
+
+export type AddUserType = {
+	visible: boolean;
+	isEditId: string;
+	onClose: () => void;
+	onAddUser: () => void;
+};
+
+export type UserItemProps = UserProps & {
+	onRefresh: () => void;
+	onEditUser?: (userId: string) => void;
+};
