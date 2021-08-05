@@ -1,27 +1,25 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { queryCommunities } from '@amityco/ts-sdk';
-import { FlatList, StyleSheet, View } from 'react-native';
-import { StackHeaderProps } from '@react-navigation/stack';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FlatList, StyleSheet } from 'react-native';
+import { Surface } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { StackHeaderProps } from '@react-navigation/stack';
 import React, { VFC, useState, useEffect, useLayoutEffect } from 'react';
-import { Surface, Portal, FAB, useTheme, HelperText, Button } from 'react-native-paper';
 
-import { Header, CommunityItem, EmptyComponent } from 'components';
+import { Header, CommunityItem, EmptyComponent, FAB, AddCommunity } from 'components';
 
 import { t } from 'i18n';
 import handleError from 'utils/handleError';
 
 const CommunitiesScreen: VFC = () => {
   const [error, setError] = useState('');
+  const [isEditId, setIsEditId] = useState('');
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showAddCommunity, setShowAddCommunity] = useState(false);
   const [communities, setCommunities] = useState<ASC.Community[]>([]);
 
-  const theme = useTheme();
-  // const isFocused = useIsFocused();
   const navigation = useNavigation();
-  const safeArea = useSafeAreaInsets();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -59,7 +57,6 @@ const CommunitiesScreen: VFC = () => {
       setIsRefreshing(false);
     }
   };
-
   const data =
     communities.length > 0
       ? communities.map(community => ({
@@ -84,31 +81,26 @@ const CommunitiesScreen: VFC = () => {
           </Surface>
         )}
         ListEmptyComponent={
-          <EmptyComponent
-            loading={loading}
-            onRetry={onRefresh}
-            errorText={error !== '' ? error : t('no_result')}
-          />
+          <EmptyComponent loading={loading} onRetry={onRefresh} errorText={error} />
         }
       />
-      <Portal>
-        <FAB
-          visible={false}
-          icon="email-plus-outline"
-          style={{
-            position: 'absolute',
-            bottom: safeArea.bottom + 65,
-            right: 16,
-          }}
-          color="white"
-          theme={{
-            colors: {
-              accent: theme.colors.primary,
-            },
-          }}
-          // onPress={() => {}}
-        />
-      </Portal>
+
+      <AddCommunity
+        onClose={() => {
+          setIsEditId('');
+          setShowAddCommunity(false);
+        }}
+        isEditId={isEditId}
+        onAddCommunity={onQueryCommunities}
+        visible={showAddCommunity || isEditId !== ''}
+      />
+
+      <FAB
+        icon="plus"
+        onPress={() => {
+          setShowAddCommunity(true);
+        }}
+      />
     </Surface>
   );
 };

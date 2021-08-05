@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import React, { VFC, useState, useLayoutEffect, useEffect } from 'react';
-import { StackHeaderProps } from '@react-navigation/stack';
-import { StyleSheet, Alert } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
 import { getCommunity } from '@amityco/ts-sdk';
-import { ActivityIndicator, Surface } from 'react-native-paper';
+import { StyleSheet, Alert } from 'react-native';
+import { StackHeaderProps } from '@react-navigation/stack';
+import { ActivityIndicator, useTheme } from 'react-native-paper';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import React, { VFC, useState, useLayoutEffect, useEffect } from 'react';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { Header, CommunityItem } from 'components';
 
@@ -21,12 +22,15 @@ const Community: VFC = () => {
 
   const route = useRoute();
   const navigation = useNavigation();
+  const {
+    colors: { surface: surfaceColor },
+  } = useTheme();
 
   const { communityId, displayName, onRefresh } = route.params as CommunityItemProps;
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: displayName ? `${displayName}'s Commuity` : 'Commuity',
+      headerTitle: displayName || 'Commuity',
       header: ({ scene, previous, navigation: nav }: StackHeaderProps) => (
         <Header scene={scene} navigation={nav} previous={previous} />
       ),
@@ -70,7 +74,10 @@ const Community: VFC = () => {
   };
 
   return (
-    <Surface style={styles.container}>
+    <KeyboardAwareScrollView
+      showsVerticalScrollIndicator={false}
+      style={{ backgroundColor: surfaceColor }}
+    >
       {loading ? (
         <ActivityIndicator style={styles.loading} />
       ) : (
@@ -89,7 +96,7 @@ const Community: VFC = () => {
       )}
 
       <Feed communityId={communityId} />
-    </Surface>
+    </KeyboardAwareScrollView>
   );
 };
 

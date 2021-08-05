@@ -1,7 +1,8 @@
 import { StyleSheet, Alert } from 'react-native';
-import { StackHeaderProps } from '@react-navigation/stack';
-import { useRoute, useNavigation } from '@react-navigation/native';
 import { getPost, observeUser } from '@amityco/ts-sdk';
+import { StackHeaderProps } from '@react-navigation/stack';
+import { ActivityIndicator, useTheme } from 'react-native-paper';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import React, { VFC, useLayoutEffect, useState, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
@@ -11,7 +12,6 @@ import { t } from 'i18n';
 import handleError from 'utils/handleError';
 
 import { PostProps, PostItemProps } from 'types';
-import { ActivityIndicator } from 'react-native-paper';
 
 const PostScreen: VFC = () => {
   const [post, setPost] = useState<ASC.Post>();
@@ -20,6 +20,9 @@ const PostScreen: VFC = () => {
 
   const route = useRoute();
   const navigation = useNavigation();
+  const {
+    colors: { surface: surfaceColor },
+  } = useTheme();
 
   const { postId, postedUserId, onRefresh } = route.params as PostProps & { onRefresh: () => void };
 
@@ -73,7 +76,10 @@ const PostScreen: VFC = () => {
   }, [user?.displayName]);
 
   return (
-    <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
+    <KeyboardAwareScrollView
+      showsVerticalScrollIndicator={false}
+      style={{ backgroundColor: surfaceColor }}
+    >
       {!post?.postId ? (
         <ActivityIndicator style={styles.loading} />
       ) : (
