@@ -36,3 +36,8 @@ export type AddPostDataType = {
 export type UpdatePostDataType = Patch<ASC.Post, 'data' | 'metadata'>;
 
 export type UploadedPostImageType = ASC.File & { uri: string };
+
+export type PostItemProps = PostProps & {
+	onRefresh: () => void;
+	onEditPost?: (postId: string) => void;
+};
