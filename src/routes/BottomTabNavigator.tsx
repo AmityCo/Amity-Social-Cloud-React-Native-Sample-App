@@ -6,12 +6,12 @@ import { RouteProp, getFocusedRouteNameFromRoute } from '@react-navigation/nativ
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
 import FeedScreen from 'screens/Feed';
-import PostScreen from 'screens/Post';
 // import ChatScreen from 'screens/Chat';
-// import UserListScreen from 'screens/UserList';
+import UsersScreen from 'screens/Users';
 import CommunityScreen from 'screens/Community';
 import CommunitiesScreen from 'screens/Communities';
 
+import { t } from 'i18n';
 import overlay from 'utils/overlay';
 import { BottomTabParamList } from 'types';
 
@@ -22,7 +22,6 @@ const FeedNavigator: VFC = () => {
   return (
     <Stack.Navigator headerMode="screen" initialRouteName="Feed">
       <Stack.Screen name="Feed" component={FeedScreen} />
-      <Stack.Screen name="Post" component={PostScreen} />
     </Stack.Navigator>
   );
 };
@@ -35,13 +34,13 @@ const FeedNavigator: VFC = () => {
 //   );
 // };
 
-// const UserListNavigator: VFC = () => {
-//   return (
-//     <Stack.Navigator headerMode="screen" initialRouteName="UserList">
-//       <Stack.Screen name="UserList" component={UserListScreen} />
-//     </Stack.Navigator>
-//   );
-// };
+const UsersNavigator: VFC = () => {
+  return (
+    <Stack.Navigator headerMode="screen" initialRouteName="UserList">
+      <Stack.Screen name="Users" component={UsersScreen} />
+    </Stack.Navigator>
+  );
+};
 
 const CommunitiesNavigator: VFC = () => {
   return (
@@ -82,7 +81,7 @@ const BottomTabsNavigator: VFC<Props> = ({ route }) => {
         options={{
           tabBarIcon: routeName === 'ChatNavigator' ? 'chat' : 'chat-outline',
           tabBarColor,
-          tabBarLabel: 'Chat',
+          tabBarLabel: t('routes.chat')
         }}
       /> */}
       <Tab.Screen
@@ -91,19 +90,19 @@ const BottomTabsNavigator: VFC<Props> = ({ route }) => {
         options={{
           tabBarIcon: routeName === 'FeedNavigator' ? 'message-text' : 'message-text-outline',
           tabBarColor,
-          tabBarLabel: 'Feed',
+          tabBarLabel: t('routes.feed'),
         }}
       />
-      {/* <Tab.Screen
-        name="UserListNavigator"
-        component={UserListNavigator}
+      <Tab.Screen
+        name="UsersNavigator"
+        component={UsersNavigator}
         options={{
           tabBarIcon:
-            routeName === 'UserListNavigator' ? 'account-multiple' : 'account-multiple-outline',
+            routeName === 'UsersNavigator' ? 'account-multiple' : 'account-multiple-outline',
           tabBarColor,
-          tabBarLabel: 'User List',
+          tabBarLabel: t('routes.users'),
         }}
-      /> */}
+      />
       <Tab.Screen
         name="CommunitiesNavigator"
         component={CommunitiesNavigator}
@@ -111,7 +110,7 @@ const BottomTabsNavigator: VFC<Props> = ({ route }) => {
           tabBarIcon:
             routeName === 'CommunitiesNavigator' ? 'account-group' : 'account-group-outline',
           tabBarColor,
-          tabBarLabel: 'Communities',
+          tabBarLabel: t('routes.communities'),
         }}
       />
     </Tab.Navigator>
