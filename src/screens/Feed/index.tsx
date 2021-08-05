@@ -85,12 +85,14 @@ const FeedScreen: VFC = () => {
   };
 
   const data =
-    posts?.map(post => ({
-      ...post,
-      onPress: () => {
-        navigation.navigate('Post', { ...post, onRefresh: onQueryPost });
-      },
-    })) ?? [];
+    posts.length > 0
+      ? posts.map(post => ({
+          ...post,
+          onPress: () => {
+            navigation.navigate('Post', { ...post, onRefresh: onQueryPost });
+          },
+        }))
+      : [];
 
   return (
     <Surface style={styles.container}>
@@ -110,7 +112,7 @@ const FeedScreen: VFC = () => {
               <PostItem {...item} onRefresh={onQueryPost} onEditPost={setIsEditId} />
             </Surface>
           )}
-          ListEmptyComponent={<EmptyComponent loading={loading} errorText={t('posts.no_result')} />}
+          ListEmptyComponent={<EmptyComponent loading={loading} errorText={t('no_result')} />}
         />
       )}
 
