@@ -19,7 +19,9 @@
     "sort_by": "Sort By",
     "sort_by_firstCreated": "First Created",
     "sort_by_lastCreated": "Last Created",
-    "sort_by_displayName": "Display Name"
+    "sort_by_displayName": "Display Name",
+    "add_user_description_placeholder": "Enter Description",
+    "add_user_display_name_placeholder": "Enter Display Name"
   },
   "posts": {
     "feed_type": "Feed Type",
@@ -33,7 +35,8 @@
       "one": "1 Comment",
       "other": "{{count}} Comments",
       "zero": "No Comments"
-    }
+    },
+    "add_post_placeholder": "Type anything in your mind"
   },
   "comments": {
     "add_comment_placeholder": "Type some comment...",
@@ -42,6 +45,8 @@
   },
   "are_you_sure": "Are you sure?",
   "ok": "OK",
+  "by": "By",
+  "add": "Add",
   "join": "Join",
   "edit": "Edit",
   "flag": "Flag",
@@ -49,6 +54,7 @@
   "retry": "Retry",
   "close": "Close",
   "unflag": "Unflag",
+  "update": "Update",
   "cancel": "Cancel",
   "delete": "Delete",
   "no_result": "No results :("

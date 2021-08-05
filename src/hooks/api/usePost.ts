@@ -71,7 +71,6 @@ const usePost = (
 		//   const api = myReactions?.includes(type) ? addReaction : removeReaction;
 		//   await api('post', postId, type);
 		// } catch (e) {
-		//   console.log(123, e);
 		//   // TODO toastbar
 		// }
 	};

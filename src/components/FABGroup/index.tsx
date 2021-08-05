@@ -26,21 +26,32 @@ const FABGroup: VFC = () => {
           paddingBottom: safeArea.bottom + 55,
         }}
         actions={[
-          { icon: 'plus', onPress: () => console.log('Pressed add') },
+          {
+            icon: 'plus',
+            onPress: () => {
+              //
+            },
+          },
           {
             icon: 'star',
             label: 'Star',
-            onPress: () => console.log('Pressed star'),
+            onPress: () => {
+              //
+            },
           },
           {
             icon: 'email',
             label: 'Email',
-            onPress: () => console.log('Pressed email'),
+            onPress: () => {
+              //
+            },
           },
           {
             icon: 'bell',
             label: 'Remind',
-            onPress: () => console.log('Pressed notifications'),
+            onPress: () => {
+              //
+            },
             small: false,
           },
         ]}
