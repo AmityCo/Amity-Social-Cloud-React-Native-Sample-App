@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import React, { useState, useRef, useEffect, VFC } from 'react';
+import React, { useState, useEffect, VFC } from 'react';
 import { Alert, View, StyleSheet, Modal, ScrollView } from 'react-native';
-import { Text, Surface, Button, ActivityIndicator } from 'react-native-paper';
+import { Text, Surface, Button } from 'react-native-paper';
 import { createPost, getPost, updatePost } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
@@ -9,15 +9,13 @@ import useAuth from 'hooks/useAuth';
 import handleError from 'utils/handleError';
 import useCollection from 'hooks/useCollection';
 
-import { AddPostType, AddPostDataType, UploadedPostImageType, UpdatePostDataType } from 'types';
+import { AddPostType, AddPostDataType, UploadedPostImageType } from 'types';
 
 import Image from './Image';
 import AddFile from './AddImage';
 import TextInput from '../TextInput';
 
-type AddPostProps = AddPostType & { isEditId: string };
-
-const AddPost: VFC<AddPostProps> = ({ visible, onClose, onAddPost, isEditId }) => {
+const AddPost: VFC<AddPostType> = ({ visible, onClose, isEditId }) => {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -38,12 +36,12 @@ const AddPost: VFC<AddPostProps> = ({ visible, onClose, onAddPost, isEditId }) =
 
   useEffect(() => {
     if (isEditId !== '' && visible) {
-      getCuurrentPost();
+      getCurrentPost();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditId]);
 
-  const getCuurrentPost = async () => {
+  const getCurrentPost = async () => {
     try {
       const post = await getPost(isEditId);
 
@@ -71,16 +69,11 @@ const AddPost: VFC<AddPostProps> = ({ visible, onClose, onAddPost, isEditId }) =
       Alert.alert('UserId is not reachable!');
     }
 
-    if (text === '') {
-      Alert.alert('Please input a text!');
-      return;
-    }
-
     try {
       setLoading(true);
 
       if (isEditId !== '') {
-        const data: UpdatePostDataType = { data: { text } };
+        const data = { data: { text } };
 
         await updatePost(isEditId, data);
       } else {
@@ -98,7 +91,6 @@ const AddPost: VFC<AddPostProps> = ({ visible, onClose, onAddPost, isEditId }) =
       }
 
       onClose();
-      onAddPost();
     } catch (error) {
       const errorText = handleError(error);
 

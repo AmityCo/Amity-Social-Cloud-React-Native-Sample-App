@@ -1,5 +1,6 @@
 import Moment from 'moment';
 import React, { VFC, useState, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { Image, StyleSheet, Alert, View } from 'react-native';
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Caption, Card, useTheme, Paragraph, Button, Text } from 'react-native-paper';
@@ -10,6 +11,9 @@ import {
   addReaction,
   removeReaction,
   deletePost,
+  fileUrlWithSize,
+  runQuery,
+  createQuery,
 } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
@@ -27,12 +31,11 @@ const PostItem: VFC<PostItemProps> = ({
   postedUserId,
   commentsCount,
   createdAt,
-  children,
   myReactions,
-  onRefresh,
   hasFlag,
   onEditPost,
   reactions,
+  children,
 }) => {
   const [user, setUser] = useState<ASC.User>();
   const [file, setFile] = useState<ASC.File>();
@@ -41,6 +44,7 @@ const PostItem: VFC<PostItemProps> = ({
   const [childPost, setChildPost] = useState<ASC.Post[]>([]);
 
   const { client } = useAuth();
+  const navigation = useNavigation();
   const {
     colors: { text: textColor, primary: primaryColor },
   } = useTheme();
@@ -68,7 +72,7 @@ const PostItem: VFC<PostItemProps> = ({
   useEffect(() => {
     fetchChildredPost();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [children.length]);
 
   const fetchChildredPost = async () => {
     if (children && children.length > 0) {
@@ -82,9 +86,9 @@ const PostItem: VFC<PostItemProps> = ({
     try {
       const api = myReactions?.includes(type) ? removeReaction : addReaction;
 
-      await api('post', postId, type);
+      const query = createQuery(api, 'post', postId, type);
 
-      onRefresh();
+      runQuery(query);
     } catch (e) {
       // TODO toastbar
     }
@@ -110,7 +114,10 @@ const PostItem: VFC<PostItemProps> = ({
               setOpenMenu(false);
 
               await deletePost(postId);
-              onRefresh();
+
+              if (!onPress) {
+                navigation.goBack();
+              }
             } catch (error) {
               const errorText = handleError(error);
 
@@ -146,14 +153,16 @@ const PostItem: VFC<PostItemProps> = ({
         title={user?.displayName}
         left={
           file?.fileUrl
-            ? () => <Image source={{ uri: file?.fileUrl }} style={styles.avatar} />
+            ? () => <Image style={styles.avatar} source={{ uri: file?.fileUrl }} />
             : undefined
         }
       />
 
       <Card.Content>
         <Paragraph style={styles.text}>{data.text}</Paragraph>
-        {postImage?.fileUrl && <Card.Cover source={{ uri: postImage?.fileUrl }} />}
+        {postImage?.fileUrl && (
+          <Card.Cover source={{ uri: fileUrlWithSize(postImage?.fileUrl, 'medium') }} />
+        )}
       </Card.Content>
 
       <Card.Actions style={styles.footer}>

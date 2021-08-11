@@ -15,7 +15,7 @@ const EmptyComponent: VFC<EmptyComponentProps> = ({ loading, errorText, onRetry 
         <ActivityIndicator />
       ) : (
         <>
-          <HelperText type="error" style={styles.errorText}>
+          <HelperText type={errorText !== '' ? 'error' : 'info'} style={styles.errorText}>
             {text}
           </HelperText>
           {onRetry && <Button onPress={onRetry}>{t('retry')}</Button>}

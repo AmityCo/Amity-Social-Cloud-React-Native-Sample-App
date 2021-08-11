@@ -12,7 +12,7 @@ import { AddUserType } from 'types';
 
 import TextInput from '../TextInput';
 
-const AddUser: VFC<AddUserType> = ({ visible, onClose, onAddUser, isEditId }) => {
+const AddUser: VFC<AddUserType> = ({ visible, onClose, isEditId }) => {
   const [loading, setLoading] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [description, setDescription] = useState('');
@@ -76,7 +76,6 @@ const AddUser: VFC<AddUserType> = ({ visible, onClose, onAddUser, isEditId }) =>
       await updateUser(isEditId, data);
 
       onClose();
-      onAddUser();
     } catch (error) {
       const errorText = handleError(error);
 
