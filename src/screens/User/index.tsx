@@ -1,4 +1,4 @@
-import { getUser } from '@amityco/ts-sdk';
+import { getUser, observeUser } from '@amityco/ts-sdk';
 import { StyleSheet, Alert } from 'react-native';
 import { StackHeaderProps } from '@react-navigation/stack';
 import { ActivityIndicator, useTheme } from 'react-native-paper';
@@ -11,11 +11,11 @@ import { Header, UserItem, AddUser } from 'components';
 import { t } from 'i18n';
 import handleError from 'utils/handleError';
 
-import { UserProps, UserItemProps } from 'types';
+import { UserProps } from 'types';
 
 import Feed from './Feed';
 
-const PostScreen: VFC = () => {
+const UserScreen: VFC = () => {
   const [user, setUser] = useState<ASC.User>();
   const [isEditId, setIsEditId] = useState('');
 
@@ -25,7 +25,7 @@ const PostScreen: VFC = () => {
     colors: { surface: surfaceColor },
   } = useTheme();
 
-  const { userId, onRefresh } = route.params as UserProps;
+  const { userId } = route.params as UserProps;
 
   useEffect(() => {
     getCurrentUser();
@@ -55,6 +55,16 @@ const PostScreen: VFC = () => {
     }
   };
 
+  useEffect(
+    () => {
+      observeUser(userId, updatedUser => {
+        setUser(updatedUser);
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: user?.displayName ? user?.displayName : 'User',
@@ -76,14 +86,9 @@ const PostScreen: VFC = () => {
         <>
           <UserItem
             // eslint-disable-next-line react/jsx-props-no-spreading
-            {...(user as UserItemProps)}
+            {...(user as UserProps)}
             onEditUser={() => {
               setIsEditId(userId);
-            }}
-            onRefresh={() => {
-              getCurrentUser();
-
-              onRefresh();
             }}
           />
 
@@ -94,10 +99,6 @@ const PostScreen: VFC = () => {
               setIsEditId('');
             }}
             isEditId={isEditId}
-            onAddUser={() => {
-              onRefresh();
-              getCurrentUser();
-            }}
             visible={isEditId !== ''}
           />
         </>
@@ -110,4 +111,4 @@ const styles = StyleSheet.create({
   loading: { marginTop: 20 },
 });
 
-export default PostScreen;
+export default UserScreen;

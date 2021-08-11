@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import Moment from 'moment';
-import { observeFile } from '@amityco/ts-sdk';
-import { Image, StyleSheet } from 'react-native';
 import { Card, Paragraph } from 'react-native-paper';
+import { Image, StyleSheet, Alert } from 'react-native';
 import React, { VFC, useState, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { observeFile, getUser, observeUser } from '@amityco/ts-sdk';
 
+import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
+import handleError from 'utils/handleError';
 
 import { UserProps } from 'types';
 
@@ -19,10 +23,12 @@ const UserItem: VFC<UserProps> = ({
   avatarFileId,
   onEditUser,
 }) => {
+  const [user, setUser] = useState<ASC.User>();
   const [file, setFile] = useState<ASC.File>();
   const [openMenu, setOpenMenu] = useState(false);
 
   const { client } = useAuth();
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (avatarFileId) {
@@ -31,13 +37,53 @@ const UserItem: VFC<UserProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    getCurrentUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
+
+  const getCurrentUser = async () => {
+    try {
+      const currentUser = await getUser(userId);
+
+      setUser(currentUser);
+    } catch (error) {
+      const errorText = handleError(error);
+      Alert.alert(
+        'Oooops!',
+        errorText,
+        [
+          {
+            text: t('close'),
+            onPress: async () => {
+              if (!onPress) {
+                navigation.goBack();
+              }
+            },
+          },
+        ],
+        { cancelable: false },
+      );
+    }
+  };
+
+  useEffect(
+    () => {
+      observeUser(userId, updatedUser => {
+        setUser(updatedUser);
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   const onEdit = () => {
     setOpenMenu(false);
 
-    onEditUser(userId);
+    onEditUser!(userId);
   };
 
-  const postCreateAt = Moment(createdAt).format('HH:mm, MMM d');
+  const postCreateAt = Moment(user?.createdAt ?? createdAt).format('HH:mm, MMM d');
 
   const isUser = client.userId === userId;
   const canEdit = isUser && onEditUser ? onEdit : undefined;
@@ -58,11 +104,11 @@ const UserItem: VFC<UserProps> = ({
             ? () => <Image source={{ uri: file?.fileUrl }} style={styles.avatar} />
             : undefined
         }
-        title={displayName}
+        title={user?.displayName ?? displayName}
         subtitle={postCreateAt}
       />
       <Card.Content>
-        <Paragraph style={styles.text}>{description}</Paragraph>
+        <Paragraph style={styles.text}>{user?.description ?? description}</Paragraph>
       </Card.Content>
     </Card>
   );
