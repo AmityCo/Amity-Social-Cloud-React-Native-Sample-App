@@ -1,8 +1,8 @@
 import { StyleSheet, Alert } from 'react-native';
-import { getPost, observeUser } from '@amityco/ts-sdk';
 import { StackHeaderProps } from '@react-navigation/stack';
 import { ActivityIndicator, useTheme } from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { getPost, observeUser, observePost } from '@amityco/ts-sdk';
 import React, { VFC, useLayoutEffect, useState, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
@@ -11,7 +11,7 @@ import { Header, PostItem, AddPost, Comments } from 'components';
 import { t } from 'i18n';
 import handleError from 'utils/handleError';
 
-import { PostProps, PostItemProps } from 'types';
+import { PostItemProps } from 'types';
 
 const PostScreen: VFC = () => {
   const [post, setPost] = useState<ASC.Post>();
@@ -24,7 +24,7 @@ const PostScreen: VFC = () => {
     colors: { surface: surfaceColor },
   } = useTheme();
 
-  const { postId, postedUserId, onRefresh } = route.params as PostProps & { onRefresh: () => void };
+  const { postId, postedUserId } = route.params as PostItemProps;
 
   useEffect(() => {
     if (postedUserId) {
@@ -75,6 +75,19 @@ const PostScreen: VFC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.displayName]);
 
+  useEffect(
+    () =>
+      observePost(postId, {
+        onEvent: (event, updatedPost) => {
+          if (event === 'onUpdate') {
+            setPost(updatedPost);
+          }
+        },
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   return (
     <KeyboardAwareScrollView
       showsVerticalScrollIndicator={false}
@@ -90,24 +103,15 @@ const PostScreen: VFC = () => {
             onEditPost={() => {
               setIsEditId(postId);
             }}
-            onRefresh={() => {
-              getCurrentPost();
-
-              onRefresh();
-            }}
           />
 
-          <Comments postId={postId} onRefresh={onRefresh} />
+          <Comments postId={postId} />
 
           <AddPost
             onClose={() => {
               setIsEditId('');
             }}
             isEditId={isEditId}
-            onAddPost={() => {
-              onRefresh();
-              getCurrentPost();
-            }}
             visible={isEditId !== ''}
           />
         </>
