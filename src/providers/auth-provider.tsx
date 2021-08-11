@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React, { FC } from 'react';
-import { createClient, connectClient, isConnected, disconnectClient } from '@amityco/ts-sdk';
+import {
+  createClient,
+  connectClient,
+  isConnected,
+  disconnectClient,
+  setCache,
+} from '@amityco/ts-sdk';
 
 import handleError from 'utils/handleError';
 
@@ -13,6 +19,7 @@ const client = createClient(
   'b3bee858328ef4344a308e4a5a091688d05fdee2be353a2b',
   'https://api.staging.amity.co/',
 );
+setCache();
 
 // eslint-disable-next-line import/prefer-default-export
 export const AuthContext = React.createContext<AuthContextInterface>({
@@ -43,7 +50,7 @@ export const AuthContextProvider: FC = ({ children }) => {
     setLoading(true);
 
     try {
-      await connectClient(data.username);
+      await connectClient({ userId: data.username, displayName: undefined });
 
       checkConnected();
     } catch (e) {
