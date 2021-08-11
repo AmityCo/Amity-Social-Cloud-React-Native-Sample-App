@@ -16,13 +16,11 @@ export enum PostFeedType {
 	PUBLISHED = 'published',
 }
 
-export type PostProps = ASC.Post & { onPress: () => void };
-
 export type AddPostType = {
 	visible: boolean;
 	isEditId: string;
 	onClose: () => void;
-	onAddPost: () => void;
+	// onAddPost: () => void;
 };
 
 export type AddPostDataType = {
@@ -38,7 +36,7 @@ export type UpdatePostDataType = Patch<ASC.Post, 'data' | 'metadata'>;
 
 export type UploadedPostImageType = ASC.File & { uri: string };
 
-export type PostItemProps = PostProps & {
-	onRefresh: () => void;
+export type PostItemProps = ASC.Post & {
+	onPress: () => void;
 	onEditPost?: (postId: string) => void;
 };
