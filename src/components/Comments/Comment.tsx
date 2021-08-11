@@ -9,6 +9,8 @@ import {
   removeReaction,
   addReaction,
   queryComments,
+  createQuery,
+  runQuery,
 } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
@@ -16,16 +18,18 @@ import useAuth from 'hooks/useAuth';
 import handleError from 'utils/handleError';
 
 import { ReactionsType } from 'types';
+import CommentItem from './CommentItem';
 
 import HeaderMenu from '../HeaderMenu';
 
 type CommentProps = ASC.Comment & {
   postId?: string;
-  onRefresh: () => void;
   selectedComment?: string;
   onReply?: (commentId: string) => void;
   onEdit: (commentId: string) => void;
 };
+
+const QUERY_LIMIT = 10;
 
 const Comment: VFC<CommentProps> = ({
   postId,
@@ -35,7 +39,6 @@ const Comment: VFC<CommentProps> = ({
   hasFlag,
   myReactions,
   userId,
-  onRefresh,
   onEdit,
   onReply,
   selectedComment,
@@ -45,8 +48,11 @@ const Comment: VFC<CommentProps> = ({
   const [user, setUser] = useState<ASC.User>();
   const [openMenu, setOpenMenu] = useState(false);
   const [selectedChild, setSelectedChild] = useState('');
-  const [comments, setComments] = useState<ASC.Comment[]>([]);
   const [isQueryingComments, setIsQueryingComments] = useState(false);
+
+  const [pages, setPages] = useState<ASC.Pages>({});
+  const [comments, setComments] = useState<Record<string, ASC.Comment>>({});
+  const [currentPage, setCurrentPage] = useState<ASC.Page>({ before: 0, limit: QUERY_LIMIT });
 
   const {
     colors: { text: textColor, primary: primaryColor, background: backgroundColor },
@@ -75,18 +81,24 @@ const Comment: VFC<CommentProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [children.length]);
 
+  const mergeComments = ([newComments, newPages]: ASC.Paged<Record<string, ASC.Comment>>) => {
+    setComments(prevComments => ({ ...prevComments, ...newComments }));
+
+    setPages(newPages);
+  };
+
   const onQueryComments = async () => {
     try {
-      const query = {
+      const queryData = {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         postId: postId!,
         isDeleted: false,
         parentId: commentId,
       };
 
-      const result = await queryComments(query);
+      const query = createQuery(queryComments, { ...queryData, page: currentPage });
 
-      setComments(result);
+      runQuery(query, mergeComments);
     } catch (e) {
       // const errorText = handleError(error);
     } finally {
@@ -99,8 +111,6 @@ const Comment: VFC<CommentProps> = ({
       const api = myReactions?.includes(type) ? removeReaction : addReaction;
 
       await api('comment', commentId, type);
-
-      onRefresh();
     } catch (e) {
       // TODO toastbar
     }
@@ -124,7 +134,6 @@ const Comment: VFC<CommentProps> = ({
               setOpenMenu(false);
 
               await deleteComment(commentId);
-              onRefresh();
             } catch (error) {
               const errorText = handleError(error);
 
@@ -145,73 +154,71 @@ const Comment: VFC<CommentProps> = ({
 
   const commentCreateAt = Moment(createdAt).format('HH:mm, MMM d');
 
+  const dataComments = Object.values(comments);
   const isUser = client.userId === userId;
   const canEdit = isUser && onEdit ? onEditComment : undefined;
   const canDelete = isUser ? onDelete : undefined;
 
   return (
-    <Card style={[!postId && { backgroundColor }, !postId && styles.childComment]}>
-      <Card.Title
-        subtitle={commentCreateAt}
-        title={user?.displayName}
-        right={({ size }) => (
-          <HeaderMenu
-            key={commentId}
-            onEdit={canEdit}
-            size={size / 1.5}
-            hasFlag={hasFlag}
-            visible={openMenu}
-            onDelete={canDelete}
-            onToggleMenu={() => setOpenMenu(prev => !prev)}
-          >
-            {postId && (
-              <Pressable style={styles.icon} onPress={onReplyComment}>
-                <Ionicons name="arrow-undo-outline" size={20} />
-              </Pressable>
-            )}
-            <Pressable style={styles.icon} onPress={() => toggleReaction(ReactionsType.LIKE)}>
-              <MaterialCommunityIcons
-                size={20}
-                color={myReactions?.includes(ReactionsType.LIKE) ? primaryColor : textColor}
-                name={myReactions?.includes(ReactionsType.LIKE) ? 'thumb-up' : 'thumb-up-outline'}
-              />
-              {reactions[ReactionsType.LIKE] > 0 && <Text>{reactions[ReactionsType.LIKE]}</Text>}
-            </Pressable>
-            <Pressable style={styles.icon} onPress={() => toggleReaction(ReactionsType.LOVE)}>
-              <MaterialCommunityIcons
-                size={20}
-                name={myReactions?.includes(ReactionsType.LOVE) ? 'heart' : 'heart-outline'}
-                color={myReactions?.includes(ReactionsType.LOVE) ? primaryColor : textColor}
-              />
-              {reactions[ReactionsType.LOVE] > 0 && <Text>{reactions[ReactionsType.LOVE]}</Text>}
-            </Pressable>
-          </HeaderMenu>
-        )}
-      />
-      <Card.Content>
-        <Paragraph style={styles.text}>{data.text}</Paragraph>
-      </Card.Content>
+    <CommentItem postId={postId} />
+    // <Card style={[!postId && { backgroundColor }, !postId && styles.childComment]}>
+    //   <Card.Title
+    //     subtitle={commentCreateAt}
+    //     title={user?.displayName}
+    //     right={({ size }) => (
+    //       <HeaderMenu
+    //         key={commentId}
+    //         onEdit={canEdit}
+    //         size={size / 1.5}
+    //         hasFlag={hasFlag}
+    //         visible={openMenu}
+    //         onDelete={canDelete}
+    //         onToggleMenu={() => setOpenMenu(prev => !prev)}
+    //       >
+    //         {postId && (
+    //           <Pressable style={styles.icon} onPress={onReplyComment}>
+    //             <Ionicons name="arrow-undo-outline" size={20} />
+    //           </Pressable>
+    //         )}
+    //         <Pressable style={styles.icon} onPress={() => toggleReaction(ReactionsType.LIKE)}>
+    //           <MaterialCommunityIcons
+    //             size={20}
+    //             color={myReactions?.includes(ReactionsType.LIKE) ? primaryColor : textColor}
+    //             name={myReactions?.includes(ReactionsType.LIKE) ? 'thumb-up' : 'thumb-up-outline'}
+    //           />
+    //           {reactions[ReactionsType.LIKE] > 0 && <Text>{reactions[ReactionsType.LIKE]}</Text>}
+    //         </Pressable>
+    //         <Pressable style={styles.icon} onPress={() => toggleReaction(ReactionsType.LOVE)}>
+    //           <MaterialCommunityIcons
+    //             size={20}
+    //             name={myReactions?.includes(ReactionsType.LOVE) ? 'heart' : 'heart-outline'}
+    //             color={myReactions?.includes(ReactionsType.LOVE) ? primaryColor : textColor}
+    //           />
+    //           {reactions[ReactionsType.LOVE] > 0 && <Text>{reactions[ReactionsType.LOVE]}</Text>}
+    //         </Pressable>
+    //       </HeaderMenu>
+    //     )}
+    //   />
+    //   <Card.Content>
+    //     <Paragraph style={styles.text}>{data.text}</Paragraph>
+    //   </Card.Content>
 
-      {comments.length > 0 && (
-        <View style={styles.comments}>
-          {comments.map(cm => (
-            <Comment
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              {...cm}
-              key={`${cm.commentId}_${cm.updatedAt}`}
-              onEdit={childrenId => {
-                onEdit(childrenId);
-                setSelectedChild(childrenId);
-              }}
-              onRefresh={() => {
-                onRefresh();
-                onQueryComments();
-              }}
-            />
-          ))}
-        </View>
-      )}
-    </Card>
+    //   {comments.length > 0 && (
+    //     <View style={styles.comments}>
+    //       {dataComments.map(cm => (
+    //         <Comment
+    //           // eslint-disable-next-line react/jsx-props-no-spreading
+    //           {...cm}
+    //           key={`${cm.commentId}_${cm.updatedAt}`}
+    //           onEdit={childrenId => {
+    //             onEdit(childrenId);
+    //             setSelectedChild(childrenId);
+    //           }}
+    //         />
+    //       ))}
+    //     </View>
+    //   )}
+    // </Card>
   );
 };
 

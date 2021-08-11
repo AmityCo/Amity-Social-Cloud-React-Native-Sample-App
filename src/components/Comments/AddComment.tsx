@@ -1,7 +1,14 @@
 import { Button } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { VFC, useState, useEffect, useRef } from 'react';
-import { createComment, updateComment, getComment, observeUser } from '@amityco/ts-sdk';
+import {
+  createComment,
+  updateComment,
+  getComment,
+  observeUser,
+  createQuery,
+  runQuery,
+} from '@amityco/ts-sdk';
 import {
   StyleSheet,
   Alert,
@@ -82,7 +89,10 @@ const AddComment: VFC<CommentsType> = ({
           data: { text },
         };
 
-        await updateComment(isEdit, updateCommentRequest);
+        const query = createQuery(updateComment, isEdit, updateCommentRequest);
+        runQuery(query, () => {
+          //
+        });
       } else {
         const createCommentRequest: createCommentType = {
           data: { text },
@@ -94,7 +104,10 @@ const AddComment: VFC<CommentsType> = ({
           createCommentRequest.parentId = isReply;
         }
 
-        await createComment(createCommentRequest);
+        const query = createQuery(createComment, createCommentRequest);
+        runQuery(query, () => {
+          //
+        });
       }
 
       setText('');
