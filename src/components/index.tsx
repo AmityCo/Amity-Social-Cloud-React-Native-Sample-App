@@ -2,6 +2,7 @@ export { default as FAB } from './FAB';
 export { default as Header } from './Header';
 export { default as AddUser } from './AddUser';
 export { default as AddPost } from './AddPost';
+export { default as Loading } from './Loading';
 export { default as FABGroup } from './FABGroup';
 export { default as Comments } from './Comments';
 export { default as PostItem } from './PostItem';
