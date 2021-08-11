@@ -25,7 +25,7 @@
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.ramyariran.amitysocial"
+      "package": "co.amity.react-native-sample-app"
     },
     "web": {
       "favicon": "./src/assets/images/favicon.png"
