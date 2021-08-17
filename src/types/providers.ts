@@ -1,6 +1,7 @@
+import { connectClient } from '@amityco/ts-sdk';
 import { ColorSchemeName } from 'react-native-appearance';
 
-import { LoginFormData } from './auth';
+type LoginFormData = Parameters<typeof connectClient>[0];
 
 export type PreferencesContextInterface = {
 	theme: ColorSchemeName;
@@ -13,6 +14,6 @@ export type AuthContextInterface = {
 	logout: () => void;
 	isConnected: boolean;
 	isAuthenticating: boolean;
-	client: Pick<ASC.Client, 'userId'>;
-	login: ({ username, password }: LoginFormData) => void;
+	client: Pick<Amity.Client, 'userId'>;
+	login: (data: LoginFormData) => void;
 };

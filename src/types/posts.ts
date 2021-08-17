@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-export enum PostFeedTypeeee {
+export enum FeedType {
 	Normal = 'normal',
 	Global = 'global',
 }
@@ -16,7 +16,7 @@ export enum PostFeedType {
 	PUBLISHED = 'published',
 }
 
-export type AddPostType = {
+export type AddFeedType = {
 	visible: boolean;
 	isEditId: string;
 	onClose: () => void;
@@ -32,11 +32,11 @@ export type AddPostDataType = {
 	targetId: string;
 };
 
-export type UpdatePostDataType = Patch<ASC.Post, 'data' | 'metadata'>;
+export type UpdatePostDataType = Patch<Amity.Post, 'data' | 'metadata'>;
 
-export type UploadedPostImageType = ASC.File & { uri: string };
+export type UploadedPostImageType = Amity.File & { uri: string };
 
-export type PostItemProps = ASC.Post & {
-	onPress: () => void;
+export type PostItemProps = {
+	onPress?: () => void;
 	onEditPost?: (postId: string) => void;
 };

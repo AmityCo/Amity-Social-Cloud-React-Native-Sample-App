@@ -7,11 +7,11 @@ export enum CommentSortBy {
 }
 
 export type createCommentType = Pick<
-	ASC.Comment<'text'>,
+	Amity.Comment<'text'>,
 	'metadata' | 'parentId' | 'data' | 'referenceId' | 'referenceType'
 >;
 
-export type CommentProps = ASC.Comment & {
+export type CommentProps = Amity.Comment & {
 	postId?: string;
 	selectedComment?: string;
 	onReply?: (commentId: string) => void;
