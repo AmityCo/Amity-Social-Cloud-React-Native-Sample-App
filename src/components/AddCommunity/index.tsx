@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React, { useState, useEffect, VFC } from 'react';
+import { Text, Surface, Button } from 'react-native-paper';
 import { Alert, View, StyleSheet, Modal, ScrollView } from 'react-native';
-import { Text, Surface, Button, ActivityIndicator } from 'react-native-paper';
 import { getCommunity, createCommunity, updateCommunity, deleteCommunity } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
@@ -76,32 +76,14 @@ const AddCommunity: VFC<AddCommunityType> = ({ visible, onClose, onAddCommunity,
 
         await updateCommunity(isEditId, data);
       } else {
-        const data = { displayName, description };
-
-        // {
-        //   "isPublic": true,
-        //   "isOfficial": false,
-        //   "onlyAdminCanPost": false,
-        //   "tags": [
-        //     "string"
-        //   ],
-        //   "metadata": {},
-        //   "avatarFileId": "string",
-        //   "userIds": [
-        //     "string"
-        //   ],
-        //   "categoryIds": [
-        //     "string"
-        //   ],
-        //   "isUniqueDisplayName": false,
-        //   "needApprovalOnPostCreation": false
-        // }
+        const data = { displayName };
 
         await createCommunity(data);
+
+        onAddCommunity!();
       }
 
       onClose();
-      onAddCommunity();
     } catch (error) {
       const errorText = handleError(error);
 
@@ -124,7 +106,6 @@ const AddCommunity: VFC<AddCommunityType> = ({ visible, onClose, onAddCommunity,
           <View style={styles.content}>
             <TextInput
               value={displayName}
-              multiline
               onChangeText={setDisplayName}
               style={styles.communityInput}
               containerStyle={styles.communityInputContainer}

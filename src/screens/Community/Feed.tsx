@@ -1,39 +1,73 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { Surface } from 'react-native-paper';
-import { queryPosts } from '@amityco/ts-sdk';
 import { StyleSheet, FlatList } from 'react-native';
-import { EmptyComponent, PostItem } from 'components';
-import React, { VFC, useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import React, { VFC, useState, useEffect, useRef, useCallback } from 'react';
+import { queryPosts, createQuery, runQuery, observePosts } from '@amityco/ts-sdk';
 
+import { EmptyComponent, PostItem, Loading } from 'components';
+
+import useAuth from 'hooks/useAuth';
 import handleError from 'utils/handleError';
 
-type CommentsType = Pick<ASC.Community, 'communityId'>;
+type CommentsType = Pick<Amity.Community, 'communityId'>;
+
+const QUERY_LIMIT = 10;
 
 const Feeds: VFC<CommentsType> = ({ communityId }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [feed, setFeed] = useState<ASC.Post[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
+  const [pages, setPages] = useState<Amity.Pages>();
+  const [currentPage, setCurrentPage] = useState<Amity.Page>();
+  const [posts, setPosts] = useState<Record<string, Amity.Post>>({});
+
+  const flatlistRef = useRef<FlatList<Amity.Post>>(null);
+
+  const { client } = useAuth();
   const navigation = useNavigation();
 
   useEffect(() => {
-    onQueryFeed();
+    if (currentPage) {
+      onQueryPost();
+      setLoading(true);
+    } else {
+      onRefresh();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentPage]);
 
-  const onQueryFeed = async () => {
+  const onQueryPost = async () => {
     setLoading(true);
     try {
-      const query = {
+      const queryData = {
         targetType: 'community',
         targetId: communityId,
       };
 
-      const result = await queryPosts(query);
+      runQuery(createQuery(queryPosts, { ...queryData, page: currentPage }), result => {
+        if (!result.data) return;
+        const { data, nextPage, prevPage, loading: loadingStack, error: errorStack } = result;
 
-      setFeed(result);
+        if (errorStack) {
+          const errorText = handleError(errorStack);
+
+          setError(errorText);
+        }
+
+        if (isRefreshing) {
+          setPosts(data);
+        } else {
+          setPosts(prevPosts => ({ ...prevPosts, ...data }));
+        }
+
+        setIsRefreshing(false);
+        setIsLoadingMore(false);
+        setLoading(!!loadingStack);
+        setPages({ nextPage, prevPage });
+      });
     } catch (e) {
       const errorText = handleError(e);
 
@@ -44,34 +78,71 @@ const Feeds: VFC<CommentsType> = ({ communityId }) => {
     }
   };
 
-  const onRefresh = () => {
-    setIsRefreshing(true);
-    onQueryFeed();
+  useEffect(
+    () =>
+      observePosts(
+        { targetId: communityId, targetType: 'community' },
+        {
+          onEvent: (action, post) => {
+            if (action === 'onDelete') {
+              setPosts(prevState => {
+                // eslint-disable-next-line no-param-reassign
+                const state = { ...prevState };
+
+                delete state[post.localId];
+                return state;
+              });
+            } else if (action === 'onCreate') {
+              setPosts(prevState => {
+                return { [post.localId]: post, ...prevState };
+              });
+
+              flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
+            }
+          },
+        },
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  const handleLoadMore = () => {
+    if (pages?.nextPage) {
+      setIsLoadingMore(true);
+      setCurrentPage(pages.nextPage);
+    }
   };
 
-  const data =
-    feed.length > 0
-      ? feed.map(post => ({
-          ...post,
-          onPress: () => {
-            navigation.navigate('Post', { ...post, onRefresh: onQueryFeed });
-          },
-        }))
-      : [];
+  const onRefresh = useCallback(() => {
+    setIsRefreshing(true);
+    setCurrentPage({ before: 0, limit: QUERY_LIMIT });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const data = Object.values(posts);
 
   return (
     <FlatList
       data={data}
+      ref={flatlistRef}
       onRefresh={onRefresh}
       refreshing={isRefreshing}
+      onEndReachedThreshold={0.5}
+      onEndReached={handleLoadMore}
+      keyExtractor={post => post.postId}
       showsVerticalScrollIndicator={false}
-      keyExtractor={item => item.postId}
+      ListFooterComponent={isLoadingMore ? <Loading /> : undefined}
+      ListEmptyComponent={<EmptyComponent loading={loading || isRefreshing} errorText={error} />}
       renderItem={({ item }) => (
         <Surface style={styles.postItem}>
-          <PostItem key={item.postId} {...item} onRefresh={onRefresh} />
+          <PostItem
+            post={item}
+            onPress={() => {
+              navigation.navigate('Post', { post: item });
+            }}
+          />
         </Surface>
       )}
-      ListEmptyComponent={<EmptyComponent loading={loading} errorText={error} />}
     />
   );
 };

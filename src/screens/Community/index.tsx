@@ -7,18 +7,17 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import React, { VFC, useState, useLayoutEffect, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import { Header, CommunityItem } from 'components';
+import { Header, CommunityItem, AddCommunity } from 'components';
 
 import { t } from 'i18n';
 import handleError from 'utils/handleError';
 
-import { CommunityItemProps } from 'types';
-
 import Feed from './Feed';
 
 const Community: VFC = () => {
+  const [isEditId, setIsEditId] = useState('');
   const [loading, setLoading] = useState(false);
-  const [community, setCommunity] = useState<ASC.Community>();
+  const [community, setCommunity] = useState<Amity.Community>();
 
   const route = useRoute();
   const navigation = useNavigation();
@@ -26,7 +25,9 @@ const Community: VFC = () => {
     colors: { surface: surfaceColor },
   } = useTheme();
 
-  const { communityId, displayName, onRefresh } = route.params as CommunityItemProps;
+  const {
+    community: { communityId, displayName },
+  } = route.params as { community: Amity.Community };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -78,24 +79,27 @@ const Community: VFC = () => {
       showsVerticalScrollIndicator={false}
       style={{ backgroundColor: surfaceColor }}
     >
-      {loading ? (
+      {loading || !community?.communityId ? (
         <ActivityIndicator style={styles.loading} />
       ) : (
         <CommunityItem
           // eslint-disable-next-line react/jsx-props-no-spreading
-          {...(community as CommunityItemProps)}
-          onEditCommunity={() => {
-            // setIsEditId(postId);
-          }}
-          onRefresh={() => {
-            getCurrentCommunity();
-
-            onRefresh();
+          community={community!}
+          onEditCommunity={id => {
+            setIsEditId(id);
           }}
         />
       )}
 
       <Feed communityId={communityId} />
+
+      <AddCommunity
+        onClose={() => {
+          setIsEditId('');
+        }}
+        isEditId={isEditId}
+        visible={isEditId !== ''}
+      />
     </KeyboardAwareScrollView>
   );
 };
