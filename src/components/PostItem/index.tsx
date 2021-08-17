@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import Moment from 'moment';
 import React, { VFC, useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -73,7 +74,7 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
 
   useEffect(
     () => {
-      observePost(postId, updatedPost => {
+      return observePost(postId, updatedPost => {
         // console.log(2, { updatedPost });
         checkIsReportedByMe();
         setPostResult(updatedPost);
@@ -85,20 +86,20 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
 
   useEffect(() => {
     if (postedUserId) {
-      observeUser(postedUserId, userObj => setUser(userObj.data));
+      return observeUser(postedUserId, userObj => setUser(userObj.data));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postedUserId]);
 
   useEffect(() => {
     if (user?.avatarFileId) {
-      observeFile(user.avatarFileId, fileObj => setFile(fileObj.data));
+      return observeFile(user.avatarFileId, fileObj => setFile(fileObj.data));
     }
   }, [user]);
 
   useEffect(() => {
     if (childPost[0]) {
-      observeFile(childPost[0].data?.fileId, imgObj => setPostImage(imgObj.data));
+      return observeFile(childPost[0].data?.fileId, imgObj => setPostImage(imgObj.data));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [childPost?.length]);

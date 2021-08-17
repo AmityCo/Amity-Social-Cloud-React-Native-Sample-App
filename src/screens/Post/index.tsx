@@ -1,8 +1,9 @@
+/* eslint-disable consistent-return */
 import { StyleSheet, Alert } from 'react-native';
 import { StackHeaderProps } from '@react-navigation/stack';
 import { ActivityIndicator, useTheme } from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { getPost, observeUser, observePost } from '@amityco/ts-sdk';
+import { getPost, observeUser } from '@amityco/ts-sdk';
 import React, { VFC, useLayoutEffect, useState, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
@@ -28,7 +29,7 @@ const PostScreen: VFC = () => {
 
   useEffect(() => {
     if (postedUserId) {
-      observeUser(postedUserId, setUser);
+      return observeUser(postedUserId, setUser);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
