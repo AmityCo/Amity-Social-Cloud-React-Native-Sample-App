@@ -9,13 +9,13 @@ import useAuth from 'hooks/useAuth';
 import handleError from 'utils/handleError';
 import useCollection from 'hooks/useCollection';
 
-import { AddPostType, AddPostDataType, UploadedPostImageType } from 'types';
+import { AddFeedType, AddPostDataType, UploadedPostImageType } from 'types';
 
 import Image from './Image';
 import AddFile from './AddImage';
 import TextInput from '../TextInput';
 
-const AddPost: VFC<AddPostType> = ({ visible, onClose, isEditId }) => {
+const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId }) => {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
 

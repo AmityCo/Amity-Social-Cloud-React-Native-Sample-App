@@ -2,8 +2,8 @@
   "auth": {
     "login": "Login",
     "logout": "Logout",
-    "username": "Username",
-    "password": "Password"
+    "username": "User Id",
+    "displayName": "Name"
   },
   "routes": {
     "chat": "Chat",

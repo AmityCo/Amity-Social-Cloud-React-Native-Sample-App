@@ -4,19 +4,19 @@ import { Surface, Appbar } from 'react-native-paper';
 import { StyleSheet, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackHeaderProps } from '@react-navigation/stack';
-import { queryPosts, createQuery, runQuery, observePosts } from '@amityco/ts-sdk';
 import React, { VFC, useState, useLayoutEffect, useEffect, useRef, useCallback } from 'react';
+import { queryPosts, createQuery, runQuery, observePosts, queryGlobalFeed } from '@amityco/ts-sdk';
 
 import { Header, FAB, EmptyComponent, AddPost, PostItem, Loading } from 'components';
 
 import useAuth from 'hooks/useAuth';
 import handleError from 'utils/handleError';
 
-import { PostFeedType, PostFeedTypeeee, PostSortBy, PostItemProps } from 'types';
+import { PostFeedType, FeedType, PostSortBy } from 'types';
 
 import FilterDialog from './FilterDialog';
 
-const QUERY_LIMIT = 10;
+const QUERY_LIMIT = 20;
 
 const FeedScreen: VFC = () => {
   const [error, setError] = useState('');
@@ -26,17 +26,17 @@ const FeedScreen: VFC = () => {
   const [showAddPost, setShowAddPost] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [targetType] = React.useState<ASC.PostTargetType>('user');
-  const [feedType] = React.useState<PostFeedType>(PostFeedType.PUBLISHED);
-  const [isDeleted, setIsDeleted] = React.useState<ASC.Post['isDeleted']>(false);
+  const [targetType] = React.useState<Amity.PostTargetType>('user');
+  const [feedType, setFeedType] = React.useState<FeedType>(FeedType.Normal);
+  const [postFeedType] = React.useState<PostFeedType>(PostFeedType.PUBLISHED);
   const [sortBy, setSortBy] = React.useState<PostSortBy>(PostSortBy.LAST_CREATED);
-  const [feedTypeee, setFeedTypeee] = React.useState<PostFeedTypeeee>(PostFeedTypeeee.Normal);
+  const [isDeleted, setIsDeleted] = React.useState<Amity.Post['isDeleted']>(false);
 
-  const [pages, setPages] = useState<ASC.Pages>({});
-  const [currentPage, setCurrentPage] = useState<ASC.Page>();
-  const [posts, setPosts] = useState<Record<string, ASC.Post>>({});
+  const [pages, setPages] = useState<Amity.Pages>();
+  const [currentPage, setCurrentPage] = useState<Amity.Page>();
+  const [posts, setPosts] = useState<Record<string, Amity.Post>>({});
 
-  const flatlistRef = useRef<FlatList<PostItemProps>>(null);
+  const flatlistRef = useRef<FlatList<Amity.Post>>(null);
 
   const { client } = useAuth();
   const navigation = useNavigation();
@@ -70,55 +70,55 @@ const FeedScreen: VFC = () => {
     if (currentPage) {
       onQueryPost();
       setLoading(true);
+    } else {
+      onRefresh();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   useEffect(() => {
+    // console.log({ sortBy, isDeleted, feedType });
     onRefresh();
     flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy, isDeleted]);
+  }, [sortBy, isDeleted, feedType]);
 
-  const mergePosts = ([newPosts, newPages]: ASC.Paged<Record<string, ASC.Post>>) => {
-    if (isRefreshing) {
-      setPosts(newPosts);
-    } else {
-      setPosts(prevPosts => ({ ...prevPosts, ...newPosts }));
-    }
-
-    setPages(newPages);
-
-    setLoading(false);
-    setIsRefreshing(false);
-    setIsLoadingMore(false);
-  };
-
-  // TODO what if there is no client.userId? try for userIsDisconnected // try for reproduce
   const onQueryPost = async () => {
-    if (!client.userId) {
-      setError('UserId is not reachable!');
-      return;
-    }
+    let query = createQuery(queryGlobalFeed, { page: currentPage });
 
-    setError('');
-
-    try {
+    if (feedType === FeedType.Normal) {
       const queryData = {
         sortBy,
-        feedType,
         isDeleted,
         targetType,
+        feedType: postFeedType,
         targetId: client.userId!,
       };
 
-      const query = createQuery(queryPosts, { ...queryData, page: currentPage });
-      runQuery(query, mergePosts);
-    } catch (e) {
-      const errorText = handleError(e);
-
-      setError(errorText);
+      query = createQuery(queryPosts, { ...queryData, page: currentPage });
     }
+
+    runQuery(query, result => {
+      if (!result.data) return;
+      const { data, nextPage, prevPage, loading: loadingStack, error: errorStack } = result;
+      if (errorStack) {
+        const errorText = handleError(errorStack);
+
+        setError(errorText);
+      }
+
+      // console.log({ result, query });
+      if (isRefreshing) {
+        setPosts(data);
+      } else {
+        setPosts(prevPosts => ({ ...prevPosts, ...data }));
+      }
+
+      setIsRefreshing(false);
+      setIsLoadingMore(false);
+      setLoading(!!loadingStack);
+      setPages({ nextPage, prevPage });
+    });
   };
 
   useEffect(
@@ -141,10 +141,6 @@ const FeedScreen: VFC = () => {
               });
 
               flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
-            } else {
-              setPosts(prevState => {
-                return { ...prevState, [post.localId]: post };
-              });
             }
           },
         },
@@ -154,7 +150,7 @@ const FeedScreen: VFC = () => {
   );
 
   const handleLoadMore = () => {
-    if (pages.nextPage) {
+    if (pages?.nextPage) {
       setIsLoadingMore(true);
       setCurrentPage(pages.nextPage);
     }
@@ -166,14 +162,7 @@ const FeedScreen: VFC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const data = Object.values(posts).map(post => {
-    return {
-      ...post,
-      onPress: () => {
-        navigation.navigate('Post', post);
-      },
-    };
-  });
+  const data = Object.values(posts);
 
   return (
     <Surface style={styles.container}>
@@ -190,7 +179,13 @@ const FeedScreen: VFC = () => {
         ListEmptyComponent={<EmptyComponent loading={loading || isRefreshing} errorText={error} />}
         renderItem={({ item }) => (
           <Surface style={styles.postItem}>
-            <PostItem {...item} onEditPost={setIsEditId} />
+            <PostItem
+              post={{ ...item }}
+              onEditPost={setIsEditId}
+              onPress={() => {
+                navigation.navigate('Post', { post: item });
+              }}
+            />
           </Surface>
         )}
       />
@@ -213,13 +208,13 @@ const FeedScreen: VFC = () => {
 
       <FilterDialog
         sortBy={sortBy}
+        feedType={feedType}
         setSortBy={setSortBy}
         isDeleted={isDeleted}
         showDialog={showDialog}
-        feedTypeee={feedTypeee}
+        setFeedType={setFeedType}
         setIsDeleted={setIsDeleted}
         setShowDialog={setShowDialog}
-        setFeedTypeee={setFeedTypeee}
       />
     </Surface>
   );

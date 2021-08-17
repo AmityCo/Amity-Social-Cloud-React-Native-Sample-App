@@ -15,17 +15,17 @@ import {
 
 import { t } from 'i18n';
 
-import { PostFeedTypeeee, PostSortBy } from 'types';
+import { FeedType, PostSortBy } from 'types';
 
 type FeedScreenFilterDialog = {
   showDialog: boolean;
   setShowDialog: (showDialog: boolean) => void;
-  isDeleted: ASC.Post['isDeleted'];
+  isDeleted: Amity.Post['isDeleted'];
   setIsDeleted: (status: boolean) => void;
   sortBy: PostSortBy;
   setSortBy: (sortBy: PostSortBy) => void;
-  feedTypeee: PostFeedTypeeee;
-  setFeedTypeee: (feedType: PostFeedTypeeee) => void;
+  feedType: FeedType;
+  setFeedType: (feedType: FeedType) => void;
 };
 
 const FeedScreenFilterDialog: VFC<FeedScreenFilterDialog> = ({
@@ -35,8 +35,8 @@ const FeedScreenFilterDialog: VFC<FeedScreenFilterDialog> = ({
   setIsDeleted,
   sortBy,
   setSortBy,
-  feedTypeee,
-  setFeedTypeee,
+  feedType,
+  setFeedType,
 }) => {
   return (
     <Portal>
@@ -46,30 +46,28 @@ const FeedScreenFilterDialog: VFC<FeedScreenFilterDialog> = ({
           <TouchableRipple
             rippleColor="transparent"
             style={styles.radioArea}
-            onPress={() => setFeedTypeee(PostFeedTypeeee.Normal)}
+            onPress={() => setFeedType(FeedType.Normal)}
           >
             <>
-              <Text>{t(`posts.feed_type_${PostFeedTypeeee.Normal}`)}</Text>
+              <Text>{t(`posts.feed_type_${FeedType.Normal}`)}</Text>
               <RadioButton
-                disabled
-                value={PostFeedTypeeee.Normal}
-                status={feedTypeee === PostFeedTypeeee.Normal ? 'checked' : 'unchecked'}
-                onPress={() => setFeedTypeee(PostFeedTypeeee.Normal)}
+                value={FeedType.Normal}
+                status={feedType === FeedType.Normal ? 'checked' : 'unchecked'}
+                onPress={() => setFeedType(FeedType.Normal)}
               />
             </>
           </TouchableRipple>
           <TouchableRipple
-            disabled
             rippleColor="transparent"
             style={styles.radioArea}
-            onPress={() => setFeedTypeee(PostFeedTypeeee.Global)}
+            onPress={() => setFeedType(FeedType.Global)}
           >
             <>
-              <Text>{t(`posts.feed_type_${PostFeedTypeeee.Global}`)}</Text>
+              <Text>{t(`posts.feed_type_${FeedType.Global}`)}</Text>
               <RadioButton
-                value={PostFeedTypeeee.Global}
-                status={feedTypeee === PostFeedTypeeee.Global ? 'checked' : 'unchecked'}
-                onPress={() => setFeedTypeee(PostFeedTypeeee.Global)}
+                value={FeedType.Global}
+                status={feedType === FeedType.Global ? 'checked' : 'unchecked'}
+                onPress={() => setFeedType(FeedType.Global)}
               />
             </>
           </TouchableRipple>

@@ -14,6 +14,10 @@ import {
   fileUrlWithSize,
   runQuery,
   createQuery,
+  isReportedByMe,
+  createReport,
+  deleteReport,
+  observePost,
 } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
@@ -22,26 +26,25 @@ import handleError from 'utils/handleError';
 
 import { ReactionsType, PostItemProps } from 'types';
 
+import CardTitle from '../CardTitle';
 import HeaderMenu from '../HeaderMenu';
 
-const PostItem: VFC<PostItemProps> = ({
-  data,
-  postId,
-  onPress,
-  postedUserId,
-  commentsCount,
-  createdAt,
-  myReactions,
-  hasFlag,
+const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
+  post: postProp,
   onEditPost,
-  reactions,
-  children,
+  onPress,
 }) => {
-  const [user, setUser] = useState<ASC.User>();
-  const [file, setFile] = useState<ASC.File>();
+  const [user, setUser] = useState<Amity.User>();
+  const [file, setFile] = useState<Amity.File>();
   const [openMenu, setOpenMenu] = useState(false);
-  const [postImage, setPostImage] = useState<ASC.File>();
-  const [childPost, setChildPost] = useState<ASC.Post[]>([]);
+  const [flaggedByMe, setFlaggedByMe] = useState(false);
+  const [postImage, setPostImage] = useState<Amity.File>();
+  const [childPost, setChildPost] = useState<Amity.Post[]>([]);
+  const [postResult, setPostResult] = useState<Amity.QueryResult<Amity.Post | undefined>>({
+    data: postProp,
+  });
+
+  const { data: post } = postResult;
 
   const { client } = useAuth();
   const navigation = useNavigation();
@@ -49,33 +52,64 @@ const PostItem: VFC<PostItemProps> = ({
     colors: { text: textColor, primary: primaryColor },
   } = useTheme();
 
+  const {
+    data,
+    postId,
+    postedUserId,
+    commentsCount,
+    createdAt,
+    myReactions,
+    reactions,
+    children,
+    flagCount,
+    isDeleted,
+  } = post;
+
+  const checkIsReportedByMe = async () => {
+    runQuery(createQuery(isReportedByMe, 'post', postId), result => {
+      setFlaggedByMe(!!result.data);
+    });
+  };
+
+  useEffect(
+    () => {
+      observePost(postId, updatedPost => {
+        // console.log(2, { updatedPost });
+        checkIsReportedByMe();
+        setPostResult(updatedPost);
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [postId],
+  );
+
   useEffect(() => {
     if (postedUserId) {
-      observeUser(postedUserId, setUser);
+      observeUser(postedUserId, userObj => setUser(userObj.data));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [postedUserId]);
 
   useEffect(() => {
     if (user?.avatarFileId) {
-      observeFile(user.avatarFileId, setFile);
+      observeFile(user.avatarFileId, fileObj => setFile(fileObj.data));
     }
   }, [user]);
 
   useEffect(() => {
     if (childPost[0]) {
-      observeFile(childPost[0].data?.fileId, setPostImage);
+      observeFile(childPost[0].data?.fileId, imgObj => setPostImage(imgObj.data));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [childPost.length]);
+  }, [childPost?.length]);
 
   useEffect(() => {
     fetchChildredPost();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [children.length]);
+  }, [children?.length]);
 
   const fetchChildredPost = async () => {
-    if (children && children.length > 0) {
+    if (children && children?.length > 0) {
       const childrenPost = await getPost(children[0]);
 
       setChildPost([childrenPost]);
@@ -85,8 +119,18 @@ const PostItem: VFC<PostItemProps> = ({
   const toggleReaction = async (type: ReactionsType) => {
     try {
       const api = myReactions?.includes(type) ? removeReaction : addReaction;
-
       const query = createQuery(api, 'post', postId, type);
+
+      runQuery(query);
+    } catch (e) {
+      // TODO toastbar
+    }
+  };
+
+  const toggleFlag = async () => {
+    try {
+      const api = flaggedByMe ? deleteReport : createReport;
+      const query = createQuery(api, 'post', postId);
 
       runQuery(query);
     } catch (e) {
@@ -143,14 +187,20 @@ const PostItem: VFC<PostItemProps> = ({
           <HeaderMenu
             size={size}
             onEdit={canEdit}
-            hasFlag={hasFlag}
             visible={openMenu}
             onDelete={canDelete}
             onToggleMenu={() => setOpenMenu(prev => !prev)}
           />
         )}
         subtitle={postCreateAt}
-        title={user?.displayName}
+        title={
+          <CardTitle
+            title={user?.displayName}
+            flagCount={flagCount}
+            // hashFlag={hashFlag}
+            isDeleted={isDeleted}
+          />
+        }
         left={
           file?.fileUrl
             ? () => <Image style={styles.avatar} source={{ uri: file?.fileUrl }} />
@@ -182,6 +232,13 @@ const PostItem: VFC<PostItemProps> = ({
               color={myReactions?.includes(ReactionsType.LOVE) ? primaryColor : textColor}
             />
             {reactions[ReactionsType.LOVE] > 0 && <Text>{reactions[ReactionsType.LOVE]}</Text>}
+          </Button>
+          <Button onPress={toggleFlag}>
+            <MaterialCommunityIcons
+              size={20}
+              name={flaggedByMe ? 'flag' : 'flag-plus-outline'}
+              color={flaggedByMe ? primaryColor : textColor}
+            />
           </Button>
         </View>
 

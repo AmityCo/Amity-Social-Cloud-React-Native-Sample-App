@@ -11,12 +11,10 @@ import { Header, PostItem, AddPost, Comments } from 'components';
 import { t } from 'i18n';
 import handleError from 'utils/handleError';
 
-import { PostItemProps } from 'types';
-
 const PostScreen: VFC = () => {
-  const [post, setPost] = useState<ASC.Post>();
-  const [user, setUser] = useState<ASC.User>();
   const [isEditId, setIsEditId] = useState('');
+  const [post, setPost] = useState<Amity.Post>();
+  const [user, setUser] = useState<Amity.QueryResult<Amity.User | undefined>>();
 
   const route = useRoute();
   const navigation = useNavigation();
@@ -24,7 +22,9 @@ const PostScreen: VFC = () => {
     colors: { surface: surfaceColor },
   } = useTheme();
 
-  const { postId, postedUserId } = route.params as PostItemProps;
+  const {
+    post: { postId, postedUserId },
+  } = route.params as { post: Amity.Post };
 
   useEffect(() => {
     if (postedUserId) {
@@ -67,26 +67,13 @@ const PostScreen: VFC = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: user?.displayName ? `${user?.displayName}'s Post` : 'Post',
+      headerTitle: user?.data?.displayName ? `${user?.data?.displayName}'s Post` : 'Post',
       header: ({ scene, previous, navigation: nav }: StackHeaderProps) => (
         <Header scene={scene} navigation={nav} previous={previous} />
       ),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.displayName]);
-
-  useEffect(
-    () =>
-      observePost(postId, {
-        onEvent: (event, updatedPost) => {
-          if (event === 'onUpdate') {
-            setPost(updatedPost);
-          }
-        },
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
+  }, [user?.data]);
 
   return (
     <KeyboardAwareScrollView
@@ -98,8 +85,7 @@ const PostScreen: VFC = () => {
       ) : (
         <>
           <PostItem
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...(post as PostItemProps)}
+            post={post}
             onEditPost={() => {
               setIsEditId(postId);
             }}
