@@ -5,13 +5,14 @@ import {
   connectClient,
   isConnected,
   disconnectClient,
-  setCache,
+  enableCache,
 } from '@amityco/ts-sdk';
 
 import handleError from 'utils/handleError';
 
-import { AuthContextInterface, LoginFormData } from 'types';
+import { AuthContextInterface } from 'types';
 
+// TODO setCache
 // TODO put it in env
 // TODO put it inside + useRef
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -19,7 +20,7 @@ const client = createClient(
   'b3bee858328ef4344a308e4a5a091688d05fdee2be353a2b',
   'https://api.staging.amity.co/',
 );
-setCache();
+enableCache();
 
 // eslint-disable-next-line import/prefer-default-export
 export const AuthContext = React.createContext<AuthContextInterface>({
@@ -45,12 +46,12 @@ export const AuthContextProvider: FC = ({ children }) => {
     setIsAuth(isAuthenticated);
   };
 
-  const login = async (data: LoginFormData) => {
+  const login = async ({ userId, displayName }: Parameters<typeof connectClient>[0]) => {
     setError('');
     setLoading(true);
 
     try {
-      await connectClient({ userId: data.username, displayName: undefined });
+      await connectClient({ userId, displayName });
 
       checkConnected();
     } catch (e) {
