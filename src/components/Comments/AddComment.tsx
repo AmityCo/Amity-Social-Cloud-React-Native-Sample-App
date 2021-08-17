@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import { Button } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { VFC, useState, useEffect, useRef } from 'react';
@@ -26,7 +27,7 @@ import { createCommentType } from 'types';
 
 import TextInput from '../TextInput';
 
-type CommentsType = Pick<ASC.Post, 'postId'> & {
+type CommentsType = Pick<Amity.Post, 'postId'> & {
   onRefresh: () => void;
   isEdit: string;
   onCancel: () => void;
@@ -44,15 +45,15 @@ const AddComment: VFC<CommentsType> = ({
 }) => {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<ASC.User>();
+  const [user, setUser] = useState<Amity.User>();
   const textInputRef = useRef<TextInputType>(null);
 
   useEffect(() => {
     if (isReply !== '' && parentUserId) {
-      observeUser(parentUserId, setUser);
-    } else {
-      setUser(undefined);
+      return observeUser(parentUserId, userObj => setUser(userObj.data));
     }
+
+    setUser(undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReply]);
 
@@ -97,7 +98,7 @@ const AddComment: VFC<CommentsType> = ({
         const createCommentRequest: createCommentType = {
           data: { text },
           referenceId: postId,
-          referenceType: 'post' as ASC.CommentReferenceType,
+          referenceType: 'post' as Amity.CommentReferenceType,
         };
 
         if (isReply !== '') {

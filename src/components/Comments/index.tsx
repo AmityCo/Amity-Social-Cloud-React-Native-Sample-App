@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { StyleSheet, View, FlatList } from 'react-native';
+import { View, FlatList } from 'react-native';
 import { queryComments, createQuery, runQuery, observeComments } from '@amityco/ts-sdk';
 import React, { VFC, useState, useEffect, useRef, useCallback } from 'react';
 
@@ -11,9 +11,9 @@ import CommentItem from './CommentItem';
 import Loading from '../Loading';
 import EmptyComponent from '../EmptyComponent';
 
-type CommentsType = Pick<ASC.Post, 'postId'>;
+type CommentsType = Pick<Amity.Post, 'postId'>;
 
-const QUERY_LIMIT = 10;
+const QUERY_LIMIT = 5;
 
 const Comments: VFC<CommentsType> = ({ postId }) => {
   const [error, setError] = useState('');
@@ -23,11 +23,11 @@ const Comments: VFC<CommentsType> = ({ postId }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const [pages, setPages] = useState<ASC.Pages>({});
-  const [currentPage, setCurrentPage] = useState<ASC.Page>();
-  const [comments, setComments] = useState<Record<string, ASC.Comment>>({});
+  const [pages, setPages] = useState<Amity.Pages>();
+  const [currentPage, setCurrentPage] = useState<Amity.Page>();
+  const [comments, setComments] = useState<Record<string, Amity.Comment>>({});
 
-  const flatlistRef = useRef<FlatList<ASC.Comment>>(null);
+  const flatlistRef = useRef<FlatList<Amity.Comment>>(null);
 
   useEffect(() => {
     setCurrentPage({ before: 0, limit: QUERY_LIMIT });
@@ -43,15 +43,6 @@ const Comments: VFC<CommentsType> = ({ postId }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
-  const mergeComments = ([newComments, newPages]: ASC.Paged<Record<string, ASC.Comment>>) => {
-    setComments(prevComments => ({ ...prevComments, ...newComments }));
-
-    setPages(newPages);
-
-    setLoading(false);
-    setIsLoadingMore(false);
-  };
-
   const onQueryComment = async () => {
     try {
       const queryData = {
@@ -59,15 +50,28 @@ const Comments: VFC<CommentsType> = ({ postId }) => {
         isDeleted: false,
       };
 
-      const query = createQuery(queryComments, { ...queryData, page: currentPage });
+      runQuery(createQuery(queryComments, { ...queryData, page: currentPage }), result => {
+        if (!result.data) return;
+        const { data, nextPage, prevPage, loading: loadingStack, error: errorStack } = result;
 
-      runQuery(query, mergeComments);
+        if (errorStack) {
+          const errorText = handleError(errorStack);
+
+          setError(errorText);
+        }
+
+        setIsLoadingMore(false);
+        setLoading(!!loadingStack);
+        setPages({ nextPage, prevPage });
+        setComments(prevComments => ({ ...prevComments, ...data }));
+      });
     } catch (e) {
       const errorText = handleError(e);
 
       setError(errorText);
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
@@ -75,7 +79,6 @@ const Comments: VFC<CommentsType> = ({ postId }) => {
     () =>
       observeComments(postId, {
         onEvent: (action, post) => {
-          // console.log('comments', action, post);
           if (action === 'onDelete') {
             setComments(prevState => {
               // eslint-disable-next-line no-param-reassign
@@ -90,10 +93,6 @@ const Comments: VFC<CommentsType> = ({ postId }) => {
             });
 
             flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
-          } else {
-            setComments(prevState => {
-              return { ...prevState, [post.localId]: post };
-            });
           }
         },
       }),
@@ -102,7 +101,7 @@ const Comments: VFC<CommentsType> = ({ postId }) => {
   );
 
   const handleLoadMore = () => {
-    if (pages.nextPage) {
+    if (pages?.nextPage) {
       setIsLoadingMore(true);
       setCurrentPage(pages.nextPage);
     }
@@ -149,37 +148,8 @@ const Comments: VFC<CommentsType> = ({ postId }) => {
           <CommentItem {...item} onEdit={setIsEdit} postId={postId} onReply={setIsReply} />
         )}
       />
-
-      {/* {isLoadingOrEmpty ? (
-        <View style={styles.isLoadingOrEmpty}>
-          {loading ? (
-            <ActivityIndicator />
-          ) : (
-            <HelperText type="info" style={styles.helperText}>
-              No Comments, write the first!
-            </HelperText>
-          )}
-        </View>
-      ) : (
-        data.map(comment => (
-          <Comment
-            postId={postId}
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...comment}
-            // onRefresh={() => {
-            //   onQueryComment();
-            // }}
-            onEdit={setIsEdit}
-            onReply={setIsReply}
-            key={comment.commentId}
-            selectedComment={isEdit}
-          />
-        )) */}
-      {/* )} */}
     </View>
   );
 };
-
-const styles = StyleSheet.create({});
 
 export default Comments;

@@ -41,10 +41,10 @@ const CommentItem: VFC<CommentProps> = ({
   parentId,
   reactions,
 }) => {
-  const [user, setUser] = useState<ASC.User>();
+  const [user, setUser] = useState<Amity.User>();
   const [openMenu, setOpenMenu] = useState(false);
-  const [comment, setComment] = useState<ASC.Comment>();
-  const [comments, setComments] = useState<Record<string, ASC.Comment>>({});
+  const [comment, setComment] = useState<Amity.Comment>();
+  const [comments, setComments] = useState<Record<string, Amity.Comment>>({});
 
   const {
     colors: { text: textColor, primary: primaryColor, background: backgroundColor },
@@ -76,43 +76,42 @@ const CommentItem: VFC<CommentProps> = ({
   useEffect(
     () => {
       observeComment(commentId, updatedComment => {
-        // console.log(1, updatedComment);
-        setComment(updatedComment);
+        setComment(updatedComment.data);
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 
-  useEffect(
-    () =>
-      observeComments(postId!, {
-        onEvent: (action, post) => {
-          console.log({ action, post });
-          // if (action === 'onDelete') {
-          //   setPosts(prevState => {
-          //     // eslint-disable-next-line no-param-reassign
-          //     const state = { ...prevState };
+  // useEffect(
+  //   () =>
+  //     observeComments(postId!, {
+  //       onEvent: (action, post) => {
+  //         console.log('comment', { action, post });
+  //         // if (action === 'onDelete') {
+  //         //   setPosts(prevState => {
+  //         //     // eslint-disable-next-line no-param-reassign
+  //         //     const state = { ...prevState };
 
-          //     delete state[post.localId];
-          //     return state;
-          //   });
-          // } else if (action === 'onCreate') {
-          //   setPosts(prevState => {
-          //     return { [post.localId]: post, ...prevState };
-          //   });
+  //         //     delete state[post.localId];
+  //         //     return state;
+  //         //   });
+  //         // } else if (action === 'onCreate') {
+  //         //   setPosts(prevState => {
+  //         //     return { [post.localId]: post, ...prevState };
+  //         //   });
 
-          //   flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
-          // } else {
-          //   setPosts(prevState => {
-          //     return { ...prevState, [post.localId]: post };
-          //   });
-          // }
-        },
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
+  //         //   flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
+  //         // } else {
+  //         //   setPosts(prevState => {
+  //         //     return { ...prevState, [post.localId]: post };
+  //         //   });
+  //         // }
+  //       },
+  //     }),
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [],
+  // );
 
   useEffect(() => {
     if (postId) {
@@ -120,10 +119,6 @@ const CommentItem: VFC<CommentProps> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentId]);
-
-  const mergeComments = ([newComments, newPages]: ASC.Paged<Record<string, ASC.Comment>>) => {
-    setComments(prevComments => ({ ...prevComments, ...newComments }));
-  };
 
   const onQueryComments = async () => {
     try {
@@ -138,24 +133,27 @@ const CommentItem: VFC<CommentProps> = ({
         page: { before: 0, limit: QUERY_LIMIT },
       });
 
-      runQuery(query, mergeComments);
+      runQuery(query, result => {
+        if (!result.data) return;
+        const { data: childrenData } = result;
+
+        setComments(prevComments => ({ ...prevComments, ...childrenData }));
+      });
     } catch (e) {
       // const errorText = handleError(e);
     }
   };
 
   const toggleReaction = async (type: ReactionsType) => {
-    // console.log({ comment });
-    // try {
-    //   const api = comment?.myReactions?.includes(type) ? removeReaction : addReaction;
-    //   const query = createQuery(api, 'comment', commentId, type);
-    //   runQuery(query, () => {
-    //     //
-    //   });
-    // } catch (e) {
-    //   console.log(e);
-    //   // TODO toastbar
-    // }
+    console.log('toggle', { comment });
+    try {
+      const api = comment?.myReactions?.includes(type) ? removeReaction : addReaction;
+      const query = createQuery(api, 'comment', commentId, type);
+      runQuery(query);
+    } catch (e) {
+      console.log(e);
+      // TODO toastbar
+    }
   };
 
   const onEditComment = () => {
@@ -212,9 +210,9 @@ const CommentItem: VFC<CommentProps> = ({
             key={commentId}
             onEdit={canEdit}
             size={size / 1.5}
-            hasFlag={comment?.hasFlag ?? hasFlag}
             visible={openMenu}
             onDelete={canDelete}
+            hasFlag={comment?.flagCount > 0}
             onToggleMenu={() => setOpenMenu(prev => !prev)}
           >
             {!parentId && (

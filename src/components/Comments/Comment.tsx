@@ -22,7 +22,7 @@ import CommentItem from './CommentItem';
 
 import HeaderMenu from '../HeaderMenu';
 
-type CommentProps = ASC.Comment & {
+type CommentProps = Amity.Comment & {
   postId?: string;
   selectedComment?: string;
   onReply?: (commentId: string) => void;
@@ -45,14 +45,14 @@ const Comment: VFC<CommentProps> = ({
   children,
   reactions,
 }) => {
-  const [user, setUser] = useState<ASC.User>();
+  const [user, setUser] = useState<Amity.User>();
   const [openMenu, setOpenMenu] = useState(false);
   const [selectedChild, setSelectedChild] = useState('');
   const [isQueryingComments, setIsQueryingComments] = useState(false);
 
-  const [pages, setPages] = useState<ASC.Pages>({});
-  const [comments, setComments] = useState<Record<string, ASC.Comment>>({});
-  const [currentPage, setCurrentPage] = useState<ASC.Page>({ before: 0, limit: QUERY_LIMIT });
+  const [pages, setPages] = useState<Amity.Pages>();
+  const [comments, setComments] = useState<Record<string, Amity.Comment>>({});
+  const [currentPage, setCurrentPage] = useState<Amity.Page>({ before: 0, limit: QUERY_LIMIT });
 
   const {
     colors: { text: textColor, primary: primaryColor, background: backgroundColor },
@@ -81,7 +81,7 @@ const Comment: VFC<CommentProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [children.length]);
 
-  const mergeComments = ([newComments, newPages]: ASC.Paged<Record<string, ASC.Comment>>) => {
+  const mergeComments = ([newComments, newPages]: Amity.Paged<Record<string, Amity.Comment>>) => {
     setComments(prevComments => ({ ...prevComments, ...newComments }));
 
     setPages(newPages);
