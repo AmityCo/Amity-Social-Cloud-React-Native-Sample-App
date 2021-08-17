@@ -8,6 +8,7 @@ export { default as Comments } from './Comments';
 export { default as PostItem } from './PostItem';
 export { default as UserItem } from './UserItem';
 export { default as TextInput } from './TextInput';
+export { default as CardTitle } from './CardTitle';
 export { default as TabBarIcon } from './TabBarIcon';
 export { default as HeaderMenu } from './HeaderMenu';
 export { default as AddCommunity } from './AddCommunity';
