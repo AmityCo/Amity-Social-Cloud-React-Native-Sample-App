@@ -10,29 +10,27 @@ import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
 import handleError from 'utils/handleError';
 
-import { UserProps } from 'types';
+import { UserItemProps } from 'types';
 
 import HeaderMenu from '../HeaderMenu';
 
-const UserItem: VFC<UserProps> = ({
-  userId,
+const UserItem: VFC<{ user: Amity.User } & UserItemProps> = ({
+  user: userProp,
   onPress,
-  displayName,
-  createdAt,
-  description,
-  avatarFileId,
   onEditUser,
 }) => {
-  const [user, setUser] = useState<ASC.User>();
-  const [file, setFile] = useState<ASC.File>();
+  const [user, setUser] = useState<Amity.User>();
+  const [file, setFile] = useState<Amity.File>();
   const [openMenu, setOpenMenu] = useState(false);
+
+  const { userId, displayName, createdAt, description, avatarFileId } = userProp;
 
   const { client } = useAuth();
   const navigation = useNavigation();
 
   useEffect(() => {
     if (avatarFileId) {
-      observeFile(avatarFileId, setFile);
+      observeFile(avatarFileId, fileObj => setFile(fileObj.data));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -70,7 +68,7 @@ const UserItem: VFC<UserProps> = ({
   useEffect(
     () => {
       observeUser(userId, updatedUser => {
-        setUser(updatedUser);
+        setUser(updatedUser.data);
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

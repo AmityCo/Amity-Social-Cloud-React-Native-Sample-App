@@ -14,7 +14,7 @@ import useAuth from 'hooks/useAuth';
 import useDebounce from 'hooks/useDebounce';
 import handleError from 'utils/handleError';
 
-import { UserSortBy, UserFilter, UserProps } from 'types';
+import { UserSortBy, UserFilter, UserItemProps } from 'types';
 
 import FilterDialog from './FilterDialog';
 
@@ -31,11 +31,11 @@ const UserListScreen: VFC = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [sortBy, setSortBy] = useState<UserSortBy>(UserSortBy.LAST_CREATED);
 
-  const [pages, setPages] = useState<ASC.Pages>({});
-  const [currentPage, setCurrentPage] = useState<ASC.Page>();
-  const [users, setUsers] = useState<Record<string, ASC.User>>({});
+  const [pages, setPages] = useState<Amity.Pages>();
+  const [currentPage, setCurrentPage] = useState<Amity.Page>();
+  const [users, setUsers] = useState<Record<string, Amity.User>>({});
 
-  const flatlistRef = useRef<FlatList<UserProps>>(null);
+  const flatlistRef = useRef<FlatList<Amity.User>>(null);
 
   const { client } = useAuth();
   const navigation = useNavigation();
@@ -83,20 +83,6 @@ const UserListScreen: VFC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortBy, displayName]);
 
-  const mergePosts = ([newUsers, newPages]: ASC.Paged<Record<string, ASC.User>>) => {
-    if (isRefreshing) {
-      setUsers(newUsers);
-    } else {
-      setUsers(prevUsers => ({ ...prevUsers, ...newUsers }));
-    }
-
-    setPages(newPages);
-
-    setLoading(false);
-    setIsRefreshing(false);
-    setIsLoadingMore(false);
-  };
-
   const onQueryUsers = async () => {
     if (!client.userId) {
       setError('UserId is not reachable!');
@@ -120,8 +106,27 @@ const UserListScreen: VFC = () => {
         targetId: client.userId!,
       };
 
-      const query = createQuery(queryUsers, { ...queryData, page: currentPage });
-      runQuery(query, mergePosts);
+      runQuery(createQuery(queryUsers, { ...queryData, page: currentPage }), result => {
+        if (!result.data) return;
+        const { data, nextPage, prevPage, loading: loadingStack, error: errorStack } = result;
+
+        if (errorStack) {
+          const errorText = handleError(errorStack);
+
+          setError(errorText);
+        }
+
+        if (isRefreshing) {
+          setUsers(data);
+        } else {
+          setUsers(prevUsers => ({ ...prevUsers, ...data }));
+        }
+
+        setIsRefreshing(false);
+        setIsLoadingMore(false);
+        setLoading(!!loadingStack);
+        setPages({ nextPage, prevPage });
+      });
     } catch (e) {
       const errorText = handleError(e);
 
@@ -132,7 +137,7 @@ const UserListScreen: VFC = () => {
   };
 
   const handleLoadMore = () => {
-    if (pages.nextPage) {
+    if (pages?.nextPage) {
       setIsLoadingMore(true);
       setCurrentPage(pages.nextPage);
     }
@@ -144,14 +149,7 @@ const UserListScreen: VFC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const data = Object.values(users).map(user => {
-    return {
-      ...user,
-      onPress: () => {
-        navigation.navigate('User', user);
-      },
-    };
-  });
+  const data = Object.values(users);
 
   return (
     <Surface style={styles.container}>
@@ -175,7 +173,13 @@ const UserListScreen: VFC = () => {
         ListEmptyComponent={<EmptyComponent loading={loading || isRefreshing} errorText={error} />}
         renderItem={({ item }) => (
           <Surface style={styles.userItem}>
-            <UserItem {...item} onEditUser={setIsEditId} />
+            <UserItem
+              user={item}
+              onEditUser={setIsEditId}
+              onPress={() => {
+                navigation.navigate('User', { user: item });
+              }}
+            />
           </Surface>
         )}
       />

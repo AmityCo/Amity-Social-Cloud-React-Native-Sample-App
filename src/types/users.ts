@@ -1,5 +1,5 @@
-export type UserProps = ASC.User & {
-	onPress: () => void;
+export type UserItemProps = {
+	onPress?: () => void;
 	onEditUser?: (userId: string) => void;
 };
 

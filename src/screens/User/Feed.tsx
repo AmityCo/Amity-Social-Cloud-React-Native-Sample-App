@@ -9,19 +9,19 @@ import { EmptyComponent, PostItem, Loading } from 'components';
 
 import handleError from 'utils/handleError';
 
-type CommentsType = Pick<ASC.User, 'userId'>;
+type CommentsType = Pick<Amity.User, 'userId'>;
 
 const QUERY_LIMIT = 10;
 
-const Feeds: VFC<CommentsType> = ({ userId }) => {
+const Feeds: VFC<CommentsType & { header: React.ReactElement }> = ({ userId, header }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const [pages, setPages] = useState<ASC.Pages>({});
-  const [currentPage, setCurrentPage] = useState<ASC.Page>();
-  const [posts, setPosts] = useState<Record<string, ASC.Post>>({});
+  const [pages, setPages] = useState<Amity.Pages>();
+  const [currentPage, setCurrentPage] = useState<Amity.Page>();
+  const [posts, setPosts] = useState<Record<string, Amity.Post>>({});
 
   const navigation = useNavigation();
 
@@ -35,30 +35,36 @@ const Feeds: VFC<CommentsType> = ({ userId }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
-  const mergePosts = ([newPosts, newPages]: ASC.Paged<Record<string, ASC.Post>>) => {
-    if (isRefreshing) {
-      setPosts(newPosts);
-    } else {
-      setPosts(prevPosts => ({ ...prevPosts, ...newPosts }));
-    }
-
-    setPages(newPages);
-
-    setLoading(false);
-    setIsRefreshing(false);
-    setIsLoadingMore(false);
-  };
-
   const onQueryPost = async () => {
     setLoading(true);
     try {
       const queryData = {
         targetType: 'user',
         targetId: userId,
+        isDeleted: false,
       };
 
-      const query = createQuery(queryPosts, { ...queryData, page: currentPage });
-      runQuery(query, mergePosts);
+      runQuery(createQuery(queryPosts, { ...queryData, page: currentPage }), result => {
+        if (!result.data) return;
+        const { data, nextPage, prevPage, loading: loadingStack, error: errorStack } = result;
+
+        if (errorStack) {
+          const errorText = handleError(errorStack);
+
+          setError(errorText);
+        }
+
+        if (isRefreshing) {
+          setPosts(data);
+        } else {
+          setPosts(prevPosts => ({ ...prevPosts, ...data }));
+        }
+
+        setIsRefreshing(false);
+        setIsLoadingMore(false);
+        setLoading(!!loadingStack);
+        setPages({ nextPage, prevPage });
+      });
     } catch (e) {
       const errorText = handleError(e);
 
@@ -81,15 +87,12 @@ const Feeds: VFC<CommentsType> = ({ userId }) => {
                 const state = { ...prevState };
 
                 delete state[post.localId];
+
                 return state;
               });
             } else if (action === 'onCreate') {
               setPosts(prevState => {
                 return { [post.localId]: post, ...prevState };
-              });
-            } else {
-              setPosts(prevState => {
-                return { ...prevState, [post.localId]: post };
               });
             }
           },
@@ -100,7 +103,7 @@ const Feeds: VFC<CommentsType> = ({ userId }) => {
   );
 
   const handleLoadMore = () => {
-    if (pages.nextPage) {
+    if (pages?.nextPage) {
       setIsLoadingMore(true);
       setCurrentPage(pages.nextPage);
     }
@@ -112,14 +115,7 @@ const Feeds: VFC<CommentsType> = ({ userId }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const data = Object.values(posts).map(post => {
-    return {
-      ...post,
-      onPress: () => {
-        navigation.navigate('Post', post);
-      },
-    };
-  });
+  const data = Object.values(posts);
 
   return (
     <FlatList
@@ -127,6 +123,7 @@ const Feeds: VFC<CommentsType> = ({ userId }) => {
       onRefresh={onRefresh}
       refreshing={isRefreshing}
       onEndReachedThreshold={0.5}
+      ListHeaderComponent={header}
       onEndReached={handleLoadMore}
       keyExtractor={post => post.postId}
       showsVerticalScrollIndicator={false}
@@ -134,7 +131,12 @@ const Feeds: VFC<CommentsType> = ({ userId }) => {
       ListEmptyComponent={<EmptyComponent loading={loading || isRefreshing} errorText={error} />}
       renderItem={({ item }) => (
         <Surface style={styles.postItem}>
-          <PostItem {...item} />
+          <PostItem
+            post={item}
+            onPress={() => {
+              navigation.navigate('Post', { post: item });
+            }}
+          />
         </Surface>
       )}
     />

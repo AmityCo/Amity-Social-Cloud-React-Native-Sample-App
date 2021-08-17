@@ -1,7 +1,7 @@
-import { getUser, observeUser } from '@amityco/ts-sdk';
+import { getUser, observeUser, updateUser } from '@amityco/ts-sdk';
 import { StyleSheet, Alert } from 'react-native';
 import { StackHeaderProps } from '@react-navigation/stack';
-import { ActivityIndicator, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Surface, useTheme } from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import React, { VFC, useLayoutEffect, useState, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -11,21 +11,28 @@ import { Header, UserItem, AddUser } from 'components';
 import { t } from 'i18n';
 import handleError from 'utils/handleError';
 
-import { UserProps } from 'types';
-
 import Feed from './Feed';
 
 const UserScreen: VFC = () => {
-  const [user, setUser] = useState<ASC.User>();
+  const [user, setUser] = useState<Amity.User>();
   const [isEditId, setIsEditId] = useState('');
 
   const route = useRoute();
   const navigation = useNavigation();
-  const {
-    colors: { surface: surfaceColor },
-  } = useTheme();
 
-  const { userId } = route.params as UserProps;
+  const {
+    user: { userId },
+  } = route.params as { user: Amity.User };
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: user?.displayName ? user?.displayName : 'User',
+      header: ({ scene, previous, navigation: nav }: StackHeaderProps) => (
+        <Header scene={scene} navigation={nav} previous={previous} />
+      ),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.displayName]);
 
   useEffect(() => {
     getCurrentUser();
@@ -55,44 +62,24 @@ const UserScreen: VFC = () => {
     }
   };
 
-  useEffect(
-    () => {
-      observeUser(userId, updatedUser => {
-        setUser(updatedUser);
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: user?.displayName ? user?.displayName : 'User',
-      header: ({ scene, previous, navigation: nav }: StackHeaderProps) => (
-        <Header scene={scene} navigation={nav} previous={previous} />
-      ),
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.displayName]);
-
   return (
-    <KeyboardAwareScrollView
-      showsVerticalScrollIndicator={false}
-      style={{ backgroundColor: surfaceColor }}
-    >
+    <Surface style={styles.container}>
       {!user?.userId ? (
         <ActivityIndicator style={styles.loading} />
       ) : (
         <>
-          <UserItem
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...(user as UserProps)}
-            onEditUser={() => {
-              setIsEditId(userId);
-            }}
+          <Feed
+            userId={userId}
+            header={
+              <UserItem
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                user={user}
+                onEditUser={() => {
+                  setIsEditId(userId);
+                }}
+              />
+            }
           />
-
-          <Feed userId={userId} />
 
           <AddUser
             onClose={() => {
@@ -103,11 +90,12 @@ const UserScreen: VFC = () => {
           />
         </>
       )}
-    </KeyboardAwareScrollView>
+    </Surface>
   );
 };
 
 const styles = StyleSheet.create({
+  container: { flex: 1 },
   loading: { marginTop: 20 },
 });
 
