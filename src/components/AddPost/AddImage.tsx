@@ -2,7 +2,7 @@ import { createFile } from '@amityco/ts-sdk';
 import * as ImagePicker from 'expo-image-picker';
 import React, { VFC, useState, useEffect } from 'react';
 import { View, StyleSheet, Platform, Alert } from 'react-native';
-import { Button, Text, ProgressBar } from 'react-native-paper';
+import { Button, Text, ProgressBar, useTheme } from 'react-native-paper';
 
 import handleError from 'utils/handleError';
 
@@ -14,6 +14,10 @@ type AddPostImageProps = {
 
 const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
   const [progress, onProgress] = useState(0);
+
+  const {
+    colors: { primary: primaryColor },
+  } = useTheme();
 
   useEffect(() => {
     (async () => {
@@ -76,13 +80,13 @@ const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
 
   return (
     <View style={styles.container}>
-      <Button onPress={selectFile} disabled={progress > 0} mode="outlined" style={styles.btn}>
-        {progress > 0 ? (
-          <ProgressBar progress={progress / 100} style={styles.progressBar} />
-        ) : (
+      {progress > 0 ? (
+        <ProgressBar progress={progress / 100} style={styles.progressBar} color={primaryColor} />
+      ) : (
+        <Button onPress={selectFile} disabled={progress > 0} mode="outlined" style={styles.btn}>
           <Text>Attach Image</Text>
-        )}
-      </Button>
+        </Button>
+      )}
     </View>
   );
 };
