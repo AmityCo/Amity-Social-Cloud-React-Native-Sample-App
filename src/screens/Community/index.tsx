@@ -7,7 +7,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import React, { VFC, useState, useLayoutEffect, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import { Header, CommunityItem, AddCommunity } from 'components';
+import { Header, CommunityItem, AddPost, FAB } from 'components';
 
 import { t } from 'i18n';
 import handleError from 'utils/handleError';
@@ -17,6 +17,7 @@ import Feed from './Feed';
 const Community: VFC = () => {
   const [isEditId, setIsEditId] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showAddPost, setShowAddPost] = useState(false);
   const [community, setCommunity] = useState<Amity.Community>();
 
   const route = useRoute();
@@ -93,12 +94,20 @@ const Community: VFC = () => {
 
       <Feed communityId={communityId} />
 
-      <AddCommunity
+      <AddPost
+        isEditId=""
+        visible={showAddPost}
+        communityId={communityId}
         onClose={() => {
-          setIsEditId('');
+          setShowAddPost(false);
         }}
-        isEditId={isEditId}
-        visible={isEditId !== ''}
+      />
+
+      <FAB
+        icon="plus"
+        onPress={() => {
+          setShowAddPost(true);
+        }}
       />
     </KeyboardAwareScrollView>
   );

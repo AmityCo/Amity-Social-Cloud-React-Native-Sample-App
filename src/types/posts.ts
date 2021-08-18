@@ -20,6 +20,7 @@ export type AddFeedType = {
 	visible: boolean;
 	isEditId: string;
 	onClose: () => void;
+	communityId?: string;
 	// onAddPost: () => void;
 };
 

@@ -18,7 +18,7 @@ const CommunitiesScreen: VFC = () => {
   const [categoryId] = useState();
   const [error, setError] = useState('');
   const [isEditId, setIsEditId] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showAddCommunity, setShowAddCommunity] = useState(false);

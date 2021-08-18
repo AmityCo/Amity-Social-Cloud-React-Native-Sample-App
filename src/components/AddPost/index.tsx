@@ -15,7 +15,7 @@ import Image from './Image';
 import AddFile from './AddImage';
 import TextInput from '../TextInput';
 
-const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId }) => {
+const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, communityId }) => {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -79,8 +79,8 @@ const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId }) => {
       } else {
         const data: AddPostDataType = {
           data: { text },
-          targetType: 'user',
-          targetId: client.userId!,
+          targetType: communityId ? 'community' : 'user',
+          targetId: communityId || client.userId!,
         };
 
         if (images.length) {
