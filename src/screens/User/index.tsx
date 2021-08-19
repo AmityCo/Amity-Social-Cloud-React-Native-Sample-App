@@ -1,10 +1,9 @@
-import { getUser, observeUser, updateUser } from '@amityco/ts-sdk';
+import { getUser } from '@amityco/ts-sdk';
 import { StyleSheet, Alert } from 'react-native';
 import { StackHeaderProps } from '@react-navigation/stack';
-import { ActivityIndicator, Surface, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Surface } from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import React, { VFC, useLayoutEffect, useState, useEffect } from 'react';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { Header, UserItem, AddUser } from 'components';
 

@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import Moment from 'moment';
 import { Card, Paragraph } from 'react-native-paper';
@@ -30,7 +31,7 @@ const UserItem: VFC<{ user: Amity.User } & UserItemProps> = ({
 
   useEffect(() => {
     if (avatarFileId) {
-      observeFile(avatarFileId, fileObj => setFile(fileObj.data));
+      return observeFile(avatarFileId, fileObj => setFile(fileObj.data));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -67,8 +68,8 @@ const UserItem: VFC<{ user: Amity.User } & UserItemProps> = ({
 
   useEffect(
     () => {
-      observeUser(userId, updatedUser => {
-        setUser(updatedUser.data);
+      return observeUser(userId, ({ data: updatedUser }) => {
+        setUser(updatedUser);
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
