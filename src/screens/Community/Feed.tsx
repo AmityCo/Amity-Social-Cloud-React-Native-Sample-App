@@ -26,7 +26,6 @@ const CommunityFeed: VFC<CommentsType> = ({ communityId }) => {
 
   const flatlistRef = useRef<FlatList<Amity.Post>>(null);
 
-  // const { client } = useAuth();
   const navigation = useNavigation();
 
   useEffect(() => {
