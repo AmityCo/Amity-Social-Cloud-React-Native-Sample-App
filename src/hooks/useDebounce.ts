@@ -5,11 +5,14 @@ const useDebounce = <T>(
 	ms: number,
 ): [value: T, debouncedSetter: (newValue: T) => void] => {
 	const [value, setValue] = useState(initialValue);
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const timeout = useRef<any>();
+
+	const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const debouncedSetter = useCallback(
 		(newValue: T) => {
-			clearTimeout(timeout.current);
+			if (timeout.current) {
+				clearTimeout(timeout.current);
+			}
+
 			timeout.current = setTimeout(() => {
 				setValue(newValue);
 			}, ms);
