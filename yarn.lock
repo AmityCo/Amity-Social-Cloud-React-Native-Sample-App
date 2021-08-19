@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@amityco/ts-sdk@^0.0.1-beta.1":
-  version "0.0.1-beta.1"
-  resolved "https://registry.yarnpkg.com/@amityco/ts-sdk/-/ts-sdk-0.0.1-beta.1.tgz#8447976bdb36e5f1499d540289df3a8f75bc2550"
-  integrity sha512-uWzdpBbFH3hHhs47WPxj4ICst0HDaFElofCld1FqAqvoYMHXRjNmVaLJUy8ZATjMgXYFeTnmS6LZl1UxAkfmZA==
+"@amityco/ts-sdk@^0.0.1-beta.2":
+  version "0.0.1-beta.2"
+  resolved "https://registry.yarnpkg.com/@amityco/ts-sdk/-/ts-sdk-0.0.1-beta.2.tgz#cbdd430be5d729ad447b1c212f53fd75ef4a737b"
+  integrity sha512-gx1I07JrmOSg+CJZzFjqvuGJkaTrm+nURLgMd+Wgy2igXB7jPeJvaGzEMz6NWWCIJNgMk1sW3gzKj39a0dpuqQ==
   dependencies:
     "@react-native-async-storage/async-storage" "^1.15.5"
     agentkeepalive "^4.1.3"
