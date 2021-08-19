@@ -15,7 +15,7 @@ import handleError from 'utils/handleError';
 const PostScreen: VFC = () => {
   const [isEditId, setIsEditId] = useState('');
   const [post, setPost] = useState<Amity.Post>();
-  const [user, setUser] = useState<Amity.QueryResult<Amity.User | undefined>>();
+  const [user, setUser] = useState<Amity.User | undefined>();
 
   const route = useRoute();
   const navigation = useNavigation();
@@ -28,11 +28,11 @@ const PostScreen: VFC = () => {
   } = route.params as { post: Amity.Post };
 
   useEffect(() => {
-    if (postedUserId) {
-      return observeUser(postedUserId, setUser);
-    }
+    return observeUser(postedUserId, ({ data: updatedUser }) => {
+      setUser(updatedUser);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [postedUserId]);
 
   useEffect(() => {
     getCurrentPost();

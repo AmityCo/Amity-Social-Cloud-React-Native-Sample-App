@@ -1,5 +1,5 @@
 import React, { VFC } from 'react';
-import { Pressable, ImageBackground, StyleSheet } from 'react-native';
+import { Pressable, Text, StyleSheet } from 'react-native';
 
 import { UploadedPostFileType } from 'types';
 
@@ -8,10 +8,12 @@ type PostFileType = {
   onOpen?: () => void;
 };
 
-const PostImage: VFC<PostFileType> = ({ file, onOpen }) => {
+const PostFile: VFC<PostFileType> = ({ file, onOpen }) => {
   return (
     <Pressable style={styles.view} onPress={onOpen}>
-      <ImageBackground source={{ uri: file.uri }} imageStyle={styles.img} style={styles.bg} />
+      <Text style={styles.text} numberOfLines={3}>
+        {file.attributes.name}
+      </Text>
     </Pressable>
   );
 };
@@ -20,16 +22,15 @@ const styles = StyleSheet.create({
   view: {
     width: 75,
     height: 75,
-  },
-  bg: {
-    width: 75,
-    height: 75,
+    borderWidth: 1,
     borderRadius: 5,
+    borderColor: 'gray',
+    padding: 5,
     marginBottom: 5,
     justifyContent: 'center',
     marginHorizontal: 5,
   },
-  img: { borderRadius: 6 },
+  text: { textAlign: 'center' },
 });
 
-export default PostImage;
+export default PostFile;

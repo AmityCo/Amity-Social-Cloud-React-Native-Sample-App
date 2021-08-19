@@ -9,10 +9,12 @@ import useAuth from 'hooks/useAuth';
 import handleError from 'utils/handleError';
 import useCollection from 'hooks/useCollection';
 
-import { AddFeedType, AddPostDataType, UploadedPostImageType } from 'types';
+import { AddFeedType, AddPostDataType, UploadedPostFileType } from 'types';
 
+import File from './File';
 import Image from './Image';
-import AddFile from './AddImage';
+import AddFile from './AddFile';
+import AddImage from './AddImage';
 import TextInput from '../TextInput';
 
 const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, communityId }) => {
@@ -22,13 +24,19 @@ const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, communityId }) 
   const { client } = useAuth();
 
   const [images, addImage, remImage, toggleImages, resetImages] =
-    useCollection<UploadedPostImageType>([], (arr, el) =>
+    useCollection<UploadedPostFileType>([], (arr, el) =>
       arr.findIndex(({ fileId }) => fileId === el.fileId),
     );
+
+  const [files, addFile, remFile, toggleFiles, resetFiles] = useCollection<UploadedPostFileType>(
+    [],
+    (arr, el) => arr.findIndex(({ fileId }) => fileId === el.fileId),
+  );
 
   useEffect(() => {
     if (!visible) {
       setText('');
+      resetFiles();
       resetImages();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,6 +93,8 @@ const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, communityId }) 
 
         if (images.length) {
           data.data.images = images.map(({ fileId }) => fileId);
+        } else if (files.length) {
+          data.data.files = files.map(({ fileId }) => fileId);
         }
 
         await createPost(data);
@@ -122,11 +132,17 @@ const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, communityId }) 
 
             {isEditId === '' && (
               <View style={styles.filesContainer}>
-                <AddFile onAddImage={addImage} />
+                <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
+                  {images.length === 0 && <AddFile onAddFile={addFile} />}
+                  {files.length === 0 && <AddImage onAddImage={addImage} />}
+                </View>
 
                 <View style={styles.filesArea}>
                   {images.map(img => (
                     <Image file={img} key={`${img.fileId}`} />
+                  ))}
+                  {files.map(img => (
+                    <File file={img} key={`${img.fileId}`} />
                   ))}
                 </View>
               </View>

@@ -4,12 +4,13 @@ import React, { VFC, useState, useEffect } from 'react';
 import { View, StyleSheet, Platform, Alert } from 'react-native';
 import { Button, Text, ProgressBar, useTheme } from 'react-native-paper';
 
+import { t } from 'i18n';
 import handleError from 'utils/handleError';
 
-import { UploadedPostImageType } from 'types';
+import { UploadedPostFileType } from 'types';
 
 type AddPostImageProps = {
-  onAddImage: (image: UploadedPostImageType) => void;
+  onAddImage: (image: UploadedPostFileType) => void;
 };
 
 const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
@@ -83,8 +84,14 @@ const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
       {progress > 0 ? (
         <ProgressBar progress={progress / 100} style={styles.progressBar} color={primaryColor} />
       ) : (
-        <Button onPress={selectFile} disabled={progress > 0} mode="outlined" style={styles.btn}>
-          <Text>Attach Image</Text>
+        <Button
+          onPress={selectFile}
+          disabled={progress > 0}
+          mode="outlined"
+          style={styles.btn}
+          compact
+        >
+          <Text>{t('posts.attach_image')}</Text>
         </Button>
       )}
     </View>
@@ -93,7 +100,7 @@ const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
 
 const styles = StyleSheet.create({
   container: { marginBottom: 10, alignItems: 'center' },
-  btn: { height: 50, justifyContent: 'center', width: 150 },
+  btn: { justifyContent: 'center' },
   progressBar: { width: 100, height: 3, marginTop: 5 },
 });
 

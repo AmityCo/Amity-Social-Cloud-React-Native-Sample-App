@@ -27,6 +27,7 @@ export type AddFeedType = {
 export type AddPostDataType = {
 	data: {
 		text: string;
+		files?: string[];
 		images?: string[];
 	};
 	targetType: string;
@@ -35,7 +36,7 @@ export type AddPostDataType = {
 
 export type UpdatePostDataType = Patch<Amity.Post, 'data' | 'metadata'>;
 
-export type UploadedPostImageType = Amity.File & { uri: string };
+export type UploadedPostFileType = Amity.File & { uri: string };
 
 export type PostItemProps = {
 	onPress?: () => void;

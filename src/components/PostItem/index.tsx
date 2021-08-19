@@ -75,7 +75,6 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
   useEffect(
     () => {
       return observePost(postId, updatedPost => {
-        // console.log(2, { updatedPost });
         checkIsReportedByMe();
         setPostResult(updatedPost);
       });
@@ -85,9 +84,9 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
   );
 
   useEffect(() => {
-    if (postedUserId) {
-      return observeUser(postedUserId, userObj => setUser(userObj.data));
-    }
+    return observeUser(postedUserId, ({ data: updatedUser }) => {
+      setUser(updatedUser);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postedUserId]);
 
@@ -194,14 +193,7 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
           />
         )}
         subtitle={postCreateAt}
-        title={
-          <CardTitle
-            title={user?.displayName}
-            flagCount={flagCount}
-            // hashFlag={hashFlag}
-            isDeleted={isDeleted}
-          />
-        }
+        title={<CardTitle title={user?.displayName} flagCount={flagCount} isDeleted={isDeleted} />}
         left={
           file?.fileUrl
             ? () => <Image style={styles.avatar} source={{ uri: file?.fileUrl }} />
@@ -211,7 +203,7 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
 
       <Card.Content>
         <Paragraph style={styles.text}>{data.text}</Paragraph>
-        {postImage?.fileUrl && (
+        {postImage?.fileUrl && postImage?.type === 'image' && (
           <Card.Cover source={{ uri: fileUrlWithSize(postImage?.fileUrl, 'medium') }} />
         )}
       </Card.Content>

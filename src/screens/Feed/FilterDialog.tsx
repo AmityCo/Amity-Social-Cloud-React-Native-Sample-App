@@ -72,50 +72,51 @@ const FeedScreenFilterDialog: VFC<FeedScreenFilterDialog> = ({
             </>
           </TouchableRipple>
 
-          <Divider style={styles.divider} />
-
-          <Title>{t('posts.sort_by')}</Title>
-          <TouchableRipple
-            rippleColor="transparent"
-            style={styles.radioArea}
-            onPress={() => setSortBy(PostSortBy.FIRST_CREATED)}
-          >
+          {feedType === FeedType.Normal && (
             <>
-              <Text>{t(`posts.sort_by_${PostSortBy.FIRST_CREATED}`)}</Text>
-              <RadioButton
-                value={PostSortBy.FIRST_CREATED}
-                status={sortBy === PostSortBy.FIRST_CREATED ? 'checked' : 'unchecked'}
+              <Divider style={styles.divider} />
+              <Title>{t('posts.sort_by')}</Title>
+              <TouchableRipple
+                rippleColor="transparent"
+                style={styles.radioArea}
                 onPress={() => setSortBy(PostSortBy.FIRST_CREATED)}
-              />
-            </>
-          </TouchableRipple>
-          <TouchableRipple
-            rippleColor="transparent"
-            style={styles.radioArea}
-            onPress={() => setSortBy(PostSortBy.LAST_CREATED)}
-          >
-            <>
-              <Text>{t(`posts.sort_by_${PostSortBy.LAST_CREATED}`)}</Text>
-              <RadioButton
-                value={PostSortBy.LAST_CREATED}
-                status={sortBy === PostSortBy.LAST_CREATED ? 'checked' : 'unchecked'}
+              >
+                <>
+                  <Text>{t(`posts.sort_by_${PostSortBy.FIRST_CREATED}`)}</Text>
+                  <RadioButton
+                    value={PostSortBy.FIRST_CREATED}
+                    status={sortBy === PostSortBy.FIRST_CREATED ? 'checked' : 'unchecked'}
+                    onPress={() => setSortBy(PostSortBy.FIRST_CREATED)}
+                  />
+                </>
+              </TouchableRipple>
+              <TouchableRipple
+                rippleColor="transparent"
+                style={styles.radioArea}
                 onPress={() => setSortBy(PostSortBy.LAST_CREATED)}
-              />
+              >
+                <>
+                  <Text>{t(`posts.sort_by_${PostSortBy.LAST_CREATED}`)}</Text>
+                  <RadioButton
+                    value={PostSortBy.LAST_CREATED}
+                    status={sortBy === PostSortBy.LAST_CREATED ? 'checked' : 'unchecked'}
+                    onPress={() => setSortBy(PostSortBy.LAST_CREATED)}
+                  />
+                </>
+              </TouchableRipple>
+              <Divider style={styles.divider} />
+              <TouchableRipple
+                rippleColor="transparent"
+                style={[styles.radioArea, styles.includeDeletedArea]}
+                onPress={() => setIsDeleted(!isDeleted)}
+              >
+                <>
+                  <Text>{t('posts.include_deleted')}</Text>
+                  <Switch value={isDeleted} onValueChange={() => setIsDeleted(!isDeleted)} />
+                </>
+              </TouchableRipple>
             </>
-          </TouchableRipple>
-
-          <Divider style={styles.divider} />
-
-          <TouchableRipple
-            rippleColor="transparent"
-            style={[styles.radioArea, styles.includeDeletedArea]}
-            onPress={() => setIsDeleted(!isDeleted)}
-          >
-            <>
-              <Text>{t('posts.include_deleted')}</Text>
-              <Switch value={isDeleted} onValueChange={() => setIsDeleted(!isDeleted)} />
-            </>
-          </TouchableRipple>
+          )}
 
           <Dialog.Actions>
             <Button onPress={() => setShowDialog(false)}>{t('close')}</Button>

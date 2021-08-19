@@ -106,8 +106,6 @@ const FeedScreen: VFC = () => {
 
         setError(errorText);
       }
-
-      // console.log({ result, query });
       if (isRefreshing) {
         setPosts(data);
       } else {
