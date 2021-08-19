@@ -6,13 +6,7 @@ const SvgComponent: FC<{
   height?: number;
 }> = ({ width = 170, height = 70 }) => {
   return (
-    <Svg
-      width={width}
-      height={height}
-      viewBox="0 0 170 97"
-      fill="none"
-      //   xmlns="http://www.w3.org/2000/svg"
-    >
+    <Svg width={width} height={height} viewBox="0 0 170 97" fill="none">
       <Path
         d="M120 21.7c.7 2.7 1 5.5 1 8.3 0 12.1-6.3 22.8-15.9 28.8 2.2.8 4.5 1.2 6.9 1.2 11 0 20-9 20-20 0-8.2-5-15.3-12-18.3z"
         fill="#FF305A"
