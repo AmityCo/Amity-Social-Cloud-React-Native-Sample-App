@@ -14,7 +14,7 @@ type CommentsType = Pick<Amity.Community, 'communityId'>;
 
 const QUERY_LIMIT = 10;
 
-const Feeds: VFC<CommentsType> = ({ communityId }) => {
+const CommunityFeed: VFC<CommentsType> = ({ communityId }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -26,7 +26,7 @@ const Feeds: VFC<CommentsType> = ({ communityId }) => {
 
   const flatlistRef = useRef<FlatList<Amity.Post>>(null);
 
-  const { client } = useAuth();
+  // const { client } = useAuth();
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -45,6 +45,7 @@ const Feeds: VFC<CommentsType> = ({ communityId }) => {
       const queryData = {
         targetType: 'community',
         targetId: communityId,
+        isDeleted: false,
       };
 
       runQuery(createQuery(queryPosts, { ...queryData, page: currentPage }), result => {
@@ -159,4 +160,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Feeds;
+export default CommunityFeed;

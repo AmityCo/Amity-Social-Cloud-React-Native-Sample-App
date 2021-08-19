@@ -65,7 +65,6 @@ const CommunitiesScreen: VFC = () => {
 
   useEffect(() => {
     onRefresh();
-    flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortBy, isDeleted]);
 
@@ -110,6 +109,8 @@ const CommunitiesScreen: VFC = () => {
   const onRefresh = useCallback(() => {
     setIsRefreshing(true);
     setCurrentPage({ before: 0, limit: QUERY_LIMIT });
+
+    flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -150,9 +151,7 @@ const CommunitiesScreen: VFC = () => {
           setShowAddCommunity(false);
         }}
         isEditId={isEditId}
-        onAddCommunity={() => {
-          onRefresh();
-        }}
+        onAddCommunity={onRefresh}
         visible={showAddCommunity || isEditId !== ''}
       />
 

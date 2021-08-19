@@ -71,13 +71,10 @@ const AddCommunity: VFC<AddCommunityType> = ({ visible, onClose, onAddCommunity,
     try {
       setLoading(true);
 
+      const data = { displayName, description };
       if (isEditId !== '') {
-        const data = { displayName, description };
-
         await updateCommunity(isEditId, data);
       } else {
-        const data = { displayName };
-
         await createCommunity(data);
 
         onAddCommunity!();

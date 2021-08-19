@@ -20,6 +20,7 @@ import handleError from 'utils/handleError';
 
 import { CommunityItemProps } from 'types';
 
+import CardTitle from '../CardTitle';
 import HeaderMenu from '../HeaderMenu';
 
 const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = ({
@@ -41,11 +42,11 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
   const navigation = useNavigation();
 
   useEffect(() => {
-    if (userId) {
-      return observeUser(userId, userObj => setUser(userObj.data));
-    }
+    return observeUser(userId, ({ data: updatedUser }) => {
+      setUser(updatedUser);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     getCurrentCommunity();
@@ -84,7 +85,7 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [communityId],
   );
 
   const onToggleJoinCommunity = async () => {
@@ -145,9 +146,9 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
   const canDelete = isUser ? onDelete : undefined;
 
   return (
-    <Card onPress={onPress}>
+    <Card onPress={!community?.isDeleted ? onPress : undefined}>
       <Card.Title
-        title={community?.displayName}
+        title={<CardTitle title={community?.displayName} isDeleted={community?.isDeleted} />}
         subtitle={
           <View style={styles.subtitle}>
             <Text style={styles.subtitleRow}>
@@ -155,15 +156,17 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
             </Text>
           </View>
         }
-        right={({ size }) => (
-          <HeaderMenu
-            size={size}
-            onEdit={canEdit}
-            visible={openMenu}
-            onDelete={canDelete}
-            onToggleMenu={() => setOpenMenu(prev => !prev)}
-          />
-        )}
+        right={({ size }) =>
+          !community?.isDeleted ? (
+            <HeaderMenu
+              size={size}
+              onEdit={canEdit}
+              visible={openMenu}
+              onDelete={canDelete}
+              onToggleMenu={() => setOpenMenu(prev => !prev)}
+            />
+          ) : undefined
+        }
       />
 
       <Card.Content>
@@ -181,11 +184,13 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
           </View>
         </View>
 
-        <Pressable style={styles.footerRight} onPress={onToggleJoinCommunity}>
-          <Button compact mode="outlined" loading={loading} disabled={loading}>
-            {community?.isJoined ? t('leave') : t('join')}
-          </Button>
-        </Pressable>
+        {!community?.isDeleted && (
+          <Pressable style={styles.footerRight} onPress={onToggleJoinCommunity}>
+            <Button compact mode="outlined" loading={loading} disabled={loading}>
+              {community?.isJoined ? t('leave') : t('join')}
+            </Button>
+          </Pressable>
+        )}
       </Card.Actions>
     </Card>
   );
