@@ -2,7 +2,7 @@
 import React, { useState, useEffect, VFC } from 'react';
 import { Text, Surface, Button } from 'react-native-paper';
 import { Alert, View, StyleSheet, Modal, ScrollView } from 'react-native';
-import { getCommunity, createCommunity, updateCommunity, deleteCommunity } from '@amityco/ts-sdk';
+import { getCommunity, createCommunity, updateCommunity } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
