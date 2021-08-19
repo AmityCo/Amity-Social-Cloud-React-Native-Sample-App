@@ -50,7 +50,9 @@ const AddComment: VFC<CommentsType> = ({
 
   useEffect(() => {
     if (isReply !== '' && parentUserId) {
-      return observeUser(parentUserId, userObj => setUser(userObj.data));
+      return observeUser(parentUserId, ({ data: updatedUser }) => {
+        setUser(updatedUser);
+      });
     }
 
     setUser(undefined);
@@ -91,14 +93,11 @@ const AddComment: VFC<CommentsType> = ({
         };
 
         const query = createQuery(updateComment, isEdit, updateCommentRequest);
-        runQuery(query, () => {
-          //
-        });
+        runQuery(query);
       } else {
-        const createCommentRequest: createCommentType = {
+        const createCommentRequest: Parameters<typeof createComment>[0] = {
           data: { text },
-          referenceId: postId,
-          referenceType: 'post' as Amity.CommentReferenceType,
+          postId,
         };
 
         if (isReply !== '') {
@@ -106,9 +105,7 @@ const AddComment: VFC<CommentsType> = ({
         }
 
         const query = createQuery(createComment, createCommentRequest);
-        runQuery(query, () => {
-          //
-        });
+        runQuery(query);
       }
 
       setText('');

@@ -60,9 +60,10 @@ const Comment: VFC<CommentProps> = ({
   const { client } = useAuth();
 
   useEffect(() => {
-    observeUser(userId, setUser);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return observeUser(userId, ({ data: updatedUser }) => {
+      setUser(updatedUser);
+    }); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   useEffect(() => {
     if (selectedComment === '' && children.includes(selectedChild)) {

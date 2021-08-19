@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable react/jsx-props-no-spreading */
 import { View, FlatList } from 'react-native';
 import { queryComments, createQuery, runQuery, observeComments } from '@amityco/ts-sdk';
@@ -88,9 +89,25 @@ const Comments: VFC<CommentsType> = ({ postId }) => {
               return state;
             });
           } else if (action === 'onCreate') {
-            setComments(prevState => {
-              return { [post.localId]: post, ...prevState };
-            });
+            if (post.parentId) {
+              setComments(prevState => {
+                const state = { ...prevState };
+                const cm = Object.values(state).find(com => com.commentId === post.parentId);
+
+                if (cm) {
+                  cm?.children.push(post.parentId!);
+                  // eslint-disable-next-line no-param-reassign
+
+                  state[cm!.localId] = cm!;
+                }
+
+                return state;
+              });
+            } else {
+              setComments(prevState => {
+                return { [post.localId]: post, ...prevState };
+              });
+            }
 
             flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
           }

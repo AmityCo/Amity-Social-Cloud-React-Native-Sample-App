@@ -32,8 +32,6 @@ const CommentItem: VFC<CommentProps> = ({
   commentId,
   createdAt,
   data,
-  hasFlag,
-  myReactions,
   userId,
   onEdit,
   onReply,
@@ -52,9 +50,10 @@ const CommentItem: VFC<CommentProps> = ({
   const { client } = useAuth();
 
   useEffect(() => {
-    observeUser(userId, setUser);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return observeUser(userId, ({ data: updatedUser }) => {
+      setUser(updatedUser);
+    }); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   useEffect(() => {
     getCurrentComment();
@@ -75,7 +74,7 @@ const CommentItem: VFC<CommentProps> = ({
   // TODO this doesn't work
   useEffect(
     () => {
-      observeComment(commentId, updatedComment => {
+      return observeComment(commentId, updatedComment => {
         setComment(updatedComment.data);
       });
     },
@@ -83,42 +82,12 @@ const CommentItem: VFC<CommentProps> = ({
     [],
   );
 
-  // useEffect(
-  //   () =>
-  //     observeComments(postId!, {
-  //       onEvent: (action, post) => {
-  //         console.log('comment', { action, post });
-  //         // if (action === 'onDelete') {
-  //         //   setPosts(prevState => {
-  //         //     // eslint-disable-next-line no-param-reassign
-  //         //     const state = { ...prevState };
-
-  //         //     delete state[post.localId];
-  //         //     return state;
-  //         //   });
-  //         // } else if (action === 'onCreate') {
-  //         //   setPosts(prevState => {
-  //         //     return { [post.localId]: post, ...prevState };
-  //         //   });
-
-  //         //   flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
-  //         // } else {
-  //         //   setPosts(prevState => {
-  //         //     return { ...prevState, [post.localId]: post };
-  //         //   });
-  //         // }
-  //       },
-  //     }),
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [],
-  // );
-
   useEffect(() => {
     if (postId) {
       onQueryComments();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commentId]);
+  }, [commentId, children.length]);
 
   const onQueryComments = async () => {
     try {
@@ -145,10 +114,10 @@ const CommentItem: VFC<CommentProps> = ({
   };
 
   const toggleReaction = async (type: ReactionsType) => {
-    console.log('toggle', { comment });
     try {
       const api = comment?.myReactions?.includes(type) ? removeReaction : addReaction;
       const query = createQuery(api, 'comment', commentId, type);
+
       runQuery(query);
     } catch (e) {
       console.log(e);
