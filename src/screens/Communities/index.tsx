@@ -3,19 +3,17 @@ import { queryCommunities, createQuery, runQuery } from '@amityco/ts-sdk';
 import { FlatList, StyleSheet } from 'react-native';
 import { Surface } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { StackHeaderProps } from '@react-navigation/stack';
 import React, { VFC, useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 
 import { Header, CommunityItem, EmptyComponent, FAB, AddCommunity, Loading } from 'components';
 
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
 
-import { CommunitySortBy, CommunityMembership } from 'types';
+import { CommunitySortBy, CommunityMembership, DrawerStackHeaderProps } from 'types';
 
 const QUERY_LIMIT = 5;
 
 const CommunitiesScreen: VFC = () => {
-  const [categoryId] = useState();
   const [error, setError] = useState('');
   const [isEditId, setIsEditId] = useState('');
   const [loading, setLoading] = useState(true);
@@ -36,7 +34,7 @@ const CommunitiesScreen: VFC = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      header: ({ scene, previous, navigation: nav }: StackHeaderProps) => (
+      header: ({ scene, previous, navigation: nav }: DrawerStackHeaderProps) => (
         <Header scene={scene} previous={previous} navigation={nav} />
       ),
     });
@@ -72,7 +70,6 @@ const CommunitiesScreen: VFC = () => {
     const queryData = {
       sortBy,
       isDeleted,
-      categoryId,
       membership,
     };
 
@@ -81,7 +78,7 @@ const CommunitiesScreen: VFC = () => {
       const { data, nextPage, prevPage, loading: loadingStack, error: errorStack } = result;
 
       if (errorStack) {
-        const errorText = handleError(errorStack);
+        const errorText = getErrorMessage(errorStack);
 
         setError(errorText);
       }

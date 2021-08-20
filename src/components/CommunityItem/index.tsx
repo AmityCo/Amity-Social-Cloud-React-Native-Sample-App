@@ -16,7 +16,7 @@ import { observeCommunity } from '@amityco/ts-sdk/community/observers/observeCom
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
 
 import { CommunityItemProps } from 'types';
 
@@ -59,7 +59,7 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
 
       setCommunity(currentCommunity);
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
       Alert.alert(
         'Oooops!',
         errorText,
@@ -95,7 +95,7 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
 
       await api(communityId);
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
 
       Alert.alert(errorText);
     } finally {
@@ -128,7 +128,7 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
                 navigation.goBack();
               }
             } catch (error) {
-              const errorText = handleError(error);
+              const errorText = getErrorMessage(error);
 
               Alert.alert(errorText);
             }

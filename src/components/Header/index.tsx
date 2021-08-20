@@ -11,9 +11,10 @@ type HeaderProps = {
   drawer?: boolean;
   left?: ReactElement;
   right?: ReactElement;
+  navigation: DrawerNavigationProp<Record<string, undefined>>;
 };
 
-const Header: FC<Pick<StackHeaderProps, 'navigation' | 'previous' | 'scene'> & HeaderProps> = ({
+const Header: FC<Pick<StackHeaderProps, 'previous' | 'scene'> & HeaderProps> = ({
   left,
   right,
   scene,
@@ -42,11 +43,9 @@ const Header: FC<Pick<StackHeaderProps, 'navigation' | 'previous' | 'scene'> & H
             <Pressable
               style={styles.drawerIcon}
               onPress={() => {
-                // eslint-disable-next-line @typescript-eslint/ban-types
-                (navigation as unknown as DrawerNavigationProp<{}>).openDrawer();
+                navigation.openDrawer();
               }}
             >
-              {/* <Avatar.Image size={40} source={AvatarHolder} /> */}
               <ASCLogo width={70} height={45} />
             </Pressable>
           ))

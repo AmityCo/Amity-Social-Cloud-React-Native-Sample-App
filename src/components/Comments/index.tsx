@@ -4,7 +4,7 @@ import { View, FlatList } from 'react-native';
 import { queryComments, createQuery, runQuery, observeComments } from '@amityco/ts-sdk';
 import React, { VFC, useState, useEffect, useRef, useCallback } from 'react';
 
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
 
 import AddComment from './AddComment';
 import CommentItem from './CommentItem';
@@ -12,11 +12,9 @@ import CommentItem from './CommentItem';
 import Loading from '../Loading';
 import EmptyComponent from '../EmptyComponent';
 
-type CommentsType = Pick<Amity.Post, 'postId'>;
-
 const QUERY_LIMIT = 5;
 
-const Comments: VFC<CommentsType> = ({ postId }) => {
+const Comments: VFC<{ postId: string }> = ({ postId }) => {
   const [error, setError] = useState('');
   const [isEdit, setIsEdit] = useState('');
   const [isReply, setIsReply] = useState('');
@@ -56,7 +54,7 @@ const Comments: VFC<CommentsType> = ({ postId }) => {
         const { data, nextPage, prevPage, loading: loadingStack, error: errorStack } = result;
 
         if (errorStack) {
-          const errorText = handleError(errorStack);
+          const errorText = getErrorMessage(errorStack);
 
           setError(errorText);
         }
@@ -67,7 +65,7 @@ const Comments: VFC<CommentsType> = ({ postId }) => {
         setComments(prevComments => ({ ...prevComments, ...data }));
       });
     } catch (e) {
-      const errorText = handleError(e);
+      const errorText = getErrorMessage(e);
 
       setError(errorText);
     } finally {

@@ -1,6 +1,5 @@
 import { getUser } from '@amityco/ts-sdk';
 import { StyleSheet, Alert } from 'react-native';
-import { StackHeaderProps } from '@react-navigation/stack';
 import { ActivityIndicator, Surface } from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import React, { VFC, useLayoutEffect, useState, useEffect } from 'react';
@@ -8,7 +7,9 @@ import React, { VFC, useLayoutEffect, useState, useEffect } from 'react';
 import { Header, UserItem, AddUser } from 'components';
 
 import { t } from 'i18n';
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
+
+import { DrawerStackHeaderProps } from 'types';
 
 import Feed from './Feed';
 
@@ -26,7 +27,7 @@ const UserScreen: VFC = () => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: user?.displayName ? user?.displayName : 'User',
-      header: ({ scene, previous, navigation: nav }: StackHeaderProps) => (
+      header: ({ scene, previous, navigation: nav }: DrawerStackHeaderProps) => (
         <Header scene={scene} navigation={nav} previous={previous} />
       ),
     });
@@ -44,7 +45,7 @@ const UserScreen: VFC = () => {
 
       setUser(currentUser);
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
       Alert.alert(
         'Oooops!',
         errorText,

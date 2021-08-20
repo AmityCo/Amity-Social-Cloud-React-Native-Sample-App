@@ -1,17 +1,15 @@
 import React, { VFC } from 'react';
 import { Pressable, ImageBackground, StyleSheet } from 'react-native';
 
-import { UploadedPostFileType } from 'types';
-
 type PostFileType = {
-  file: UploadedPostFileType;
+  file: Amity.File;
   onOpen?: () => void;
 };
 
 const PostImage: VFC<PostFileType> = ({ file, onOpen }) => {
   return (
     <Pressable style={styles.view} onPress={onOpen}>
-      <ImageBackground source={{ uri: file.uri }} imageStyle={styles.img} style={styles.bg} />
+      <ImageBackground source={{ uri: file.fileUrl }} imageStyle={styles.img} style={styles.bg} />
     </Pressable>
   );
 };

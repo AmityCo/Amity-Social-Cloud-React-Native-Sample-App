@@ -23,7 +23,7 @@ const LoginScreen: VFC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>();
-  const { login, isAuthenticating, error } = useAuth();
+  const { login, isConnecting, error } = useAuth();
   const { theme, toggleTheme } = usePreferences();
 
   const onSubmit: SubmitHandler<LoginFormData> = async formData => {
@@ -89,8 +89,8 @@ const LoginScreen: VFC = () => {
         <Button
           mode="contained"
           style={styles.btn}
-          loading={isAuthenticating}
-          disabled={isAuthenticating}
+          loading={isConnecting}
+          disabled={isConnecting}
           onPress={handleSubmit(onSubmit)}
         >
           <Text>{t('auth.login')}</Text>

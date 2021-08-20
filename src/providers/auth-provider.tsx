@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import {
   createClient,
   connectClient,
@@ -7,15 +7,12 @@ import {
   disconnectClient,
   enableCache,
 } from '@amityco/ts-sdk';
+// import { useAsync } from 'react-use';
 
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
 
 import { AuthContextInterface } from 'types';
 
-// TODO setCache
-// TODO put it in env
-// TODO put it inside + useRef
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const client = createClient(
   'b3bee858328ef4344a308e4a5a091688d05fdee2be353a2b',
   'https://api.staging.amity.co/',
@@ -24,27 +21,20 @@ enableCache();
 
 // eslint-disable-next-line import/prefer-default-export
 export const AuthContext = React.createContext<AuthContextInterface>({
+  client,
+  error: '',
   login: () => {},
   logout: () => {},
   isConnected: false,
-  client: { userId: '' },
-  isAuthenticating: false,
-  error: '',
+  isConnecting: false,
 });
 
 // TODO persistant strategy
 // TODO error handling
 // TODO consider react native offline like  https://github.com/nandorojo/swr-react-native
 export const AuthContextProvider: FC = ({ children }) => {
-  const [error, setError] = React.useState('');
-  const [isAuth, setIsAuth] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-
-  const checkConnected = () => {
-    const isAuthenticated = isConnected();
-
-    setIsAuth(isAuthenticated);
-  };
+  const [error, setError] = useState('');
+  const [isConnecting, setLoading] = useState(false);
 
   const login = async ({ userId, displayName }: Parameters<typeof connectClient>[0]) => {
     setError('');
@@ -52,10 +42,8 @@ export const AuthContextProvider: FC = ({ children }) => {
 
     try {
       await connectClient({ userId, displayName });
-
-      checkConnected();
     } catch (e) {
-      const errorText = handleError(e);
+      const errorText = getErrorMessage(e);
 
       setError(errorText);
     } finally {
@@ -63,15 +51,20 @@ export const AuthContextProvider: FC = ({ children }) => {
     }
   };
 
+  // useAsync(async () => {
+  //   try {
+  //     setLoading(true);
+  //     await connectClient({ userId, displayName });
+  //   } catch (err) {
+  //     setError(getErrorMessage(err));
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, []);
+
   const logout = async () => {
     await disconnectClient();
-
-    checkConnected();
   };
-
-  React.useEffect(() => {
-    checkConnected();
-  }, []);
 
   return (
     <AuthContext.Provider
@@ -80,8 +73,8 @@ export const AuthContextProvider: FC = ({ children }) => {
         login,
         client,
         logout,
-        isConnected: isAuth,
-        isAuthenticating: loading,
+        isConnecting,
+        isConnected: isConnected(),
       }}
     >
       {children}

@@ -1,26 +1,20 @@
 import { View, StyleSheet } from 'react-native';
 import React, { VFC } from 'react';
-import { HelperText, ActivityIndicator, Button } from 'react-native-paper';
+import { HelperText, Button } from 'react-native-paper';
 
 import { t } from 'i18n';
 
-type EmptyComponentProps = { loading: boolean; errorText?: string; onRetry?: () => void };
+type EmptyComponentProps = { errorText?: string; onRetry?: () => void };
 
-const EmptyComponent: VFC<EmptyComponentProps> = ({ loading, errorText, onRetry }) => {
+const EmptyComponent: VFC<EmptyComponentProps> = ({ errorText, onRetry }) => {
   const text = errorText && errorText !== '' ? errorText : t('no_result');
 
   return (
     <View style={styles.container}>
-      {loading ? (
-        <ActivityIndicator />
-      ) : (
-        <>
-          <HelperText type={errorText !== '' ? 'error' : 'info'} style={styles.errorText}>
-            {text}
-          </HelperText>
-          {onRetry && <Button onPress={onRetry}>{t('retry')}</Button>}
-        </>
-      )}
+      <HelperText type={errorText !== '' ? 'error' : 'info'} style={styles.errorText}>
+        {text}
+      </HelperText>
+      {onRetry && <Button onPress={onRetry}>{t('retry')}</Button>}
     </View>
   );
 };

@@ -6,10 +6,10 @@ import { createPost, getPost, updatePost } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
 import useCollection from 'hooks/useCollection';
 
-import { AddFeedType, AddPostDataType, UploadedPostFileType } from 'types';
+import { AddFeedType, AddPostDataType } from 'types';
 
 import File from './File';
 import Image from './Image';
@@ -23,12 +23,12 @@ const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, communityId }) 
 
   const { client } = useAuth();
 
-  const [images, addImage, remImage, toggleImages, resetImages] =
-    useCollection<UploadedPostFileType>([], (arr, el) =>
-      arr.findIndex(({ fileId }) => fileId === el.fileId),
-    );
+  const [images, addImage, remImage, toggleImages, resetImages] = useCollection<Amity.File>(
+    [],
+    (arr, el) => arr.findIndex(({ fileId }) => fileId === el.fileId),
+  );
 
-  const [files, addFile, remFile, toggleFiles, resetFiles] = useCollection<UploadedPostFileType>(
+  const [files, addFile, remFile, toggleFiles, resetFiles] = useCollection<Amity.File>(
     [],
     (arr, el) => arr.findIndex(({ fileId }) => fileId === el.fileId),
   );
@@ -55,7 +55,7 @@ const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, communityId }) 
 
       setText(post.data.text);
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
       Alert.alert(
         'Oooops!',
         errorText,
@@ -102,7 +102,7 @@ const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, communityId }) 
 
       onClose();
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
 
       Alert.alert(errorText);
     } finally {

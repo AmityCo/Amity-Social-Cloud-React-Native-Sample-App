@@ -3,14 +3,14 @@ import * as ImagePicker from 'expo-image-picker';
 import React, { VFC, useState, useEffect } from 'react';
 import { View, StyleSheet, Platform, Alert } from 'react-native';
 import { Button, Text, ProgressBar, useTheme } from 'react-native-paper';
+// import FormData from 'react-native/Libraries/Network/FormData';
 
 import { t } from 'i18n';
-import handleError from 'utils/handleError';
-
-import { UploadedPostFileType } from 'types';
+import { uriToBlob } from 'utils';
+import getErrorMessage from 'utils/getErrorMessage';
 
 type AddPostImageProps = {
-  onAddImage: (image: UploadedPostFileType) => void;
+  onAddImage: (image: Amity.File) => void;
 };
 
 const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
@@ -40,38 +40,28 @@ const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
       });
 
       if (!result.cancelled) {
+        const blob = await uriToBlob(result.uri);
+
         const fileData = {
+          ...blob,
           uri: result.uri,
           name: result.uri.split('/').pop(),
           type: `image/${result.uri.split('.').pop()}`,
         };
-        const data: any = new FormData();
+
+        const data = new FormData();
         data.append('file', fileData);
 
-        // TODO
-        //         how about your add in a .d.ts file
-
-        // declare class FormData {
-        //   getAll: FormData['getParts']
-        // }
-
-        // and on the other side, do simply a standard polyfill approach such as:
-
-        // if (!FormData.prototype.getAll)
-        //   FormData.prototype.getAll = FormData.prototype.getParts
         data.getAll = data.getParts;
 
-        // TODO handle AbortController
         const response = await createFile(data, onProgress);
-        const res: any = response;
-        // TODO Element implicitly has an 'any' type because expression of type '0' can't be used to index type 'FilePayload<any>'.
-        // Property '0' does not exist on type 'FilePayload<any>'.
-        onAddImage({ ...res[0], uri: result.uri });
+
+        onAddImage({ ...response[0] });
 
         Alert.alert('file successfully uploaded!');
       }
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
 
       Alert.alert(errorText);
     } finally {

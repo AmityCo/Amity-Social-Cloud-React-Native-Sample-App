@@ -3,16 +3,15 @@
 import { Surface, Appbar } from 'react-native-paper';
 import { StyleSheet, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { StackHeaderProps } from '@react-navigation/stack';
 import React, { VFC, useState, useLayoutEffect, useEffect, useRef, useCallback } from 'react';
 import { queryPosts, createQuery, runQuery, observePosts, queryGlobalFeed } from '@amityco/ts-sdk';
 
 import { Header, FAB, EmptyComponent, AddPost, PostItem, Loading } from 'components';
 
 import useAuth from 'hooks/useAuth';
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
 
-import { PostFeedType, FeedType, PostSortBy } from 'types';
+import { PostFeedType, FeedType, PostSortBy, DrawerStackHeaderProps } from 'types';
 
 import FilterDialog from './FilterDialog';
 
@@ -43,7 +42,7 @@ const FeedScreen: VFC = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      header: ({ scene, previous, navigation: nav }: StackHeaderProps) => (
+      header: ({ scene, previous, navigation: nav }: DrawerStackHeaderProps) => (
         <Header
           scene={scene}
           navigation={nav}
@@ -102,7 +101,7 @@ const FeedScreen: VFC = () => {
       if (!result.data) return;
       const { data, nextPage, prevPage, loading: loadingStack, error: errorStack } = result;
       if (errorStack) {
-        const errorText = handleError(errorStack);
+        const errorText = getErrorMessage(errorStack);
 
         setError(errorText);
       }

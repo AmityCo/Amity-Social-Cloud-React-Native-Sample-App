@@ -1,6 +1,5 @@
 /* eslint-disable consistent-return */
 import { StyleSheet, Alert } from 'react-native';
-import { StackHeaderProps } from '@react-navigation/stack';
 import { ActivityIndicator, useTheme } from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { getPost, observeUser } from '@amityco/ts-sdk';
@@ -10,7 +9,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Header, PostItem, AddPost, Comments } from 'components';
 
 import { t } from 'i18n';
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
+
+import { DrawerStackHeaderProps } from 'types';
 
 const PostScreen: VFC = () => {
   const [isEditId, setIsEditId] = useState('');
@@ -49,7 +50,7 @@ const PostScreen: VFC = () => {
         setPost(currentPost);
       }
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
       Alert.alert(
         'Oooops!',
         errorText,
@@ -69,7 +70,7 @@ const PostScreen: VFC = () => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: user?.data?.displayName ? `${user?.data?.displayName}'s Post` : 'Post',
-      header: ({ scene, previous, navigation: nav }: StackHeaderProps) => (
+      header: ({ scene, previous, navigation: nav }: DrawerStackHeaderProps) => (
         <Header scene={scene} navigation={nav} previous={previous} />
       ),
     });

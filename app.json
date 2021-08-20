@@ -3,10 +3,9 @@
     "name": "Amity Social Cloud",
     "slug": "amity-social",
     "version": "0.1.0",
-    "owner": "amity-test",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
-    "scheme": "ascapp",
+    "scheme": "amity-react-native-sample-app",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./src/assets/images/splash.png",

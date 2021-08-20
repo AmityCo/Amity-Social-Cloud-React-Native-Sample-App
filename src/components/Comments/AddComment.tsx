@@ -21,13 +21,11 @@ import {
 } from 'react-native';
 
 import { t } from 'i18n';
-import handleError from 'utils/handleError';
-
-import { createCommentType } from 'types';
+import getErrorMessage from 'utils/getErrorMessage';
 
 import TextInput from '../TextInput';
 
-type CommentsType = Pick<Amity.Post, 'postId'> & {
+type AddCommentType = Pick<Amity.Post, 'postId'> & {
   onRefresh: () => void;
   isEdit: string;
   onCancel: () => void;
@@ -35,7 +33,7 @@ type CommentsType = Pick<Amity.Post, 'postId'> & {
   parentUserId?: string;
 };
 
-const AddComment: VFC<CommentsType> = ({
+const AddComment: VFC<AddCommentType> = ({
   postId,
   onRefresh,
   isEdit,
@@ -78,7 +76,7 @@ const AddComment: VFC<CommentsType> = ({
 
       textInputRef?.current?.focus();
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
       Alert.alert('Oooops!', errorText, [{ text: t('close') }], { cancelable: false });
     }
   };
@@ -111,7 +109,7 @@ const AddComment: VFC<CommentsType> = ({
       setText('');
       onRefresh();
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
 
       Alert.alert(errorText);
     } finally {

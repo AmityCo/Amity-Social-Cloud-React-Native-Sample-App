@@ -1,9 +1,8 @@
-export const humanTime = (createdAt: string | number): string => {
-	const date = new Date(createdAt);
-	return `${date.getHours().toString().padStart(2, '0')}:${date
-		.getMinutes()
-		.toString()
-		.padStart(2, '0')}`;
+export const uriToBlob = async (uri: string): Promise<Blob> => {
+  const response = await fetch(uri);
+  const blob = await response.blob();
+
+  return blob;
 };
 
 export default {};

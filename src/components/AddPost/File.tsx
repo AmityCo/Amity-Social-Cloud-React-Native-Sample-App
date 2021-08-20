@@ -1,10 +1,8 @@
 import React, { VFC } from 'react';
 import { Pressable, Text, StyleSheet } from 'react-native';
 
-import { UploadedPostFileType } from 'types';
-
 type PostFileType = {
-  file: UploadedPostFileType;
+  file: Amity.File;
   onOpen?: () => void;
 };
 

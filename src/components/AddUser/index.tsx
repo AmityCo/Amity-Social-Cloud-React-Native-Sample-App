@@ -6,7 +6,7 @@ import { Text, Surface, Button, ActivityIndicator } from 'react-native-paper';
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
 
 import { AddUserType } from 'types';
 
@@ -41,7 +41,7 @@ const AddUser: VFC<AddUserType> = ({ visible, onClose, isEditId }) => {
       setDisplayName(user.displayName ?? '');
       setDescription(user.description ?? '');
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
       Alert.alert(
         'Oooops!',
         errorText,
@@ -77,7 +77,7 @@ const AddUser: VFC<AddUserType> = ({ visible, onClose, isEditId }) => {
 
       onClose();
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
 
       Alert.alert(errorText);
     } finally {

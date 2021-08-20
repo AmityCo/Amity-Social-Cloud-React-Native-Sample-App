@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { getCommunity } from '@amityco/ts-sdk';
 import { StyleSheet, Alert } from 'react-native';
-import { StackHeaderProps } from '@react-navigation/stack';
 import { ActivityIndicator, useTheme } from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import React, { VFC, useState, useLayoutEffect, useEffect } from 'react';
@@ -10,7 +9,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Header, CommunityItem, AddPost, FAB } from 'components';
 
 import { t } from 'i18n';
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
+
+import { DrawerStackHeaderProps } from 'types';
 
 import Feed from './Feed';
 
@@ -33,7 +34,7 @@ const Community: VFC = () => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: displayName || 'Commuity',
-      header: ({ scene, previous, navigation: nav }: StackHeaderProps) => (
+      header: ({ scene, previous, navigation: nav }: DrawerStackHeaderProps) => (
         <Header scene={scene} navigation={nav} previous={previous} />
       ),
     });
@@ -56,7 +57,7 @@ const Community: VFC = () => {
         setCommunity(currentCommunity);
       }
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
       Alert.alert(
         'Oooops!',
         errorText,

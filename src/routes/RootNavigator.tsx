@@ -19,6 +19,7 @@ const Drawer = createDrawerNavigator();
 const RootNavigator: React.FC = () => {
   const theme = useTheme();
   const { isConnected } = useAuth();
+
   const navigationTheme = theme.dark ? DarkTheme : DefaultTheme;
 
   return (

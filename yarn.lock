@@ -2942,7 +2942,7 @@ axe-core@^4.0.2:
 axios@^0.21.1:
   version "0.21.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
-  integrity "sha1-IlY0gZYvTWvemnbVFu8OXTwJsrg= sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA=="
+  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
   dependencies:
     follow-redirects "^1.10.0"
 
@@ -5443,6 +5443,11 @@ humanize-ms@^1.2.1:
   integrity "sha1-xG4xWaKT9riW2ikxbYtv6Lt5u+0= sha512-Fl70vYtsAFb/C06PTS9dZBo7ihau+Tu/DNCk/OyHhea07S+aeMWpFFkUaXRa8fI+ScZbEI8dfSxwY7gxZ9SAVQ=="
   dependencies:
     ms "^2.0.0"
+
+humantime@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/humantime/-/humantime-1.2.0.tgz#d5df0d2023d1dfd78b789d6a4bd98cc82b5e8f6d"
+  integrity sha512-ohDWHeKVWL3Ay1FnwPHbzYIyzTbdR52K4Dtmmkbrz05YMyK+OHlB6dkdQhLXev/EuZoKEHFPQHYu6qjlwFS/Xg==
 
 husky@>=6:
   version "7.0.1"
@@ -9831,6 +9836,11 @@ url-parse@^1.4.4:
   dependencies:
     querystringify "^2.1.1"
     requires-port "^1.0.0"
+
+use-debounce@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/use-debounce/-/use-debounce-7.0.0.tgz#00a67d23d4fe09905e11145a99278da06c01c880"
+  integrity sha512-4fvxEEs7ztdNMh+c497HAgysdq2+Ascem6EaDANGlCIap1JzqfL03Xw8xkYc2lShfXm4uO6PA6V5zcXN7gJdFA==
 
 use-subscription@^1.0.0:
   version "1.5.1"

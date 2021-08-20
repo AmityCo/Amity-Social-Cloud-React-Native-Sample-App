@@ -2,11 +2,16 @@
 import React, { useState, useEffect, VFC } from 'react';
 import { Text, Surface, Button } from 'react-native-paper';
 import { Alert, View, StyleSheet, Modal, ScrollView } from 'react-native';
-import { getCommunity, createCommunity, updateCommunity } from '@amityco/ts-sdk';
+import {
+  getCommunity,
+  createCommunity,
+  updateCommunity,
+  createQuery,
+  runQuery,
+} from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
-import useAuth from 'hooks/useAuth';
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
 
 import { AddCommunityType } from 'types';
 
@@ -16,8 +21,6 @@ const AddCommunity: VFC<AddCommunityType> = ({ visible, onClose, onAddCommunity,
   const [loading, setLoading] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [description, setDescription] = useState('');
-
-  const { client } = useAuth();
 
   useEffect(() => {
     if (!visible) {
@@ -41,7 +44,7 @@ const AddCommunity: VFC<AddCommunityType> = ({ visible, onClose, onAddCommunity,
       setDisplayName(community.displayName ?? '');
       setDescription(community.description ?? '');
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
       Alert.alert(
         'Oooops!',
         errorText,
@@ -59,10 +62,6 @@ const AddCommunity: VFC<AddCommunityType> = ({ visible, onClose, onAddCommunity,
   };
 
   const onSubmit = async () => {
-    if (!client.userId) {
-      Alert.alert('UserId is not reachable!');
-    }
-
     if (displayName === '') {
       Alert.alert('Please input display name!');
       return;
@@ -72,17 +71,22 @@ const AddCommunity: VFC<AddCommunityType> = ({ visible, onClose, onAddCommunity,
       setLoading(true);
 
       const data = { displayName, description };
+
       if (isEditId !== '') {
-        await updateCommunity(isEditId, data);
+        const query = createQuery(updateCommunity, isEditId, data);
+
+        runQuery(query);
       } else {
-        await createCommunity(data);
+        const query = createQuery(createCommunity, data);
+
+        runQuery(query);
 
         onAddCommunity!();
       }
 
       onClose();
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
 
       Alert.alert(errorText);
     } finally {

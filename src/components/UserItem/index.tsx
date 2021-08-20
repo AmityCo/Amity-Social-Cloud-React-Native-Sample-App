@@ -9,7 +9,7 @@ import { observeFile, getUser, observeUser } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
 
 import { UserItemProps } from 'types';
 
@@ -47,7 +47,7 @@ const UserItem: VFC<{ user: Amity.User } & UserItemProps> = ({
 
       setUser(currentUser);
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
       Alert.alert(
         'Oooops!',
         errorText,

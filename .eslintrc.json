@@ -30,7 +30,8 @@
         "singleQuote": true,
         "trailingComma": "all",
         "arrowParens": "avoid",
-        "endOfLine": "auto"
+        "endOfLine": "auto",
+        "useTabs": false
       }
     ],
     "no-use-before-define": "off",
@@ -38,6 +39,7 @@
     "import/extensions": ["error", "never", { "json": "always", "png": "always" }],
     "react/prop-types": 0,
     "no-shadow": "off",
-    "@typescript-eslint/no-shadow": ["error"]
+    "@typescript-eslint/no-shadow": ["error"],
+    "@typescript-eslint/ban-ts-comment": "off"
   }
 }

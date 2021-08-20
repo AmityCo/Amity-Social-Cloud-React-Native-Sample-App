@@ -75,43 +75,10 @@ const DrawerContent: FC<DrawerContentProps> = props => {
               props.navigation.toggleDrawer();
             }}
           >
-            {/* <Avatar.Image source={AvatarHolder} size={50} /> */}
-
             <ASCLogo />
           </TouchableOpacity>
           <Title style={styles.title}>@{client.userId}</Title>
-          {/* <Caption style={styles.caption}>@trensik</Caption> */}
-          {/* <View style={styles.row}>
-            <View style={styles.section}>
-              <Paragraph style={[styles.paragraph, styles.caption]}>202</Paragraph>
-              <Caption style={styles.caption}>Obserwuje</Caption>
-            </View>
-            <View style={styles.section}>
-              <Paragraph style={[styles.paragraph, styles.caption]}>159</Paragraph>
-              <Caption style={styles.caption}>Obserwujący</Caption>
-            </View>
-          </View> */}
         </View>
-        {/* <Drawer.Section style={styles.drawerSection}>
-          <DrawerItem
-            icon={({ color, size }) => (
-              <MaterialCommunityIcons name="account-outline" color={color} size={size} />
-            )}
-            label={t('profile.title')}
-            onPress={() => {
-              //
-            }}
-          />
-          <DrawerItem
-            icon={({ color, size }) => (
-              <MaterialCommunityIcons name="tune" color={color} size={size} />
-            )}
-            label="Notifications"
-            onPress={() => {
-              //
-            }}
-          />
-        </Drawer.Section> */}
         <Drawer.Section title="Preferences">
           <TouchableRipple onPress={toggleTheme}>
             <View style={styles.preference}>

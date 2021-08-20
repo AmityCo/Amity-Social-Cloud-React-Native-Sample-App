@@ -30,6 +30,7 @@
     "@react-navigation/material-bottom-tabs": "^5.3.15",
     "@react-navigation/native": "^5.9.4",
     "@react-navigation/stack": "^5.14.5",
+    "axios": "^0.21.1",
     "expo": "~42.0.1",
     "expo-application": "~3.2.0",
     "expo-asset": "~8.3.2",
@@ -44,6 +45,7 @@
     "expo-splash-screen": "~0.11.2",
     "expo-status-bar": "~1.0.4",
     "expo-web-browser": "~9.2.0",
+    "humantime": "^1.2.0",
     "i18n-js": "^3.8.0",
     "mime-types": "^2.1.32",
     "moment": "^2.29.1",
@@ -62,7 +64,8 @@
     "react-native-screens": "~3.4.0",
     "react-native-svg": "12.1.1",
     "react-native-tab-view": "^3.0.1",
-    "react-native-web": "~0.13.12"
+    "react-native-web": "~0.13.12",
+    "use-debounce": "^7.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",

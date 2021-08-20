@@ -8,13 +8,11 @@ import { queryPosts, createQuery, runQuery, observePosts } from '@amityco/ts-sdk
 import { EmptyComponent, PostItem, Loading } from 'components';
 
 import useAuth from 'hooks/useAuth';
-import handleError from 'utils/handleError';
-
-type CommentsType = Pick<Amity.Community, 'communityId'>;
+import getErrorMessage from 'utils/getErrorMessage';
 
 const QUERY_LIMIT = 10;
 
-const CommunityFeed: VFC<CommentsType> = ({ communityId }) => {
+const CommunityFeed: VFC<{ communityId: string }> = ({ communityId }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -52,7 +50,7 @@ const CommunityFeed: VFC<CommentsType> = ({ communityId }) => {
         const { data, nextPage, prevPage, loading: loadingStack, error: errorStack } = result;
 
         if (errorStack) {
-          const errorText = handleError(errorStack);
+          const errorText = getErrorMessage(errorStack);
 
           setError(errorText);
         }
@@ -69,7 +67,7 @@ const CommunityFeed: VFC<CommentsType> = ({ communityId }) => {
         setPages({ nextPage, prevPage });
       });
     } catch (e) {
-      const errorText = handleError(e);
+      const errorText = getErrorMessage(e);
 
       setError(errorText);
     } finally {

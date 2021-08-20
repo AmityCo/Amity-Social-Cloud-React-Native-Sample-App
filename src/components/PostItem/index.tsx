@@ -23,7 +23,7 @@ import {
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
 
 import { ReactionsType, PostItemProps } from 'types';
 
@@ -104,11 +104,11 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
   }, [childPost?.length]);
 
   useEffect(() => {
-    fetchChildredPost();
+    fetchChildrenPost();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [children?.length]);
 
-  const fetchChildredPost = async () => {
+  const fetchChildrenPost = async () => {
     if (children && children?.length > 0) {
       const childrenPost = await getPost(children[0]);
 
@@ -117,25 +117,17 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
   };
 
   const toggleReaction = async (type: ReactionsType) => {
-    try {
-      const api = myReactions?.includes(type) ? removeReaction : addReaction;
-      const query = createQuery(api, 'post', postId, type);
+    const api = myReactions?.includes(type) ? removeReaction : addReaction;
+    const query = createQuery(api, 'post', postId, type);
 
-      runQuery(query);
-    } catch (e) {
-      // TODO toastbar
-    }
+    runQuery(query);
   };
 
   const toggleFlag = async () => {
-    try {
-      const api = flaggedByMe ? deleteReport : createReport;
-      const query = createQuery(api, 'post', postId);
+    const api = flaggedByMe ? deleteReport : createReport;
+    const query = createQuery(api, 'post', postId);
 
-      runQuery(query);
-    } catch (e) {
-      // TODO toastbar
-    }
+    runQuery(query);
   };
 
   const onEdit = () => {
@@ -163,7 +155,7 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
                 navigation.goBack();
               }
             } catch (error) {
-              const errorText = handleError(error);
+              const errorText = getErrorMessage(error);
 
               Alert.alert(errorText);
             }

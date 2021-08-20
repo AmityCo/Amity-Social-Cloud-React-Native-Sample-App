@@ -1,22 +1,23 @@
-import { DrawerContentComponentProps, DrawerContentOptions } from '@react-navigation/drawer';
+import { StackHeaderProps } from '@react-navigation/stack';
+import {
+  DrawerNavigationProp,
+  DrawerContentComponentProps,
+  DrawerContentOptions,
+} from '@react-navigation/drawer';
 
 export type RootStackParamList = {
-	Root: undefined;
+  Root: undefined;
 };
 
 export type DrawerContentProps = DrawerContentComponentProps<DrawerContentOptions>;
 
-export type BottomTabParamList = {
-	Chat: undefined;
-	Feed: undefined;
-	UserList: undefined;
-	Communities: undefined;
+export type DrawerStackHeaderProps = StackHeaderProps & {
+  navigation: DrawerNavigationProp<Record<string, undefined>>;
 };
 
-// export type TabOneParamList = {
-// 	TabOneScreen: undefined;
-// };
-
-// export type TabTwoParamList = {
-// 	TabTwoScreen: undefined;
-// };
+export type BottomTabParamList = {
+  Chat: undefined;
+  Feed: undefined;
+  UserList: undefined;
+  Communities: undefined;
+};

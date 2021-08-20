@@ -19,7 +19,7 @@ import {
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
-import handleError from 'utils/handleError';
+import getErrorMessage from 'utils/getErrorMessage';
 
 import { ReactionsType, CommentProps } from 'types';
 
@@ -66,7 +66,7 @@ const CommentItem: VFC<CommentProps> = ({
 
       setComment(currentComment);
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
       Alert.alert('Oooops!', errorText, [{ text: t('close') }], { cancelable: false });
     }
   };
@@ -90,27 +90,23 @@ const CommentItem: VFC<CommentProps> = ({
   }, [commentId, children.length]);
 
   const onQueryComments = async () => {
-    try {
-      const queryData = {
-        postId: postId!,
-        isDeleted: false,
-        parentId: commentId,
-      };
+    const queryData = {
+      postId: postId!,
+      isDeleted: false,
+      parentId: commentId,
+    };
 
-      const query = createQuery(queryComments, {
-        ...queryData,
-        page: { before: 0, limit: QUERY_LIMIT },
-      });
+    const query = createQuery(queryComments, {
+      ...queryData,
+      page: { before: 0, limit: QUERY_LIMIT },
+    });
 
-      runQuery(query, result => {
-        if (!result.data) return;
-        const { data: childrenData } = result;
+    runQuery(query, result => {
+      if (!result.data) return;
+      const { data: childrenData } = result;
 
-        setComments(prevComments => ({ ...prevComments, ...childrenData }));
-      });
-    } catch (e) {
-      // const errorText = handleError(e);
-    }
+      setComments(prevComments => ({ ...prevComments, ...childrenData }));
+    });
   };
 
   const toggleReaction = async (type: ReactionsType) => {
@@ -144,7 +140,7 @@ const CommentItem: VFC<CommentProps> = ({
 
               await deleteComment(commentId);
             } catch (error) {
-              const errorText = handleError(error);
+              const errorText = getErrorMessage(error);
 
               Alert.alert(errorText);
             }

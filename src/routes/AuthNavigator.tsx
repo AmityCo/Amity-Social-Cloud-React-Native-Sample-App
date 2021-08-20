@@ -12,11 +12,7 @@ const AuthNavigator: React.FC = () => {
       initialRouteName="ASCAuth"
       screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen
-        name="ASCAuth"
-        component={LoginScreen}
-        // options={{ animationTypeForReplace: !isAuth ? 'pop' : 'push' }}
-      />
+      <Stack.Screen name="ASCAuth" component={LoginScreen} />
     </Stack.Navigator>
   );
 };

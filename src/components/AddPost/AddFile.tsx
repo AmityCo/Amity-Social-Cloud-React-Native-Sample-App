@@ -6,12 +6,11 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { Text, Button, ProgressBar, useTheme } from 'react-native-paper';
 
 import { t } from 'i18n';
-import handleError from 'utils/handleError';
-
-import { UploadedPostFileType } from 'types';
+import { uriToBlob } from 'utils';
+import getErrorMessage from 'utils/getErrorMessage';
 
 type AddPostFileProps = {
-  onAddFile: (image: UploadedPostFileType) => void;
+  onAddFile: (image: Amity.File) => void;
 };
 
 const AddPostFile: VFC<AddPostFileProps> = ({ onAddFile }) => {
@@ -30,28 +29,29 @@ const AddPostFile: VFC<AddPostFileProps> = ({ onAddFile }) => {
       });
 
       if (result.type === 'success') {
+        const blob = await uriToBlob(result.uri);
+
         const fileData = {
+          ...blob,
           name: result.name,
           size: result.size,
           uri: result.uri,
-          type: MimeTypes.lookup(result.name || result.uri),
+          type: MimeTypes.lookup(result.name || result.uri) || 'text/plain',
         };
 
-        const data: any = new FormData();
+        const data = new FormData();
 
         data.append('file', fileData);
         data.getAll = data.getParts;
 
         const response = await createFile(data, onProgress);
 
-        const res: any = response;
-
-        onAddFile({ ...res[0], uri: result.uri });
+        onAddFile({ ...response[0] });
 
         Alert.alert('file successfully uploaded!');
       }
     } catch (error) {
-      const errorText = handleError(error);
+      const errorText = getErrorMessage(error);
 
       Alert.alert(errorText);
     } finally {

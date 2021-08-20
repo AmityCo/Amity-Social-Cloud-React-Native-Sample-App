@@ -7,13 +7,11 @@ import { useNavigation } from '@react-navigation/native';
 
 import { EmptyComponent, PostItem, Loading } from 'components';
 
-import handleError from 'utils/handleError';
-
-type CommentsType = Pick<Amity.User, 'userId'>;
+import getErrorMessage from 'utils/getErrorMessage';
 
 const QUERY_LIMIT = 10;
 
-const Feeds: VFC<CommentsType & { header: React.ReactElement }> = ({ userId, header }) => {
+const Feeds: VFC<{ header: React.ReactElement; userId: string }> = ({ userId, header }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -49,7 +47,7 @@ const Feeds: VFC<CommentsType & { header: React.ReactElement }> = ({ userId, hea
         const { data, nextPage, prevPage, loading: loadingStack, error: errorStack } = result;
 
         if (errorStack) {
-          const errorText = handleError(errorStack);
+          const errorText = getErrorMessage(errorStack);
 
           setError(errorText);
         }
@@ -66,7 +64,7 @@ const Feeds: VFC<CommentsType & { header: React.ReactElement }> = ({ userId, hea
         setPages({ nextPage, prevPage });
       });
     } catch (e) {
-      const errorText = handleError(e);
+      const errorText = getErrorMessage(e);
 
       setError(errorText);
     } finally {
