@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React, { useState, useEffect, VFC } from 'react';
 import { Text, Surface, Button } from 'react-native-paper';
 import { Alert, View, StyleSheet, Modal, ScrollView } from 'react-native';
@@ -81,7 +80,7 @@ const AddCommunity: VFC<AddCommunityType> = ({ visible, onClose, onAddCommunity,
 
         runQuery(query);
 
-        onAddCommunity!();
+        onAddCommunity();
       }
 
       onClose();

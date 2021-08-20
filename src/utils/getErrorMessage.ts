@@ -4,8 +4,8 @@ import { AxiosError } from 'axios';
 
 import { t } from 'i18n';
 
-const getErrorMessage = (error: Error | AxiosError): string => {
-  return error.message ?? 'Error while handling request!';
+const getErrorMessage = (error: Error | AxiosError | undefined): string => {
+  return error?.message ?? 'Error while handling request!';
 };
 
 export const alertError = (error: Error | AxiosError, onClose: () => void): void => {

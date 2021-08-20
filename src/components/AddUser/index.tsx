@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { getUser, updateUser } from '@amityco/ts-sdk';
 import React, { useState, useEffect, VFC } from 'react';
 import { Alert, View, StyleSheet, Modal, ScrollView } from 'react-native';

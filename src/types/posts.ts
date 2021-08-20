@@ -20,7 +20,8 @@ export type AddFeedType = {
   visible: boolean;
   isEditId: string;
   onClose: () => void;
-  communityId?: string;
+  targetType: Amity.PostTargetType;
+  targetId: string;
 };
 
 export type AddPostDataType = {

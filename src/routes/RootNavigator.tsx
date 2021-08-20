@@ -18,13 +18,13 @@ const Drawer = createDrawerNavigator();
 
 const RootNavigator: React.FC = () => {
   const theme = useTheme();
-  const { isConnected } = useAuth();
+  const { isConnected, client } = useAuth();
 
   const navigationTheme = theme.dark ? DarkTheme : DefaultTheme;
 
   return (
     <NavigationContainer theme={navigationTheme} linking={LinkingConfiguration}>
-      {isConnected ? (
+      {client.userId && isConnected ? (
         <Drawer.Navigator
           drawerContent={(props: DrawerContentProps) => <DrawerContent {...props} />}
         >
