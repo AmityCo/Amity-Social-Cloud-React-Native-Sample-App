@@ -3870,6 +3870,11 @@ data-urls@^1.1.0:
     whatwg-mimetype "^2.2.0"
     whatwg-url "^7.0.0"
 
+date-fns@^2.23.0:
+  version "2.23.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.23.0.tgz#4e886c941659af0cf7b30fafdd1eaa37e88788a9"
+  integrity sha512-5ycpauovVyAk0kXNZz6ZoB9AYMZB4DObse7P3BPWmyEjXNORTI8EJ6X0uaSAq4sCHzM1uajzrkr6HnsLQpxGXA==
+
 dayjs@^1.8.15:
   version "1.10.6"
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.10.6.tgz#288b2aa82f2d8418a6c9d4df5898c0737ad02a63"
@@ -5443,11 +5448,6 @@ humanize-ms@^1.2.1:
   integrity "sha1-xG4xWaKT9riW2ikxbYtv6Lt5u+0= sha512-Fl70vYtsAFb/C06PTS9dZBo7ihau+Tu/DNCk/OyHhea07S+aeMWpFFkUaXRa8fI+ScZbEI8dfSxwY7gxZ9SAVQ=="
   dependencies:
     ms "^2.0.0"
-
-humantime@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/humantime/-/humantime-1.2.0.tgz#d5df0d2023d1dfd78b789d6a4bd98cc82b5e8f6d"
-  integrity sha512-ohDWHeKVWL3Ay1FnwPHbzYIyzTbdR52K4Dtmmkbrz05YMyK+OHlB6dkdQhLXev/EuZoKEHFPQHYu6qjlwFS/Xg==
 
 husky@>=6:
   version "7.0.1"
