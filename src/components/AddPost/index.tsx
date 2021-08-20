@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React, { useState, useEffect, VFC } from 'react';
 import { Alert, View, StyleSheet, Modal, ScrollView } from 'react-native';
 import { Text, Surface, Button } from 'react-native-paper';
 import { createPost, getPost, updatePost } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
-import useAuth from 'hooks/useAuth';
 import getErrorMessage from 'utils/getErrorMessage';
 import useCollection from 'hooks/useCollection';
 
@@ -17,11 +15,11 @@ import AddFile from './AddFile';
 import AddImage from './AddImage';
 import TextInput from '../TextInput';
 
-const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, communityId }) => {
+// targetType: communityId ? 'community' : 'user',
+//           targetId: communityId || client.userId,
+const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, targetType, targetId }) => {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const { client } = useAuth();
 
   const [images, addImage, remImage, toggleImages, resetImages] = useCollection<Amity.File>(
     [],
@@ -73,10 +71,6 @@ const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, communityId }) 
   };
 
   const onSubmit = async () => {
-    if (!client.userId) {
-      Alert.alert('UserId is not reachable!');
-    }
-
     try {
       setLoading(true);
 
@@ -87,8 +81,8 @@ const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, communityId }) 
       } else {
         const data: AddPostDataType = {
           data: { text },
-          targetType: communityId ? 'community' : 'user',
-          targetId: communityId || client.userId!,
+          targetType,
+          targetId,
         };
 
         if (images.length) {
