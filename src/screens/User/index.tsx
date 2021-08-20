@@ -4,14 +4,12 @@ import { ActivityIndicator, Surface } from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import React, { VFC, useLayoutEffect, useState, useEffect } from 'react';
 
-import { Header, UserItem, AddUser } from 'components';
+import { Header, UserItem, AddUser, Feed } from 'components';
 
 import { t } from 'i18n';
 import getErrorMessage from 'utils/getErrorMessage';
 
 import { DrawerStackHeaderProps } from 'types';
-
-import Feed from './Feed';
 
 const UserScreen: VFC = () => {
   const [user, setUser] = useState<Amity.User>();
@@ -69,10 +67,10 @@ const UserScreen: VFC = () => {
       ) : (
         <>
           <Feed
-            userId={userId}
+            targetId={userId}
+            targetType="user"
             header={
               <UserItem
-                // eslint-disable-next-line react/jsx-props-no-spreading
                 user={user}
                 onEditUser={() => {
                   setIsEditId(userId);

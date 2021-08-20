@@ -1,19 +1,16 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { getCommunity } from '@amityco/ts-sdk';
 import { StyleSheet, Alert } from 'react-native';
-import { ActivityIndicator, useTheme } from 'react-native-paper';
+import { ActivityIndicator, useTheme, Surface } from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import React, { VFC, useState, useLayoutEffect, useEffect } from 'react';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import { Header, CommunityItem, AddPost, FAB } from 'components';
+import { Header, CommunityItem, AddPost, FAB, Feed } from 'components';
 
 import { t } from 'i18n';
 import getErrorMessage from 'utils/getErrorMessage';
 
 import { DrawerStackHeaderProps } from 'types';
-
-import Feed from './Feed';
 
 const Community: VFC = () => {
   const [isEditId, setIsEditId] = useState('');
@@ -77,10 +74,7 @@ const Community: VFC = () => {
   };
 
   return (
-    <KeyboardAwareScrollView
-      showsVerticalScrollIndicator={false}
-      style={{ backgroundColor: surfaceColor }}
-    >
+    <Surface style={styles.container}>
       {loading || !community?.communityId ? (
         <ActivityIndicator style={styles.loading} />
       ) : (
@@ -93,12 +87,13 @@ const Community: VFC = () => {
         />
       )}
 
-      <Feed communityId={communityId} />
+      <Feed targetId={communityId} targetType="community" />
 
       <AddPost
         isEditId=""
         visible={showAddPost}
-        communityId={communityId}
+        targetType="community"
+        targetId={communityId}
         onClose={() => {
           setShowAddPost(false);
         }}
@@ -110,7 +105,7 @@ const Community: VFC = () => {
           setShowAddPost(true);
         }}
       />
-    </KeyboardAwareScrollView>
+    </Surface>
   );
 };
 

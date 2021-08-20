@@ -1,4 +1,5 @@
 export { default as FAB } from './FAB';
+export { default as Feed } from './Feed';
 export { default as Header } from './Header';
 export { default as AddUser } from './AddUser';
 export { default as AddPost } from './AddPost';

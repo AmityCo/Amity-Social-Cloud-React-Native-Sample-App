@@ -9,6 +9,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Header, PostItem, AddPost, Comments } from 'components';
 
 import { t } from 'i18n';
+import useAuth from 'hooks/useAuth';
 import getErrorMessage from 'utils/getErrorMessage';
 
 import { DrawerStackHeaderProps } from 'types';
@@ -19,6 +20,7 @@ const PostScreen: VFC = () => {
   const [user, setUser] = useState<Amity.User | undefined>();
 
   const route = useRoute();
+  const { client } = useAuth();
   const navigation = useNavigation();
   const {
     colors: { surface: surfaceColor },
@@ -77,6 +79,10 @@ const PostScreen: VFC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.data]);
 
+  if (!client.userId) {
+    throw Error('not connected!');
+  }
+
   return (
     <KeyboardAwareScrollView
       showsVerticalScrollIndicator={false}
@@ -100,6 +106,8 @@ const PostScreen: VFC = () => {
               setIsEditId('');
             }}
             isEditId={isEditId}
+            targetType="user"
+            targetId={client.userId}
             visible={isEditId !== ''}
           />
         </>
