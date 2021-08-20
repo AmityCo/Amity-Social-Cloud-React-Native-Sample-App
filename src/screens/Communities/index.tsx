@@ -9,24 +9,26 @@ import { Header, CommunityItem, EmptyComponent, FAB, AddCommunity, Loading } fro
 
 import getErrorMessage from 'utils/getErrorMessage';
 
-import { CommunitySortBy, CommunityMembership, DrawerStackHeaderProps } from 'types';
+import { CommunitySortBy, CommunityMembership, DrawerStackHeaderProps, LoadingState } from 'types';
 
 const QUERY_LIMIT = 5;
 
 const CommunitiesScreen: VFC = () => {
-  const [error, setError] = useState('');
   const [isEditId, setIsEditId] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showAddCommunity, setShowAddCommunity] = useState(false);
   const [membership] = useState<CommunityMembership>(CommunityMembership.MEMBER);
+  const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
   const [isDeleted, setIsDeleted] = React.useState<Amity.Post['isDeleted']>(false);
   const [sortBy, setSortBy] = React.useState<CommunitySortBy>(CommunitySortBy.LAST_CREATED);
 
-  const [pages, setPages] = useState<Amity.Pages>();
-  const [currentPage, setCurrentPage] = useState<Amity.Page>();
   const [communities, setCommunities] = useState<Record<string, Amity.Community>>({});
+
+  const [{ error, nextPage, loading: queryLoading }, setMetadata] = useState<
+    Amity.QueryMetadata & Amity.Pages
+  >({
+    nextPage: null,
+    prevPage: null,
+  });
 
   const flatlistRef = useRef<FlatList<Amity.Community>>(null);
 
@@ -38,8 +40,43 @@ const CommunitiesScreen: VFC = () => {
         <Header scene={scene} previous={previous} navigation={nav} />
       ),
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [navigation]);
+
+  const onQueryCommunities = useCallback(
+    async ({ reset = false, page = { limit: QUERY_LIMIT } }) => {
+      const queryData = {
+        page,
+        sortBy,
+        isDeleted,
+        membership,
+      };
+
+      runQuery(createQuery(queryCommunities, queryData), ({ data, ...metadata }) => {
+        if (reset) setCommunities({});
+
+        setCommunities(prevCommunities => ({ ...prevCommunities, ...data }));
+
+        // @ts-ignore
+        setMetadata(metadata);
+      });
+    },
+    [isDeleted, membership, sortBy],
+  );
+
+  const onRefresh = useCallback(() => {
+    setLoading(LoadingState.IS_REFRESHING);
+    onQueryCommunities({ reset: true });
+  }, [onQueryCommunities]);
+
+  useEffect(() => {
+    onQueryCommunities({ reset: true });
+  }, [onQueryCommunities]);
+
+  useEffect(() => {
+    if (!queryLoading) {
+      setLoading(LoadingState.NOT_LOADING);
+    }
+  }, [queryLoading]);
 
   React.useEffect(() => {
     const unsubscribe = navigation?.dangerouslyGetParent()?.addListener('tabPress', e => {
@@ -48,70 +85,18 @@ const CommunitiesScreen: VFC = () => {
     });
 
     return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigation]);
-
-  // query per page
-  useEffect(() => {
-    if (currentPage) {
-      onQueryCommunities();
-    } else {
-      onRefresh();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage]);
-
-  useEffect(() => {
-    onRefresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy, isDeleted]);
-
-  const onQueryCommunities = async () => {
-    const queryData = {
-      sortBy,
-      isDeleted,
-      membership,
-    };
-
-    runQuery(createQuery(queryCommunities, { ...queryData, page: currentPage }), result => {
-      if (!result.data) return;
-      const { data, nextPage, prevPage, loading: loadingStack, error: errorStack } = result;
-
-      if (errorStack) {
-        const errorText = getErrorMessage(errorStack);
-
-        setError(errorText);
-      }
-
-      if (isRefreshing) {
-        setCommunities(data);
-      } else {
-        setCommunities(prevCommunities => ({ ...prevCommunities, ...data }));
-      }
-
-      setIsRefreshing(false);
-      setIsLoadingMore(false);
-      setLoading(!!loadingStack);
-      setPages({ nextPage, prevPage });
-    });
-  };
+  }, [navigation, onRefresh]);
 
   const handleLoadMore = () => {
-    if (pages?.nextPage) {
-      setIsLoadingMore(true);
-      setCurrentPage(pages.nextPage);
+    if (nextPage) {
+      setLoading(LoadingState.IS_LOADING_MORE);
+      onQueryCommunities({ page: nextPage });
     }
   };
 
-  const onRefresh = useCallback(() => {
-    setIsRefreshing(true);
-    setCurrentPage({ before: 0, limit: QUERY_LIMIT });
-
-    flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const data = Object.values(communities);
+  const errorText = getErrorMessage(error);
+  const visibleAddCommunity = showAddCommunity || isEditId !== '';
 
   return (
     <Surface style={styles.container}>
@@ -119,11 +104,13 @@ const CommunitiesScreen: VFC = () => {
         data={data}
         ref={flatlistRef}
         onRefresh={onRefresh}
-        refreshing={isRefreshing}
         onEndReached={handleLoadMore}
         showsVerticalScrollIndicator={false}
         keyExtractor={item => item.communityId}
-        ListFooterComponent={isLoadingMore ? <Loading /> : undefined}
+        refreshing={loading === LoadingState.IS_REFRESHING || !!queryLoading}
+        ListFooterComponent={
+          loading === LoadingState.IS_LOADING_MORE && !!queryLoading ? <Loading /> : undefined
+        }
         renderItem={({ item }) => (
           <Surface style={styles.communityItem}>
             <CommunityItem
@@ -138,19 +125,23 @@ const CommunitiesScreen: VFC = () => {
           </Surface>
         )}
         ListEmptyComponent={
-          <EmptyComponent loading={loading} onRetry={onRefresh} errorText={error} />
+          loading === LoadingState.NOT_LOADING && !queryLoading ? (
+            <EmptyComponent errorText={error ? errorText : undefined} />
+          ) : null
         }
       />
 
-      <AddCommunity
-        onClose={() => {
-          setIsEditId('');
-          setShowAddCommunity(false);
-        }}
-        isEditId={isEditId}
-        onAddCommunity={onRefresh}
-        visible={showAddCommunity || isEditId !== ''}
-      />
+      {visibleAddCommunity && (
+        <AddCommunity
+          onClose={() => {
+            setIsEditId('');
+            setShowAddCommunity(false);
+          }}
+          isEditId={isEditId}
+          onAddCommunity={onRefresh}
+          visible
+        />
+      )}
 
       <FAB
         icon="plus"
