@@ -1,5 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useDebounce } from 'use-debounce';
 import { StyleSheet, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -10,6 +8,7 @@ import React, { VFC, useState, useLayoutEffect, useEffect, useRef, useCallback }
 import { Header, EmptyComponent, UserItem, AddUser, Loading } from 'components';
 
 import useAuth from 'hooks/useAuth';
+import getErrorMessage from 'utils/getErrorMessage';
 
 import { UserSortBy, UserFilter, LoadingState, DrawerStackHeaderProps } from 'types';
 
@@ -22,12 +21,13 @@ const UserListScreen: VFC = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [filter] = useState<UserFilter>(UserFilter.ALL);
   const [sortBy, setSortBy] = useState<UserSortBy>(UserSortBy.LAST_CREATED);
-  const [loading, setLoading] = useState<LoadingState>(LoadingState.IS_REFRESHING);
+  const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
 
   const [users, setUsers] = useState<Record<string, Amity.User>>({});
-  const [currentPage, setCurrentPage] = useState<Amity.Page>({ limit: QUERY_LIMIT });
 
-  const [{ error, nextPage }, setMetadata] = useState<Amity.QueryMetadata & Amity.Pages>({
+  const [{ error, nextPage, loading: queryLoading }, setMetadata] = useState<
+    Amity.QueryMetadata & Amity.Pages
+  >({
     nextPage: null,
     prevPage: null,
   });
@@ -54,12 +54,12 @@ const UserListScreen: VFC = () => {
   }, [navigation]);
 
   const onQueryUsers = useCallback(
-    async (reset = false) => {
+    async ({ reset = false, page = { limit: QUERY_LIMIT } }) => {
       const queryData = {
+        page,
         sortBy,
         filter,
         isDeleted: false,
-        page: currentPage,
         targetType: 'user',
         targetId: client.userId,
         displayName: debouncedDisplayName,
@@ -72,22 +72,25 @@ const UserListScreen: VFC = () => {
 
         // @ts-ignore
         setMetadata(metadata);
-
-        setLoading(LoadingState.NOT_LOADING);
       });
     },
-    [client.userId, currentPage, debouncedDisplayName, filter, sortBy],
+    [client.userId, debouncedDisplayName, filter, sortBy],
   );
 
   const onRefresh = useCallback(() => {
     setLoading(LoadingState.IS_REFRESHING);
-    setCurrentPage({ limit: QUERY_LIMIT });
-    onQueryUsers(true);
+    onQueryUsers({ reset: true });
   }, [onQueryUsers]);
 
   useEffect(() => {
-    onQueryUsers();
+    onQueryUsers({ reset: true });
   }, [onQueryUsers]);
+
+  useEffect(() => {
+    if (!queryLoading) {
+      setLoading(LoadingState.NOT_LOADING);
+    }
+  }, [queryLoading]);
 
   useEffect(() => {
     const unsubscribe = navigation?.dangerouslyGetParent()?.addListener('tabPress', e => {
@@ -100,12 +103,13 @@ const UserListScreen: VFC = () => {
 
   const handleLoadMore = () => {
     if (nextPage) {
-      setCurrentPage(nextPage);
       setLoading(LoadingState.IS_LOADING_MORE);
+      onQueryUsers({ page: nextPage });
     }
   };
 
   const data = Object.values(users);
+  const errorText = getErrorMessage(error);
 
   return (
     <Surface style={styles.container}>
@@ -124,11 +128,15 @@ const UserListScreen: VFC = () => {
         onEndReached={handleLoadMore}
         keyExtractor={user => user.userId}
         showsVerticalScrollIndicator={false}
-        refreshing={loading === LoadingState.IS_REFRESHING}
-        ListFooterComponent={loading === LoadingState.IS_LOADING_MORE ? <Loading /> : undefined}
-        // ListEmptyComponent={
-        //   loading === LoadingState.NOT_LOADING ? <EmptyComponent errorText={error} /> : null
-        // }
+        refreshing={loading === LoadingState.IS_REFRESHING || !!queryLoading}
+        ListFooterComponent={
+          loading === LoadingState.IS_LOADING_MORE && !!queryLoading ? <Loading /> : undefined
+        }
+        ListEmptyComponent={
+          loading === LoadingState.NOT_LOADING && !queryLoading ? (
+            <EmptyComponent errorText={error ? errorText : undefined} />
+          ) : null
+        }
         renderItem={({ item }) => (
           <Surface style={styles.userItem}>
             <UserItem
@@ -142,20 +150,24 @@ const UserListScreen: VFC = () => {
         )}
       />
 
-      <AddUser
-        onClose={() => {
-          setIsEditId('');
-        }}
-        isEditId={isEditId}
-        visible={isEditId !== ''}
-      />
+      {isEditId !== '' && (
+        <AddUser
+          onClose={() => {
+            setIsEditId('');
+          }}
+          isEditId={isEditId}
+          visible
+        />
+      )}
 
-      <FilterDialog
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-        showDialog={showDialog}
-        setShowDialog={setShowDialog}
-      />
+      {showDialog && (
+        <FilterDialog
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          showDialog={showDialog}
+          setShowDialog={setShowDialog}
+        />
+      )}
     </Surface>
   );
 };
