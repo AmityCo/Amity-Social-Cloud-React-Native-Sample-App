@@ -1,18 +1,17 @@
-/* eslint-disable consistent-return */
-import { StyleSheet, Alert } from 'react-native';
 import { ActivityIndicator, useTheme } from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { getPost, observeUser } from '@amityco/ts-sdk';
-import React, { VFC, useLayoutEffect, useState, useEffect } from 'react';
+import { getPost, observeUser, runQuery, createQuery } from '@amityco/ts-sdk';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import React, { VFC, useLayoutEffect, useState, useEffect, useCallback } from 'react';
 
 import { Header, PostItem, AddPost, Comments } from 'components';
 
-import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
-import getErrorMessage from 'utils/getErrorMessage';
+import { alertError } from 'utils/alerts';
 
 import { DrawerStackHeaderProps } from 'types';
+
+import styles from './styles';
 
 const PostScreen: VFC = () => {
   const [isEditId, setIsEditId] = useState('');
@@ -34,54 +33,46 @@ const PostScreen: VFC = () => {
     return observeUser(postedUserId, ({ data: updatedUser }) => {
       setUser(updatedUser);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postedUserId]);
+
+  const getCurrentPost = useCallback(async () => {
+    runQuery(createQuery(getPost, postId), ({ data, error }) => {
+      if (data) {
+        if (data.isDeleted) {
+          navigation.goBack();
+        } else {
+          setPost(data);
+        }
+      } else if (error) {
+        alertError(error, () => {
+          navigation.goBack();
+        });
+      }
+    });
+  }, [navigation, postId]);
 
   useEffect(() => {
     getCurrentPost();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postId]);
-
-  const getCurrentPost = async () => {
-    try {
-      const currentPost = await getPost(postId);
-
-      if (currentPost.isDeleted) {
-        navigation.goBack();
-      } else {
-        setPost(currentPost);
-      }
-    } catch (error) {
-      const errorText = getErrorMessage(error);
-      Alert.alert(
-        'Oooops!',
-        errorText,
-        [
-          {
-            text: t('close'),
-            onPress: async () => {
-              navigation.goBack();
-            },
-          },
-        ],
-        { cancelable: false },
-      );
-    }
-  };
+  }, [getCurrentPost, postId]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: user?.data?.displayName ? `${user?.data?.displayName}'s Post` : 'Post',
+      headerTitle: user?.data?.displayName ? `${user.data.displayName}'s Post` : 'Post',
       header: ({ scene, previous, navigation: nav }: DrawerStackHeaderProps) => (
         <Header scene={scene} navigation={nav} previous={previous} />
       ),
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.data]);
+  }, [navigation, user]);
 
-  if (!client.userId) {
-    throw Error('not connected!');
-  }
+  const onCloseAddPost = useCallback(() => {
+    setIsEditId('');
+  }, []);
+
+  const onEditPost = useCallback(() => {
+    setIsEditId(postId);
+  }, [postId]);
+
+  const targetId = client.userId ?? '';
 
   return (
     <KeyboardAwareScrollView
@@ -92,32 +83,22 @@ const PostScreen: VFC = () => {
         <ActivityIndicator style={styles.loading} />
       ) : (
         <>
-          <PostItem
-            post={post}
-            onEditPost={() => {
-              setIsEditId(postId);
-            }}
-          />
+          <PostItem post={post} onEditPost={onEditPost} />
 
           <Comments postId={postId} />
 
-          <AddPost
-            onClose={() => {
-              setIsEditId('');
-            }}
-            isEditId={isEditId}
-            targetType="user"
-            targetId={client.userId}
-            visible={isEditId !== ''}
-          />
+          {isEditId !== '' && (
+            <AddPost
+              onClose={onCloseAddPost}
+              isEditId={isEditId}
+              targetType="user"
+              targetId={targetId}
+            />
+          )}
         </>
       )}
     </KeyboardAwareScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  loading: { marginTop: 20 },
-});
 
 export default PostScreen;
