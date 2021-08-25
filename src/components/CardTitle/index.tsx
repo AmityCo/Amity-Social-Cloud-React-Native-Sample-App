@@ -1,7 +1,9 @@
 import React, { VFC } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { Title, Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+import styles from './styles';
 
 type CardTitleProps = {
   title?: string;
@@ -10,7 +12,7 @@ type CardTitleProps = {
   isDeleted?: boolean;
 };
 
-const CardTitle: VFC<CardTitleProps> = ({ title, flagCount, hashFlag, isDeleted }) => {
+const CardTitle: VFC<CardTitleProps> = ({ title, flagCount, isDeleted }) => {
   const {
     colors: { error: errorColor },
   } = useTheme();
@@ -36,8 +38,4 @@ const CardTitle: VFC<CardTitleProps> = ({ title, flagCount, hashFlag, isDeleted 
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  item: { marginEnd: 5 },
-});
 export default CardTitle;
