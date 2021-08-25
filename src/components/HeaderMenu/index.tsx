@@ -1,9 +1,11 @@
 import React, { FC, ReactChild } from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import { Pressable, View } from 'react-native';
 import { Menu, useTheme } from 'react-native-paper';
-import { Pressable, StyleSheet, View } from 'react-native';
 
 import { t } from 'i18n';
+
+import styles from './styles';
 
 type HeaderMenuProps = {
   size: number;
@@ -56,10 +58,5 @@ const HeaderMenu: FC<HeaderMenuProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flexDirection: 'row' },
-  ellipsis: { marginEnd: 15 },
-});
 
 export default HeaderMenu;

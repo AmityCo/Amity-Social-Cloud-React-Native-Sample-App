@@ -1,11 +1,12 @@
+import { Pressable, View } from 'react-native';
 import React, { FC, ReactElement } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { StackHeaderProps } from '@react-navigation/stack';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 
 import ASCLogo from 'assets/svg/ASCLogo';
-// import AvatarHolder from 'assets/images/avatar.png';
+
+import styles from './styles';
 
 type HeaderProps = {
   drawer?: boolean;
@@ -56,15 +57,5 @@ const Header: FC<Pick<StackHeaderProps, 'previous' | 'scene'> & HeaderProps> = (
     </Appbar.Header>
   );
 };
-
-const styles = StyleSheet.create({
-  column: {
-    flex: 1,
-  },
-  left: { alignItems: 'flex-start' },
-  center: { alignItems: 'center' },
-  right: { alignItems: 'flex-end' },
-  drawerIcon: { marginTop: 10 },
-});
 
 export default Header;

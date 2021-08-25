@@ -1,6 +1,7 @@
-import { StyleSheet } from 'react-native';
 import React, { VFC } from 'react';
 import { ActivityIndicator } from 'react-native-paper';
+
+import styles from './styles';
 
 type LoadingProps = {
   padded?: boolean;
@@ -9,11 +10,5 @@ type LoadingProps = {
 const Loading: VFC<LoadingProps> = ({ padded = true }) => {
   return <ActivityIndicator style={[padded && styles.padded]} />;
 };
-
-const styles = StyleSheet.create({
-  padded: {
-    paddingVertical: 25,
-  },
-});
 
 export default Loading;
