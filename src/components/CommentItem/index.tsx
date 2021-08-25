@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import Moment from 'moment';
-import React, { VFC, useState, useEffect } from 'react';
-import { StyleSheet, Alert, Pressable } from 'react-native';
+import { format } from 'date-fns';
+import { Pressable } from 'react-native';
+import React, { VFC, useState, useEffect, useCallback } from 'react';
 import { Card, Paragraph, useTheme, Text } from 'react-native-paper';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import {
@@ -10,20 +9,27 @@ import {
   removeReaction,
   addReaction,
   observeComment,
-  observeComments,
   queryComments,
-  getComment,
   createQuery,
   runQuery,
+  observeComments,
 } from '@amityco/ts-sdk';
 
-import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
-import getErrorMessage from 'utils/getErrorMessage';
+import { alertError, alertConfirmation } from 'utils/alerts';
 
-import { ReactionsType, CommentProps } from 'types';
+import { ReactionsType } from 'types';
 
 import HeaderMenu from '../HeaderMenu';
+
+import styles from './styles';
+
+export type CommentProps = Amity.Comment & {
+  postId: string;
+  selectedComment?: string;
+  onReply?: (commentId: string) => void;
+  onEdit: (commentId: string) => void;
+};
 
 const QUERY_LIMIT = 10;
 
@@ -35,7 +41,6 @@ const CommentItem: VFC<CommentProps> = ({
   userId,
   onEdit,
   onReply,
-  children,
   parentId,
   reactions,
 }) => {
@@ -52,73 +57,57 @@ const CommentItem: VFC<CommentProps> = ({
   useEffect(() => {
     return observeUser(userId, ({ data: updatedUser }) => {
       setUser(updatedUser);
-    }); // eslint-disable-next-line react-hooks/exhaustive-deps
+    });
   }, [userId]);
 
   useEffect(() => {
-    getCurrentComment();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+    return observeComment(commentId, commentData => {
+      setComment(commentData.data);
+    });
+  }, [commentId]);
 
-  const getCurrentComment = async () => {
-    try {
-      const currentComment = await getComment(commentId);
+  const onQueryComments = useCallback(async () => {
+    const queryData = {
+      postId,
+      isDeleted: false,
+      parentId: commentId,
+      page: { before: 0, limit: QUERY_LIMIT },
+    };
 
-      setComment(currentComment);
-    } catch (error) {
-      const errorText = getErrorMessage(error);
-      Alert.alert('Oooops!', errorText, [{ text: t('close') }], { cancelable: false });
-    }
-  };
+    const query = createQuery(queryComments, queryData);
 
-  // TODO this doesn't work
-  useEffect(
-    () => {
-      return observeComment(commentId, updatedComment => {
-        setComment(updatedComment.data);
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
+    runQuery(query, ({ data: commentData }) => {
+      if (!commentData) return;
+
+      setComments(prevComments => ({ ...prevComments, ...commentData }));
+    });
+  }, [commentId, postId]);
 
   useEffect(() => {
     if (postId) {
       onQueryComments();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commentId, children.length]);
+  }, [postId, onQueryComments]);
 
-  const onQueryComments = async () => {
-    const queryData = {
-      postId: postId!,
-      isDeleted: false,
-      parentId: commentId,
-    };
-
-    const query = createQuery(queryComments, {
-      ...queryData,
-      page: { before: 0, limit: QUERY_LIMIT },
-    });
-
-    runQuery(query, result => {
-      if (!result.data) return;
-      const { data: childrenData } = result;
-
-      setComments(prevComments => ({ ...prevComments, ...childrenData }));
-    });
-  };
+  useEffect(
+    () =>
+      observeComments(postId, {
+        onEvent: (action, commentData) => {
+          if (commentData.parentId && commentId === commentData.parentId) {
+            setComments(prevState => {
+              return { ...prevState, [commentData.localId]: commentData };
+            });
+          }
+        },
+      }),
+    [commentId, onReply, parentId, postId],
+  );
 
   const toggleReaction = async (type: ReactionsType) => {
-    try {
-      const api = comment?.myReactions?.includes(type) ? removeReaction : addReaction;
-      const query = createQuery(api, 'comment', commentId, type);
+    const api = comment?.myReactions?.includes(type) ? removeReaction : addReaction;
+    const query = createQuery(api, 'comment', commentId, type);
 
-      runQuery(query);
-    } catch (e) {
-      console.log(e);
-      // TODO toastbar
-    }
+    runQuery(query);
   };
 
   const onEditComment = () => {
@@ -127,28 +116,15 @@ const CommentItem: VFC<CommentProps> = ({
   };
 
   const onDelete = () => {
-    Alert.alert(
-      t('are_you_sure'),
-      '',
-      [
-        { text: t('cancel'), style: 'cancel' },
-        {
-          text: t('ok'),
-          onPress: async () => {
-            try {
-              setOpenMenu(false);
+    alertConfirmation(() => {
+      setOpenMenu(false);
 
-              await deleteComment(commentId);
-            } catch (error) {
-              const errorText = getErrorMessage(error);
-
-              Alert.alert(errorText);
-            }
-          },
-        },
-      ],
-      { cancelable: false },
-    );
+      runQuery(createQuery(deleteComment, commentId), ({ error }) => {
+        if (error) {
+          alertError(error);
+        }
+      });
+    });
   };
 
   const onReplyComment = () => {
@@ -157,7 +133,7 @@ const CommentItem: VFC<CommentProps> = ({
     }
   };
 
-  const commentCreateAt = Moment(comment?.createdAt ?? createdAt).format('HH:mm, MMM d');
+  const commentCreateAt = format(new Date(comment?.createdAt ?? createdAt), 'HH:mm, MMM d');
 
   const isUser = client.userId === userId;
   const canEdit = isUser && onEdit ? onEditComment : undefined;
@@ -222,6 +198,7 @@ const CommentItem: VFC<CommentProps> = ({
           <CommentItem
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...cm}
+            postId={postId}
             onEdit={onEdit}
             onReply={onReply}
             key={cm.commentId}
@@ -230,11 +207,5 @@ const CommentItem: VFC<CommentProps> = ({
     </Card>
   );
 };
-
-const styles = StyleSheet.create({
-  text: { marginBottom: 10 },
-  icon: { marginEnd: 15, flexDirection: 'row' },
-  childComment: { marginBottom: 5, marginStart: 20 },
-});
 
 export default CommentItem;
