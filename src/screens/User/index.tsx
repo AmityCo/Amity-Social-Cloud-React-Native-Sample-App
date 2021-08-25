@@ -1,15 +1,15 @@
-import { getUser } from '@amityco/ts-sdk';
-import { StyleSheet, Alert } from 'react-native';
 import { ActivityIndicator, Surface } from 'react-native-paper';
+import { getUser, createQuery, runQuery } from '@amityco/ts-sdk';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import React, { VFC, useLayoutEffect, useState, useEffect } from 'react';
+import React, { VFC, useLayoutEffect, useState, useEffect, useCallback } from 'react';
 
-import { Header, UserItem, AddUser, Feed } from 'components';
+import { Header, UserItem, UpdateUser, Feed } from 'components';
 
-import { t } from 'i18n';
-import getErrorMessage from 'utils/getErrorMessage';
+import { alertError } from 'utils/alerts';
 
 import { DrawerStackHeaderProps } from 'types';
+
+import styles from './styles';
 
 const UserScreen: VFC = () => {
   const [user, setUser] = useState<Amity.User>();
@@ -24,41 +24,38 @@ const UserScreen: VFC = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: user?.displayName ? user?.displayName : 'User',
+      headerTitle: user?.displayName ? user.displayName : 'User',
       header: ({ scene, previous, navigation: nav }: DrawerStackHeaderProps) => (
         <Header scene={scene} navigation={nav} previous={previous} />
       ),
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.displayName]);
+  }, [navigation, user]);
+
+  const getCurrentUser = useCallback(async () => {
+    const query = createQuery(getUser, userId);
+
+    runQuery(query, ({ data, error }) => {
+      if (data) {
+        setUser(data);
+      } else if (error) {
+        alertError(error, () => {
+          navigation.goBack();
+        });
+      }
+    });
+  }, [navigation, userId]);
 
   useEffect(() => {
     getCurrentUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getCurrentUser, userId]);
+
+  const onCloseUpdateUser = useCallback(() => {
+    setIsEditId('');
+  }, []);
+
+  const onEditUser = useCallback(() => {
+    setIsEditId(userId);
   }, [userId]);
-
-  const getCurrentUser = async () => {
-    try {
-      const currentUser = await getUser(userId);
-
-      setUser(currentUser);
-    } catch (error) {
-      const errorText = getErrorMessage(error);
-      Alert.alert(
-        'Oooops!',
-        errorText,
-        [
-          {
-            text: t('close'),
-            onPress: async () => {
-              navigation.goBack();
-            },
-          },
-        ],
-        { cancelable: false },
-      );
-    }
-  };
 
   return (
     <Surface style={styles.container}>
@@ -69,32 +66,14 @@ const UserScreen: VFC = () => {
           <Feed
             targetId={userId}
             targetType="user"
-            header={
-              <UserItem
-                user={user}
-                onEditUser={() => {
-                  setIsEditId(userId);
-                }}
-              />
-            }
+            header={<UserItem user={user} onEditUser={onEditUser} />}
           />
 
-          <AddUser
-            onClose={() => {
-              setIsEditId('');
-            }}
-            isEditId={isEditId}
-            visible={isEditId !== ''}
-          />
+          {isEditId !== '' && <UpdateUser isEditId={isEditId} onClose={onCloseUpdateUser} />}
         </>
       )}
     </Surface>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  loading: { marginTop: 20 },
-});
 
 export default UserScreen;
