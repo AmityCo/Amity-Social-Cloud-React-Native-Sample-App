@@ -1,7 +1,6 @@
-/* eslint-disable consistent-return */
 import { Button } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import React, { VFC, useState, useEffect, useRef } from 'react';
+import React, { VFC, useState, useEffect, useRef, useCallback } from 'react';
 import {
   createComment,
   updateComment,
@@ -11,8 +10,6 @@ import {
   runQuery,
 } from '@amityco/ts-sdk';
 import {
-  StyleSheet,
-  Alert,
   View,
   ActivityIndicator,
   TextInput as TextInputType,
@@ -21,9 +18,11 @@ import {
 } from 'react-native';
 
 import { t } from 'i18n';
-import getErrorMessage from 'utils/getErrorMessage';
+import { alertError } from 'utils/alerts';
 
 import TextInput from '../TextInput';
+
+import styles from './styles';
 
 type AddCommentType = Pick<Amity.Post, 'postId'> & {
   onRefresh: () => void;
@@ -53,9 +52,25 @@ const AddComment: VFC<AddCommentType> = ({
       });
     }
 
-    setUser(undefined);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReply]);
+    return setUser(undefined);
+  }, [isReply, parentUserId]);
+
+  const getCurrentComment = useCallback(
+    async (id: string) => {
+      runQuery(createQuery(getComment, id), ({ data, error }) => {
+        if (data) {
+          if (isEdit !== '') {
+            setText(data.data.text);
+          }
+
+          textInputRef?.current?.focus();
+        } else if (error) {
+          alertError(error);
+        }
+      });
+    },
+    [isEdit],
+  );
 
   useEffect(() => {
     if (isEdit !== '') {
@@ -63,57 +78,48 @@ const AddComment: VFC<AddCommentType> = ({
     } else if (isReply !== '') {
       getCurrentComment(isReply);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, isReply]);
-
-  const getCurrentComment = async (id: string) => {
-    try {
-      const post = await getComment(id);
-
-      if (isEdit !== '') {
-        setText(post.data.text);
-      }
-
-      textInputRef?.current?.focus();
-    } catch (error) {
-      const errorText = getErrorMessage(error);
-      Alert.alert('Oooops!', errorText, [{ text: t('close') }], { cancelable: false });
-    }
-  };
+  }, [getCurrentComment, isEdit, isReply]);
 
   const onComment = async () => {
     setLoading(true);
 
-    try {
-      if (isEdit !== '') {
-        const updateCommentRequest = {
-          data: { text },
-        };
+    if (isEdit !== '') {
+      const updateCommentRequest = {
+        data: { text },
+      };
 
-        const query = createQuery(updateComment, isEdit, updateCommentRequest);
-        runQuery(query);
-      } else {
-        const createCommentRequest: Parameters<typeof createComment>[0] = {
-          data: { text },
-          postId,
-        };
+      const query = createQuery(updateComment, isEdit, updateCommentRequest);
+      runQuery(query, ({ data, loading: loading_, error }) => {
+        setLoading(!!loading_);
 
-        if (isReply !== '') {
-          createCommentRequest.parentId = isReply;
+        if (data) {
+          setText('');
+          onRefresh();
+        } else if (error) {
+          alertError(error);
         }
+      });
+    } else {
+      const createCommentRequest: Parameters<typeof createComment>[0] = {
+        data: { text },
+        postId,
+      };
 
-        const query = createQuery(createComment, createCommentRequest);
-        runQuery(query);
+      if (isReply !== '') {
+        createCommentRequest.parentId = isReply;
       }
 
-      setText('');
-      onRefresh();
-    } catch (error) {
-      const errorText = getErrorMessage(error);
+      const query = createQuery(createComment, createCommentRequest);
+      runQuery(query, ({ data, loading: loading_, error }) => {
+        setLoading(!!loading_);
 
-      Alert.alert(errorText);
-    } finally {
-      setLoading(false);
+        if (data) {
+          setText('');
+          onRefresh();
+        } else if (error) {
+          alertError(error);
+        }
+      });
     }
   };
 
@@ -161,25 +167,5 @@ const AddComment: VFC<AddCommentType> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { paddingVertical: 5 },
-  onEditOrReply: { paddingStart: 5, flexDirection: 'row' },
-  inputArea: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  textInput: {
-    flex: 1,
-    borderRadius: 5,
-    marginStart: 5,
-  },
-  textInputContainer: { flex: 1, padding: 2, borderRadius: 5, height: 50 },
-  btn: {
-    width: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default AddComment;
