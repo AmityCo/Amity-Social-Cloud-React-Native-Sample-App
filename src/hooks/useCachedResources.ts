@@ -2,23 +2,19 @@ import * as React from 'react';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import * as SplashScreen from 'expo-splash-screen';
+import { Alert } from 'react-native';
 
 const useCachedResources = (): boolean => {
   const [isLoadingComplete, setLoadingComplete] = React.useState(false);
 
-  // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {
     async function loadResourcesAndDataAsync() {
       try {
         SplashScreen.preventAutoHideAsync();
 
-        await Font.loadAsync({
-          ...Ionicons.font,
-          // 'space-mono': require('assets/fonts/SpaceMono-Regular.ttf'),
-        });
+        await Font.loadAsync(Ionicons.font);
       } catch (e) {
-        // We might want to provide this error information to an error reporting service
-        // console.warn(e);
+        Alert.alert(e.message ?? 'Error loading Font Icons!');
       } finally {
         setLoadingComplete(true);
         SplashScreen.hideAsync();

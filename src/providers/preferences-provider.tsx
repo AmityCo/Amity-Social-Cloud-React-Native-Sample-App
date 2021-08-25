@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useCallback } from 'react';
 import { useColorScheme, ColorSchemeName } from 'react-native-appearance';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 
@@ -16,24 +16,24 @@ export const PreferencesContextProvider: FC = ({ children }) => {
   const [theme, setTheme] = React.useState<ColorSchemeName>(colorScheme);
   const { getItem: getScheme, setItem: setScheme } = useAsyncStorage('color_scheme');
 
-  const readThemeSchemeFromStorage = async () => {
+  const readThemeSchemeFromStorage = useCallback(async () => {
     const item = await getScheme();
 
     if (item) {
       setTheme(item as ColorSchemeName);
     }
-  };
+  }, [getScheme]);
 
   const writeItemToStorage = async () => {
     const newValue = theme === 'dark' ? 'light' : 'dark';
-    await setScheme(newValue);
+
+    setScheme(newValue);
     setTheme(newValue);
   };
 
   React.useEffect(() => {
     readThemeSchemeFromStorage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [readThemeSchemeFromStorage]);
 
   return (
     <PreferencesContext.Provider
