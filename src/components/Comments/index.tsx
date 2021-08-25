@@ -1,148 +1,121 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable react/jsx-props-no-spreading */
 import { View, FlatList } from 'react-native';
-import { queryComments, createQuery, runQuery, observeComments } from '@amityco/ts-sdk';
 import React, { VFC, useState, useEffect, useRef, useCallback } from 'react';
+import {
+  queryComments,
+  createQuery,
+  runQuery,
+  observeComments,
+  sortByLastCreated,
+} from '@amityco/ts-sdk';
 
 import getErrorMessage from 'utils/getErrorMessage';
 
-import AddComment from './AddComment';
-import CommentItem from './CommentItem';
+import { LoadingState } from 'types';
+
+import AddComment from '../AddComment';
+import CommentItem from '../CommentItem';
 
 import Loading from '../Loading';
 import EmptyComponent from '../EmptyComponent';
 
-const QUERY_LIMIT = 5;
+const QUERY_LIMIT = 10;
 
 const Comments: VFC<{ postId: string }> = ({ postId }) => {
-  const [error, setError] = useState('');
+  const [isDeleted] = useState(false);
   const [isEdit, setIsEdit] = useState('');
   const [isReply, setIsReply] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const [pages, setPages] = useState<Amity.Pages>();
-  const [currentPage, setCurrentPage] = useState<Amity.Page>();
+  const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
+
   const [comments, setComments] = useState<Record<string, Amity.Comment>>({});
 
-  const flatlistRef = useRef<FlatList<Amity.Comment>>(null);
+  const [{ error, nextPage }, setMetadata] = useState<Amity.QueryMetadata & Amity.Pages>({
+    nextPage: null,
+    prevPage: null,
+  });
 
-  useEffect(() => {
-    setCurrentPage({ before: 0, limit: QUERY_LIMIT });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const flatListRef = useRef<FlatList<Amity.Comment>>(null);
 
-  // query per page
-  useEffect(() => {
-    if (currentPage) {
-      onQueryComment();
-      setLoading(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage]);
-
-  const onQueryComment = async () => {
-    try {
+  const onQueryComment = useCallback(
+    async ({ reset = false, page = { limit: QUERY_LIMIT } }) => {
       const queryData = {
+        page,
         postId,
-        isDeleted: false,
+        isDeleted,
       };
 
-      runQuery(createQuery(queryComments, { ...queryData, page: currentPage }), result => {
-        if (!result.data) return;
-        const { data, nextPage, prevPage, loading: loadingStack, error: errorStack } = result;
+      runQuery(
+        createQuery(queryComments, queryData),
+        ({ data, loading: loading_, ...metadata }) => {
+          if (reset) setComments({});
 
-        if (errorStack) {
-          const errorText = getErrorMessage(errorStack);
+          setComments(prevComments => ({ ...prevComments, ...data }));
 
-          setError(errorText);
-        }
+          // @ts-ignore
+          setMetadata(metadata);
 
-        setIsLoadingMore(false);
-        setLoading(!!loadingStack);
-        setPages({ nextPage, prevPage });
-        setComments(prevComments => ({ ...prevComments, ...data }));
-      });
-    } catch (e) {
-      const errorText = getErrorMessage(e);
-
-      setError(errorText);
-    } finally {
-      setLoading(false);
-      setIsLoadingMore(false);
-    }
-  };
+          if (!loading_) {
+            setLoading(LoadingState.NOT_LOADING);
+          }
+        },
+      );
+    },
+    [isDeleted, postId],
+  );
 
   useEffect(
     () =>
       observeComments(postId, {
-        onEvent: (action, post) => {
-          if (action === 'onDelete') {
+        onEvent: (action, comment) => {
+          if (!comment.parentId) {
             setComments(prevState => {
-              // eslint-disable-next-line no-param-reassign
-              const state = { ...prevState };
-
-              delete state[post.localId];
-              return state;
+              return { ...prevState, [comment.localId]: comment };
             });
-          } else if (action === 'onCreate') {
-            if (post.parentId) {
-              setComments(prevState => {
-                const state = { ...prevState };
-                const cm = Object.values(state).find(com => com.commentId === post.parentId);
 
-                if (cm) {
-                  cm?.children.push(post.parentId!);
-                  // eslint-disable-next-line no-param-reassign
-
-                  state[cm!.localId] = cm!;
-                }
-
-                return state;
-              });
-            } else {
-              setComments(prevState => {
-                return { [post.localId]: post, ...prevState };
-              });
+            if (action === 'onCreate') {
+              flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
             }
-
-            flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
           }
         },
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [postId],
   );
 
+  const onRefresh = useCallback(() => {
+    setLoading(LoadingState.IS_REFRESHING);
+    onQueryComment({ reset: true });
+  }, [onQueryComment]);
+
+  useEffect(() => {
+    onQueryComment({ reset: true });
+  }, [onQueryComment]);
+
   const handleLoadMore = () => {
-    if (pages?.nextPage) {
-      setIsLoadingMore(true);
-      setCurrentPage(pages.nextPage);
+    if (nextPage) {
+      setLoading(LoadingState.IS_LOADING_MORE);
+      onQueryComment({ page: nextPage });
     }
   };
 
-  const onRefresh = useCallback(() => {
-    setIsRefreshing(true);
-    setCurrentPage({ before: 0, limit: QUERY_LIMIT });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  const onCloseAddComment = useCallback(() => {
+    setIsEdit('');
+    setIsReply('');
   }, []);
 
-  const data = Object.values(comments);
+  const errorText = getErrorMessage(error);
+
+  const data = Object.values(comments)
+    .filter(post => (!isDeleted ? !post.isDeleted : true))
+    .sort(sortByLastCreated);
   const parent = data.find(cm => cm.commentId === isReply);
 
   return (
     <View>
       <AddComment
         postId={postId}
-        onRefresh={() => {
-          setIsEdit('');
-          setIsReply('');
-        }}
-        onCancel={() => {
-          setIsEdit('');
-          setIsReply('');
-        }}
+        onRefresh={onCloseAddComment}
+        onCancel={onCloseAddComment}
         isEdit={isEdit}
         isReply={isReply}
         parentUserId={parent?.userId}
@@ -150,15 +123,19 @@ const Comments: VFC<{ postId: string }> = ({ postId }) => {
 
       <FlatList
         data={data}
-        ref={flatlistRef}
+        ref={flatListRef}
         onRefresh={onRefresh}
-        refreshing={isRefreshing}
         onEndReachedThreshold={0.5}
         onEndReached={handleLoadMore}
         showsVerticalScrollIndicator={false}
         keyExtractor={comment => comment.commentId}
-        ListFooterComponent={isLoadingMore ? <Loading /> : undefined}
-        ListEmptyComponent={<EmptyComponent loading={loading || isRefreshing} errorText={error} />}
+        refreshing={loading === LoadingState.IS_REFRESHING}
+        ListEmptyComponent={
+          loading === LoadingState.NOT_LOADING ? (
+            <EmptyComponent errorText={error ? errorText : undefined} />
+          ) : null
+        }
+        ListFooterComponent={loading === LoadingState.IS_LOADING_MORE ? <Loading /> : undefined}
         renderItem={({ item }) => (
           <CommentItem {...item} onEdit={setIsEdit} postId={postId} onReply={setIsReply} />
         )}
