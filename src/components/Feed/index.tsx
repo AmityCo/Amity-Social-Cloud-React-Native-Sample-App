@@ -1,24 +1,33 @@
 /* eslint-disable react/jsx-props-no-spreading */
+import { FlatList } from 'react-native';
 import { Surface } from 'react-native-paper';
-import { StyleSheet, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import React, { VFC, useState, useEffect, useRef, useCallback, ReactElement } from 'react';
-import { queryPosts, createQuery, runQuery, observePosts, queryGlobalFeed } from '@amityco/ts-sdk';
-
-import { EmptyComponent, PostItem, Loading } from 'components';
+import {
+  queryPosts,
+  createQuery,
+  runQuery,
+  observePosts,
+  queryGlobalFeed,
+  sortByLastCreated,
+} from '@amityco/ts-sdk';
 
 import getErrorMessage from 'utils/getErrorMessage';
+import { LoadingState, PostFeedType, FeedTargetType } from 'types';
 
-import { LoadingState, PostSortBy, PostFeedType, FeedType } from 'types';
+import Loading from '../Loading';
+import PostItem from '../PostItem';
+import EmptyComponent from '../EmptyComponent';
+
+import styles from './styles';
 
 const QUERY_LIMIT = 10;
 
 type FeedComponentType = {
   targetId?: string;
   targetType?: string;
-  sortBy?: PostSortBy;
   isDeleted?: boolean;
-  feedType?: FeedType;
+  feedTargetType?: FeedTargetType;
   postFeedType?: PostFeedType;
   header?: ReactElement;
 };
@@ -28,22 +37,19 @@ const FeedComponent: VFC<FeedComponentType> = ({
   targetId,
   targetType,
   isDeleted = false,
-  feedType = FeedType.Normal,
-  sortBy = PostSortBy.LAST_CREATED,
+  feedTargetType = FeedTargetType.Normal,
   postFeedType = PostFeedType.PUBLISHED,
 }) => {
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
 
   const [posts, setPosts] = useState<Record<string, Amity.Post>>({});
 
-  const [{ error, nextPage, loading: queryLoading }, setMetadata] = useState<
-    Amity.QueryMetadata & Amity.Pages
-  >({
+  const [{ error, nextPage }, setMetadata] = useState<Amity.QueryMetadata & Amity.Pages>({
     nextPage: null,
     prevPage: null,
   });
 
-  const flatlistRef = useRef<FlatList<Amity.Post>>(null);
+  const flatListRef = useRef<FlatList<Amity.Post>>(null);
 
   const navigation = useNavigation();
 
@@ -51,29 +57,32 @@ const FeedComponent: VFC<FeedComponentType> = ({
     async ({ reset = false, page = { limit: QUERY_LIMIT } }) => {
       let query = createQuery(queryGlobalFeed, { page });
 
-      if (feedType === FeedType.Normal) {
+      if (feedTargetType === FeedTargetType.Normal) {
         const queryData = {
           page,
-          sortBy,
+          targetId,
           isDeleted,
           targetType,
-          targetId,
           feedType: postFeedType,
         };
 
         query = createQuery(queryPosts, queryData);
       }
 
-      runQuery(query, ({ data, ...metadata }) => {
+      runQuery(query, ({ data, loading: loading_, ...metadata }) => {
         if (reset) setPosts({});
 
         setPosts(prevPosts => ({ ...prevPosts, ...data }));
 
         // @ts-ignore
         setMetadata(metadata);
+
+        if (!loading_) {
+          setLoading(LoadingState.NOT_LOADING);
+        }
       });
     },
-    [feedType, isDeleted, postFeedType, sortBy, targetId, targetType],
+    [feedTargetType, isDeleted, postFeedType, targetId, targetType],
   );
 
   useEffect(() => {
@@ -87,19 +96,12 @@ const FeedComponent: VFC<FeedComponentType> = ({
       { targetId, targetType },
       {
         onEvent: (action, post) => {
-          if (action === 'onDelete') {
-            setPosts(prevState => {
-              const state = { ...prevState };
+          setPosts(prevState => {
+            return { ...prevState, [post.localId]: post };
+          });
 
-              delete state[post.localId];
-              return state;
-            });
-          } else if (action === 'onCreate') {
-            setPosts(prevState => {
-              return { [post.localId]: post, ...prevState };
-            });
-
-            flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
+          if (action === 'onCreate') {
+            flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
           }
         },
       },
@@ -116,15 +118,9 @@ const FeedComponent: VFC<FeedComponentType> = ({
   }, [onQueryPost]);
 
   useEffect(() => {
-    if (!queryLoading) {
-      setLoading(LoadingState.NOT_LOADING);
-    }
-  }, [queryLoading]);
-
-  useEffect(() => {
-    const unsubscribe = navigation?.dangerouslyGetParent()?.addListener('tabPress', e => {
+    const unsubscribe = navigation?.dangerouslyGetParent()?.addListener('tabPress', () => {
       onRefresh();
-      flatlistRef?.current?.scrollToOffset({ animated: true, offset: 0 });
+      flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
     });
 
     return unsubscribe;
@@ -137,25 +133,25 @@ const FeedComponent: VFC<FeedComponentType> = ({
     }
   };
 
-  const data = Object.values(posts);
   const errorText = getErrorMessage(error);
+  const data = Object.values(posts)
+    .filter(post => (!isDeleted ? !post.isDeleted : true))
+    .sort(sortByLastCreated);
 
   return (
     <FlatList
       data={data}
-      ref={flatlistRef}
+      ref={flatListRef}
       onRefresh={onRefresh}
       onEndReachedThreshold={0.5}
       ListHeaderComponent={header}
       onEndReached={handleLoadMore}
       keyExtractor={post => post.postId}
       showsVerticalScrollIndicator={false}
-      refreshing={loading === LoadingState.IS_REFRESHING || !!queryLoading}
-      ListFooterComponent={
-        loading === LoadingState.IS_LOADING_MORE && !!queryLoading ? <Loading /> : undefined
-      }
+      refreshing={loading === LoadingState.IS_REFRESHING}
+      ListFooterComponent={loading === LoadingState.IS_LOADING_MORE ? <Loading /> : undefined}
       ListEmptyComponent={
-        loading === LoadingState.NOT_LOADING && !queryLoading ? (
+        loading === LoadingState.NOT_LOADING ? (
           <EmptyComponent errorText={error ? errorText : undefined} />
         ) : null
       }
@@ -172,17 +168,5 @@ const FeedComponent: VFC<FeedComponentType> = ({
     />
   );
 };
-
-const styles = StyleSheet.create({
-  isLoadingOrEmpty: { padding: 20 },
-  helperText: { textAlign: 'center', padding: 20, marginTop: 20 },
-  list: { margin: 5 },
-  text: { marginBottom: 10 },
-  postItem: {
-    flex: 1,
-    margin: 12,
-    borderRadius: 5,
-  },
-});
 
 export default FeedComponent;
