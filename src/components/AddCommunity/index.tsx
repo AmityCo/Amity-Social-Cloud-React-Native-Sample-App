@@ -1,6 +1,6 @@
-import React, { useState, useEffect, VFC } from 'react';
+import React, { useState, useEffect, VFC, useCallback } from 'react';
 import { Text, Surface, Button } from 'react-native-paper';
-import { Alert, View, StyleSheet, Modal, ScrollView } from 'react-native';
+import { Alert, View, Modal, ScrollView } from 'react-native';
 import {
   getCommunity,
   createCommunity,
@@ -10,55 +10,48 @@ import {
 } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
-import getErrorMessage from 'utils/getErrorMessage';
-
-import { AddCommunityType } from 'types';
+import { alertError } from 'utils/alerts';
 
 import TextInput from '../TextInput';
 
-const AddCommunity: VFC<AddCommunityType> = ({ visible, onClose, onAddCommunity, isEditId }) => {
+import styles from './styles';
+
+export type AddCommunityType = {
+  isEditId: string;
+  onClose: () => void;
+  onAddCommunity: () => void;
+};
+
+const AddCommunity: VFC<AddCommunityType> = ({ onClose, onAddCommunity, isEditId }) => {
   const [loading, setLoading] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [description, setDescription] = useState('');
 
   useEffect(() => {
-    if (!visible) {
-      setDisplayName('');
-      setDescription('');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible]);
+    setDisplayName('');
+    setDescription('');
+  }, []);
+
+  const getCurrentCommunity = useCallback(async () => {
+    const query = createQuery(getCommunity, isEditId);
+
+    runQuery(query, ({ data, error }) => {
+      if (data) {
+        setDisplayName(data.displayName ?? '');
+        setDescription(data.description ?? '');
+      } else if (error) {
+        alertError(error, () => {
+          onClose();
+        });
+      }
+    });
+  }, [isEditId, onClose]);
 
   useEffect(() => {
-    if (isEditId !== '' && visible) {
+    if (isEditId !== '') {
       getCurrentCommunity();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditId]);
-
-  const getCurrentCommunity = async () => {
-    try {
-      const community = await getCommunity(isEditId);
-
-      setDisplayName(community.displayName ?? '');
-      setDescription(community.description ?? '');
-    } catch (error) {
-      const errorText = getErrorMessage(error);
-      Alert.alert(
-        'Oooops!',
-        errorText,
-        [
-          {
-            text: t('close'),
-            onPress: async () => {
-              onClose();
-            },
-          },
-        ],
-        { cancelable: false },
-      );
-    }
-  };
+  }, [getCurrentCommunity, isEditId]);
 
   const onSubmit = async () => {
     if (displayName === '') {
@@ -66,41 +59,39 @@ const AddCommunity: VFC<AddCommunityType> = ({ visible, onClose, onAddCommunity,
       return;
     }
 
-    try {
-      setLoading(true);
+    setLoading(true);
 
-      const data = { displayName, description };
+    const data = { displayName, description };
 
-      if (isEditId !== '') {
-        const query = createQuery(updateCommunity, isEditId, data);
+    if (isEditId !== '') {
+      const query = createQuery(updateCommunity, isEditId, data);
 
-        runQuery(query);
-      } else {
-        const query = createQuery(createCommunity, data);
+      runQuery(query, ({ error }) => {
+        if (error) {
+          alertError(error);
+        }
+      });
+    } else {
+      const query = createQuery(createCommunity, data);
 
-        runQuery(query);
+      runQuery(query, ({ data: communityData, error, loading: loading_ }) => {
+        setLoading(!!loading_);
 
-        onAddCommunity();
-      }
-
-      onClose();
-    } catch (error) {
-      const errorText = getErrorMessage(error);
-
-      Alert.alert(errorText);
-    } finally {
-      setLoading(false);
+        if (communityData) {
+          onAddCommunity();
+        } else if (error) {
+          alertError(error, () => {
+            onClose();
+          });
+        }
+      });
     }
+
+    onClose();
   };
 
   return (
-    <Modal
-      transparent
-      visible={visible}
-      onDismiss={onClose}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal transparent visible onDismiss={onClose} animationType="slide" onRequestClose={onClose}>
       <Surface style={styles.container}>
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.centeredView}>
           <View style={styles.content}>
@@ -140,63 +131,5 @@ const AddCommunity: VFC<AddCommunityType> = ({ visible, onClose, onAddCommunity,
     </Modal>
   );
 };
-
-export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginTop: 100,
-    borderTopRightRadius: 15,
-    borderTopLeftRadius: 15,
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    // flexGrow: 1,
-  },
-
-  content: {
-    width: '100%',
-    alignItems: 'center',
-  },
-
-  communityInputContainer: {
-    width: '90%',
-    height: 160,
-    textAlignVertical: 'top',
-    padding: 10,
-    marginBottom: 20,
-  },
-
-  communityInput: {
-    flex: 1,
-    // height: 150,
-    textAlignVertical: 'top',
-    fontSize: 18,
-  },
-
-  filesContainer: {
-    width: '100%',
-    marginBottom: 15,
-  },
-
-  filesArea: {
-    justifyContent: 'flex-start',
-    alignSelf: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    width: '90%',
-    // backgroundColor: "black",
-  },
-
-  btnArea: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
-  btn: {
-    width: 120,
-  },
-});
 
 export default AddCommunity;
