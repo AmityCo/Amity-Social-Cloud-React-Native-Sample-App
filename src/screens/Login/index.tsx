@@ -1,8 +1,8 @@
 import React, { VFC } from 'react';
 import Switch from 'expo-dark-mode-switch';
+import { View, Platform } from 'react-native';
 import { connectClient } from '@amityco/ts-sdk';
 import * as Application from 'expo-application';
-import { StyleSheet, View, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { Surface, Button, Text, HelperText } from 'react-native-paper';
@@ -14,6 +14,8 @@ import useAuth from 'hooks/useAuth';
 import usePreferences from 'hooks/usePreferences';
 
 import ASCLogo from 'assets/svg/ASCLogo';
+
+import styles from './styles';
 
 type LoginFormData = Parameters<typeof connectClient>[0];
 
@@ -103,23 +105,5 @@ const LoginScreen: VFC = () => {
     </Surface>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoArea: { marginBottom: 20, alignItems: 'center' },
-  input: { width: '75%', marginBottom: 15 },
-  btn: { width: 200, alignSelf: 'center' },
-  darkModeToggleArea: {
-    marginTop: 25,
-  },
-});
 
 export default LoginScreen;
