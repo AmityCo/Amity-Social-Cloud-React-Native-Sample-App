@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { VFC } from 'react';
 import { View, StyleProp, ViewStyle } from 'react-native';
-import { Text, TextInput as TextInputComponent } from 'react-native-paper';
+import { TextInput as TextInputComponent, HelperText } from 'react-native-paper';
 
 type TextInputProps = React.ComponentProps<typeof TextInputComponent> & {
   error?: boolean;
@@ -11,13 +11,16 @@ type TextInputProps = React.ComponentProps<typeof TextInputComponent> & {
 
 const TextInput: VFC<TextInputProps> = React.forwardRef(
   ({ error, errorText, dense = true, containerStyle, mode = 'outlined', ...props }, ref) => {
+    const showError = error && errorText !== '';
+
     return (
-      <View style={containerStyle}>
+      <View style={[{ height: showError ? 100 : 75 }, containerStyle]}>
         <TextInputComponent mode={mode} dense={dense} error={error} ref={ref} {...props} />
-        {error && errorText !== '' && <Text>{errorText}</Text>}
-        {/* <HelperText type="error" visible={hasErrors()}>
-        Email address is invalid!
-      </HelperText> */}
+        {showError && (
+          <HelperText type="error" visible={showError}>
+            {errorText}
+          </HelperText>
+        )}
       </View>
     );
   },
