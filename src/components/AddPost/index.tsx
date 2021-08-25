@@ -1,13 +1,11 @@
-import React, { useState, useEffect, VFC } from 'react';
-import { Alert, View, StyleSheet, Modal, ScrollView } from 'react-native';
+import { View, Modal, ScrollView } from 'react-native';
 import { Text, Surface, Button } from 'react-native-paper';
-import { createPost, getPost, updatePost } from '@amityco/ts-sdk';
+import React, { useState, useEffect, VFC, useCallback } from 'react';
+import { createPost, getPost, updatePost, createQuery, runQuery } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
-import getErrorMessage from 'utils/getErrorMessage';
 import useCollection from 'hooks/useCollection';
-
-import { AddFeedType, AddPostDataType } from 'types';
+import { alertError } from 'utils/alerts';
 
 import File from './File';
 import Image from './Image';
@@ -15,103 +13,100 @@ import AddFile from './AddFile';
 import AddImage from './AddImage';
 import TextInput from '../TextInput';
 
-// targetType: communityId ? 'community' : 'user',
-//           targetId: communityId || client.userId,
-const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, targetType, targetId }) => {
+import styles from './styles';
+
+export type AddPostType = {
+  isEditId: string;
+  onClose: () => void;
+  targetType: Amity.PostTargetType;
+  targetId: string;
+};
+
+const AddPost: VFC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) => {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [images, addImage, remImage, toggleImages, resetImages] = useCollection<Amity.File>(
-    [],
-    (arr, el) => arr.findIndex(({ fileId }) => fileId === el.fileId),
+  const [images, addImage, , , resetImages] = useCollection<Amity.File>([], (arr, el) =>
+    arr.findIndex(({ fileId }) => fileId === el.fileId),
   );
 
-  const [files, addFile, remFile, toggleFiles, resetFiles] = useCollection<Amity.File>(
-    [],
-    (arr, el) => arr.findIndex(({ fileId }) => fileId === el.fileId),
+  const [files, addFile, , , resetFiles] = useCollection<Amity.File>([], (arr, el) =>
+    arr.findIndex(({ fileId }) => fileId === el.fileId),
   );
 
   useEffect(() => {
-    if (!visible) {
-      setText('');
-      resetFiles();
-      resetImages();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible]);
+    setText('');
+    resetFiles();
+    resetImages();
+  }, [resetFiles, resetImages]);
+
+  const getCurrentPost = useCallback(async () => {
+    const query = createQuery(getPost, isEditId);
+
+    runQuery(query, ({ data, error }) => {
+      if (data) {
+        setText(data.data.text);
+      } else if (error) {
+        alertError(error, () => {
+          onClose();
+        });
+      }
+    });
+  }, [isEditId, onClose]);
 
   useEffect(() => {
-    if (isEditId !== '' && visible) {
+    if (isEditId !== '') {
       getCurrentPost();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditId]);
-
-  const getCurrentPost = async () => {
-    try {
-      const post = await getPost(isEditId);
-
-      setText(post.data.text);
-    } catch (error) {
-      const errorText = getErrorMessage(error);
-      Alert.alert(
-        'Oooops!',
-        errorText,
-        [
-          {
-            text: t('close'),
-            onPress: async () => {
-              onClose();
-            },
-          },
-        ],
-        { cancelable: false },
-      );
-    }
-  };
+  }, [getCurrentPost, isEditId]);
 
   const onSubmit = async () => {
-    try {
-      setLoading(true);
+    setLoading(true);
 
-      if (isEditId !== '') {
-        const data = { data: { text } };
+    if (isEditId !== '') {
+      const data = { data: { text } };
 
-        await updatePost(isEditId, data);
-      } else {
-        const data: AddPostDataType = {
-          data: { text },
-          targetType,
-          targetId,
-        };
+      runQuery(
+        createQuery(updatePost, isEditId, data),
+        ({ data: postData, loading: loading_, error }) => {
+          setLoading(!!loading_);
 
-        if (images.length) {
-          data.data.images = images.map(({ fileId }) => fileId);
-        } else if (files.length) {
-          data.data.files = files.map(({ fileId }) => fileId);
-        }
+          if (postData) {
+            onClose();
+          } else if (error) {
+            alertError(error, () => {
+              onClose();
+            });
+          }
+        },
+      );
+    } else {
+      const data: Parameters<typeof createPost>[0] = {
+        data: { text },
+        targetType,
+        targetId,
+      };
 
-        await createPost(data);
+      if (images.length) {
+        data.data.images = images.map(({ fileId }) => fileId);
+      } else if (files.length) {
+        data.data.files = files.map(({ fileId }) => fileId);
       }
 
-      onClose();
-    } catch (error) {
-      const errorText = getErrorMessage(error);
+      runQuery(createQuery(createPost, data), ({ data: postData, error, loading: loading_ }) => {
+        setLoading(!!loading_);
 
-      Alert.alert(errorText);
-    } finally {
-      setLoading(false);
+        if (postData) {
+          onClose();
+        } else if (error) {
+          alertError(error);
+        }
+      });
     }
   };
 
   return (
-    <Modal
-      transparent
-      visible={visible}
-      onDismiss={onClose}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal transparent visible onDismiss={onClose} animationType="slide" onRequestClose={onClose}>
       <Surface style={styles.container}>
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.centeredView}>
           <View style={styles.content}>
@@ -163,63 +158,5 @@ const AddPost: VFC<AddFeedType> = ({ visible, onClose, isEditId, targetType, tar
     </Modal>
   );
 };
-
-export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginTop: 100,
-    borderTopRightRadius: 15,
-    borderTopLeftRadius: 15,
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    // flexGrow: 1,
-  },
-
-  content: {
-    width: '100%',
-    alignItems: 'center',
-  },
-
-  postInputContainer: {
-    width: '90%',
-    height: 160,
-    textAlignVertical: 'top',
-    padding: 10,
-    marginBottom: 20,
-  },
-
-  postInput: {
-    flex: 1,
-    // height: 150,
-    textAlignVertical: 'top',
-    fontSize: 18,
-  },
-
-  filesContainer: {
-    width: '100%',
-    marginBottom: 15,
-  },
-
-  filesArea: {
-    justifyContent: 'flex-start',
-    alignSelf: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    width: '90%',
-    // backgroundColor: "black",
-  },
-
-  btnArea: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
-  btn: {
-    width: 120,
-  },
-});
 
 export default AddPost;
