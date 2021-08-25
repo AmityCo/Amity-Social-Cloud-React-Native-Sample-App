@@ -1,27 +1,32 @@
-/* eslint-disable consistent-return */
-import Moment from 'moment';
-import React, { VFC, useState, useEffect } from 'react';
+import { format } from 'date-fns';
+import { View, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { View, Pressable, StyleSheet, Alert } from 'react-native';
+import React, { VFC, useState, useEffect, useCallback } from 'react';
 import {
   leaveCommunity,
   joinCommunity,
   observeUser,
-  getCommunity,
   deleteCommunity,
+  runQuery,
+  createQuery,
 } from '@amityco/ts-sdk';
 import { Text, Card, Paragraph, Button, useTheme } from 'react-native-paper';
 import { observeCommunity } from '@amityco/ts-sdk/community/observers/observeCommunity';
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
-import getErrorMessage from 'utils/getErrorMessage';
-
-import { CommunityItemProps } from 'types';
+import { alertError, alertConfirmation } from 'utils/alerts';
 
 import CardTitle from '../CardTitle';
 import HeaderMenu from '../HeaderMenu';
+
+import styles from './styles';
+
+export type CommunityItemProps = {
+  onPress?: () => void;
+  onEditCommunity: (communityId: string) => void;
+};
 
 const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = ({
   community: communityProp,
@@ -33,7 +38,7 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
   const [openMenu, setOpenMenu] = useState(false);
   const [community, setCommunity] = useState<Amity.Community>();
 
-  const { communityId, userId } = communityProp;
+  const { communityId, userId, createdAt } = communityProp;
 
   const { client } = useAuth();
   const {
@@ -45,101 +50,48 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
     return observeUser(userId, ({ data: updatedUser }) => {
       setUser(updatedUser);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   useEffect(() => {
-    getCurrentCommunity();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return observeCommunity(communityId, updatedCommunity => {
+      setCommunity(updatedCommunity.data);
+    });
   }, [communityId]);
-
-  const getCurrentCommunity = async () => {
-    try {
-      const currentCommunity = await getCommunity(communityId);
-
-      setCommunity(currentCommunity);
-    } catch (error) {
-      const errorText = getErrorMessage(error);
-      Alert.alert(
-        'Oooops!',
-        errorText,
-        [
-          {
-            text: t('close'),
-            onPress: async () => {
-              if (!onPress) {
-                navigation.goBack();
-              }
-            },
-          },
-        ],
-        { cancelable: false },
-      );
-    }
-  };
-
-  useEffect(
-    () => {
-      return observeCommunity(communityId, updatedCommunity => {
-        setCommunity(updatedCommunity.data);
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [communityId],
-  );
 
   const onToggleJoinCommunity = async () => {
     setLoading(true);
-    try {
-      const api = community?.isJoined ? leaveCommunity : joinCommunity;
+    const api = community?.isJoined ? leaveCommunity : joinCommunity;
 
-      await api(communityId);
-    } catch (error) {
-      const errorText = getErrorMessage(error);
+    runQuery(createQuery(api, communityId), ({ loading: loading_, error }) => {
+      setLoading(!!loading_);
 
-      Alert.alert(errorText);
-    } finally {
-      setLoading(false);
-    }
+      if (error) {
+        alertError(error);
+      }
+    });
   };
 
   const onEdit = () => {
     setOpenMenu(false);
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    onEditCommunity!(communityId);
+    onEditCommunity(communityId);
   };
 
-  const onDelete = () => {
-    Alert.alert(
-      t('are_you_sure'),
-      '',
-      [
-        { text: t('cancel'), style: 'cancel' },
-        {
-          text: t('ok'),
-          onPress: async () => {
-            try {
-              setOpenMenu(false);
+  const onDelete = useCallback(() => {
+    alertConfirmation(() => {
+      setOpenMenu(false);
 
-              await deleteCommunity(communityId);
+      runQuery(createQuery(deleteCommunity, communityId), ({ data, error }) => {
+        if (data && !onPress) {
+          navigation.goBack();
+        } else if (error) {
+          alertError(error);
+        }
+      });
+    });
+  }, [communityId, navigation, onPress]);
 
-              if (!onPress) {
-                navigation.goBack();
-              }
-            } catch (error) {
-              const errorText = getErrorMessage(error);
-
-              Alert.alert(errorText);
-            }
-          },
-        },
-      ],
-      { cancelable: false },
-    );
-  };
-
-  const communityCreateAt = Moment(community?.createdAt).format('HH:mm, MMM d');
+  const communityCreateAt = format(new Date(community?.createdAt ?? createdAt), 'HH:mm, MMM d');
 
   const isUser = client.userId === userId;
   const canEdit = isUser && onEditCommunity ? onEdit : undefined;
@@ -197,17 +149,3 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
 };
 
 export default CommunityItem;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    margin: 12,
-    borderRadius: 5,
-  },
-  subtitle: { flexDirection: 'row', width: '100%' },
-  subtitleRow: { flexDirection: 'row', marginEnd: 10, justifyContent: 'center' },
-  text: { marginBottom: 10 },
-  footer: { justifyContent: 'space-between' },
-  footerLeft: { flexDirection: 'row' },
-  footerRight: { flexDirection: 'row', paddingEnd: 10 },
-});
