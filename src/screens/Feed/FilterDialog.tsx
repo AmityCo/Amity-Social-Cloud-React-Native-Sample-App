@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { StyleSheet } from 'react-native';
 import React, { VFC } from 'react';
 import {
   Button,
@@ -15,99 +13,65 @@ import {
 
 import { t } from 'i18n';
 
-import { FeedType, PostSortBy } from 'types';
+import { FeedTargetType } from 'types';
+
+import { filterDialogStyles } from './styles';
 
 type FeedScreenFilterDialog = {
-  showDialog: boolean;
-  setShowDialog: (showDialog: boolean) => void;
+  targetFeedType: FeedTargetType;
   isDeleted: Amity.Post['isDeleted'];
   setIsDeleted: (status: boolean) => void;
-  sortBy: PostSortBy;
-  setSortBy: (sortBy: PostSortBy) => void;
-  feedType: FeedType;
-  setFeedType: (feedType: FeedType) => void;
+  setShowDialog: (showDialog: boolean) => void;
+  setTargetFeedType: (targetFeedType: FeedTargetType) => void;
 };
 
 const FeedScreenFilterDialog: VFC<FeedScreenFilterDialog> = ({
-  showDialog,
-  setShowDialog,
   isDeleted,
   setIsDeleted,
-  sortBy,
-  setSortBy,
-  feedType,
-  setFeedType,
+  setShowDialog,
+  targetFeedType,
+  setTargetFeedType,
 }) => {
   return (
     <Portal>
-      <Dialog visible={showDialog} dismissable={false}>
+      <Dialog visible dismissable={false}>
         <Dialog.Content>
           <Title>{t('posts.feed_type')}</Title>
           <TouchableRipple
             rippleColor="transparent"
-            style={styles.radioArea}
-            onPress={() => setFeedType(FeedType.Normal)}
+            style={filterDialogStyles.radioArea}
+            onPress={() => setTargetFeedType(FeedTargetType.Normal)}
           >
             <>
-              <Text>{t(`posts.feed_type_${FeedType.Normal}`)}</Text>
+              <Text>{t(`posts.feed_type_${FeedTargetType.Normal}`)}</Text>
               <RadioButton
-                value={FeedType.Normal}
-                status={feedType === FeedType.Normal ? 'checked' : 'unchecked'}
-                onPress={() => setFeedType(FeedType.Normal)}
+                value={FeedTargetType.Normal}
+                status={targetFeedType === FeedTargetType.Normal ? 'checked' : 'unchecked'}
+                onPress={() => setTargetFeedType(FeedTargetType.Normal)}
               />
             </>
           </TouchableRipple>
           <TouchableRipple
             rippleColor="transparent"
-            style={styles.radioArea}
-            onPress={() => setFeedType(FeedType.Global)}
+            style={filterDialogStyles.radioArea}
+            onPress={() => setTargetFeedType(FeedTargetType.Global)}
           >
             <>
-              <Text>{t(`posts.feed_type_${FeedType.Global}`)}</Text>
+              <Text>{t(`posts.feed_type_${FeedTargetType.Global}`)}</Text>
               <RadioButton
-                value={FeedType.Global}
-                status={feedType === FeedType.Global ? 'checked' : 'unchecked'}
-                onPress={() => setFeedType(FeedType.Global)}
+                value={FeedTargetType.Global}
+                status={targetFeedType === FeedTargetType.Global ? 'checked' : 'unchecked'}
+                onPress={() => setTargetFeedType(FeedTargetType.Global)}
               />
             </>
           </TouchableRipple>
 
-          {feedType === FeedType.Normal && (
+          {targetFeedType === FeedTargetType.Normal && (
             <>
-              <Divider style={styles.divider} />
-              <Title>{t('posts.sort_by')}</Title>
+              <Divider style={filterDialogStyles.divider} />
               <TouchableRipple
                 rippleColor="transparent"
-                style={styles.radioArea}
-                onPress={() => setSortBy(PostSortBy.FIRST_CREATED)}
-              >
-                <>
-                  <Text>{t(`posts.sort_by_${PostSortBy.FIRST_CREATED}`)}</Text>
-                  <RadioButton
-                    value={PostSortBy.FIRST_CREATED}
-                    status={sortBy === PostSortBy.FIRST_CREATED ? 'checked' : 'unchecked'}
-                    onPress={() => setSortBy(PostSortBy.FIRST_CREATED)}
-                  />
-                </>
-              </TouchableRipple>
-              <TouchableRipple
-                rippleColor="transparent"
-                style={styles.radioArea}
-                onPress={() => setSortBy(PostSortBy.LAST_CREATED)}
-              >
-                <>
-                  <Text>{t(`posts.sort_by_${PostSortBy.LAST_CREATED}`)}</Text>
-                  <RadioButton
-                    value={PostSortBy.LAST_CREATED}
-                    status={sortBy === PostSortBy.LAST_CREATED ? 'checked' : 'unchecked'}
-                    onPress={() => setSortBy(PostSortBy.LAST_CREATED)}
-                  />
-                </>
-              </TouchableRipple>
-              <Divider style={styles.divider} />
-              <TouchableRipple
-                rippleColor="transparent"
-                style={[styles.radioArea, styles.includeDeletedArea]}
+                style={[filterDialogStyles.radioArea, filterDialogStyles.includeDeletedArea]}
                 onPress={() => setIsDeleted(!isDeleted)}
               >
                 <>
@@ -126,22 +90,5 @@ const FeedScreenFilterDialog: VFC<FeedScreenFilterDialog> = ({
     </Portal>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  radioArea: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  divider: { marginBottom: 25 },
-  includeDeletedArea: {
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  errorText: { fontSize: 18, alignSelf: 'center', marginTop: 25, marginBottom: 15 },
-});
 
 export default FeedScreenFilterDialog;

@@ -13,7 +13,7 @@
   },
   "profile": { "title": "Profile" },
   "users": {
-    "filter": "Filterr",
+    "filter": "Filter",
     "filter_all": "All",
     "filter_flagged": "Flagged",
     "sort_by": "Sort By",
@@ -24,13 +24,13 @@
     "add_user_display_name_placeholder": "Enter Display Name"
   },
   "posts": {
-    "feed_type": "Feed Type",
-    "feed_type_normal": "Normal",
-    "feed_type_global": "Global",
+    "feed_type": "Target Type",
+    "feed_type_normal": "User Feed",
+    "feed_type_global": "Global Feed",
     "sort_by": "Sort By",
     "sort_by_firstCreated": "First Created",
     "sort_by_lastCreated": "Last Created",
-    "include_deleted": "Include Deleted",
+    "include_deleted": "Only Deleted",
     "commentsCount": {
       "one": "1 Comment",
       "other": "{{count}} Comments",

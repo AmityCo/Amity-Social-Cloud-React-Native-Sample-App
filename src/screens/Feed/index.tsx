@@ -1,31 +1,27 @@
-import { StyleSheet } from 'react-native';
 import { Surface, Appbar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import React, { VFC, useState, useLayoutEffect } from 'react';
+import React, { VFC, useState, useLayoutEffect, useCallback } from 'react';
 
 import { Header, FAB, AddPost, Feed } from 'components';
 
 import useAuth from 'hooks/useAuth';
 
-import { PostFeedType, FeedType, PostSortBy, DrawerStackHeaderProps, LoadingState } from 'types';
+import { PostFeedType, FeedTargetType, DrawerStackHeaderProps } from 'types';
 
 import FilterDialog from './FilterDialog';
+
+import styles from './styles';
 
 const FeedScreen: VFC = () => {
   const [isEditId, setIsEditId] = useState('');
   const [showDialog, setShowDialog] = useState(false);
   const [showAddPost, setShowAddPost] = useState(false);
-  const [feedType, setFeedType] = React.useState<FeedType>(FeedType.Normal);
   const [postFeedType] = React.useState<PostFeedType>(PostFeedType.PUBLISHED);
-  const [sortBy, setSortBy] = React.useState<PostSortBy>(PostSortBy.LAST_CREATED);
   const [isDeleted, setIsDeleted] = React.useState<Amity.Post['isDeleted']>(false);
+  const [feedTargetType, setFeedTargetType] = React.useState<FeedTargetType>(FeedTargetType.Normal);
 
   const { client } = useAuth();
   const navigation = useNavigation();
-
-  if (!client.userId) {
-    throw Error('not connected!');
-  }
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -40,59 +36,50 @@ const FeedScreen: VFC = () => {
     });
   }, [navigation]);
 
+  const onCloseAddPost = useCallback(() => {
+    setIsEditId('');
+    setShowAddPost(false);
+  }, []);
+
+  const onFABPress = useCallback(() => {
+    setShowAddPost(true);
+  }, []);
+
+  const targetId = client.userId ?? '';
+  const showAddPostModal = showAddPost || isEditId !== '';
+
   return (
     <Surface style={styles.container}>
       <Feed
-        sortBy={sortBy}
         targetType="user"
-        feedType={feedType}
         isDeleted={isDeleted}
-        targetId={client.userId}
+        targetId={targetId}
         postFeedType={postFeedType}
+        feedTargetType={feedTargetType}
       />
 
-      <AddPost
-        onClose={() => {
-          setIsEditId('');
-          setShowAddPost(false);
-        }}
-        targetType="user"
-        isEditId={isEditId}
-        targetId={client.userId}
-        visible={showAddPost || isEditId !== ''}
-      />
+      {showAddPostModal && (
+        <AddPost
+          onClose={onCloseAddPost}
+          targetType="user"
+          isEditId={isEditId}
+          targetId={targetId}
+        />
+      )}
 
-      <FAB
-        icon="plus"
-        onPress={() => {
-          setShowAddPost(true);
-        }}
-      />
+      <FAB icon="plus" onPress={onFABPress} />
 
-      <FilterDialog
-        sortBy={sortBy}
-        feedType={feedType}
-        setSortBy={setSortBy}
-        isDeleted={isDeleted}
-        showDialog={showDialog}
-        setFeedType={setFeedType}
-        setIsDeleted={setIsDeleted}
-        setShowDialog={setShowDialog}
-      />
+      {showDialog && (
+        <FilterDialog
+          isDeleted={isDeleted}
+          setIsDeleted={setIsDeleted}
+          setShowDialog={setShowDialog}
+          targetFeedType={feedTargetType}
+          setTargetFeedType={setFeedTargetType}
+        />
+      )}
     </Surface>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  postItem: {
-    flex: 1,
-    margin: 12,
-    borderRadius: 5,
-  },
-  errorText: { fontSize: 18, alignSelf: 'center', marginTop: 25, marginBottom: 15 },
-});
 
 export default FeedScreen;
