@@ -1,29 +1,24 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { getCommunity } from '@amityco/ts-sdk';
-import { StyleSheet, Alert } from 'react-native';
-import { ActivityIndicator, useTheme, Surface } from 'react-native-paper';
+import { ActivityIndicator, Surface } from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import React, { VFC, useState, useLayoutEffect, useEffect } from 'react';
+import { getCommunity, createQuery, runQuery } from '@amityco/ts-sdk';
+import React, { VFC, useState, useLayoutEffect, useEffect, useCallback } from 'react';
 
 import { Header, CommunityItem, AddPost, FAB, Feed } from 'components';
 
-import { t } from 'i18n';
-import getErrorMessage from 'utils/getErrorMessage';
+import { alertError } from 'utils/alerts';
 
 import { DrawerStackHeaderProps } from 'types';
 
+import styles from './styles';
+
 const Community: VFC = () => {
-  const [isEditId, setIsEditId] = useState('');
+  // const [isEditId, setIsEditId] = useState('');
   const [loading, setLoading] = useState(false);
   const [showAddPost, setShowAddPost] = useState(false);
   const [community, setCommunity] = useState<Amity.Community>();
 
   const route = useRoute();
   const navigation = useNavigation();
-  const {
-    colors: { surface: surfaceColor },
-  } = useTheme();
-
   const {
     community: { communityId, displayName },
   } = route.params as { community: Amity.Community };
@@ -35,69 +30,60 @@ const Community: VFC = () => {
         <Header scene={scene} navigation={nav} previous={previous} />
       ),
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [displayName]);
+  }, [displayName, navigation]);
+
+  const getCurrentCommunity = useCallback(async () => {
+    setLoading(true);
+
+    const query = createQuery(getCommunity, communityId);
+
+    runQuery(query, ({ data, error, loading: loading_ }) => {
+      if (data) {
+        if (data.isDeleted) {
+          navigation.goBack();
+        } else {
+          setCommunity(data);
+        }
+      } else if (error) {
+        alertError(error, () => {
+          navigation.goBack();
+        });
+      }
+
+      setLoading(!!loading_);
+    });
+  }, [communityId, navigation]);
 
   useEffect(() => {
     getCurrentCommunity();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [communityId]);
+  }, [communityId, getCurrentCommunity]);
 
-  const getCurrentCommunity = async () => {
-    setLoading(true);
-    try {
-      const currentCommunity = await getCommunity(communityId);
+  const onCloseAddPost = useCallback(() => {
+    setShowAddPost(false);
+  }, []);
 
-      if (currentCommunity.isDeleted) {
-        navigation.goBack();
-      } else {
-        setCommunity(currentCommunity);
-      }
-    } catch (error) {
-      const errorText = getErrorMessage(error);
-      Alert.alert(
-        'Oooops!',
-        errorText,
-        [
-          {
-            text: t('close'),
-            onPress: async () => {
-              navigation.goBack();
-            },
-          },
-        ],
-        { cancelable: false },
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  const onEditCommunity = useCallback(() => {
+    // setIsEditId(id);
+  }, []);
 
   return (
     <Surface style={styles.container}>
       {loading || !community?.communityId ? (
         <ActivityIndicator style={styles.loading} />
       ) : (
-        <CommunityItem
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          community={community!}
-          onEditCommunity={id => {
-            setIsEditId(id);
-          }}
-        />
+        <CommunityItem community={community} onEditCommunity={onEditCommunity} />
       )}
 
       <Feed targetId={communityId} targetType="community" />
 
-      <AddPost
-        isEditId=""
-        visible={showAddPost}
-        targetType="community"
-        targetId={communityId}
-        onClose={() => {
-          setShowAddPost(false);
-        }}
-      />
+      {showAddPost && (
+        <AddPost
+          isEditId=""
+          targetType="community"
+          targetId={communityId}
+          onClose={onCloseAddPost}
+        />
+      )}
 
       <FAB
         icon="plus"
@@ -108,10 +94,5 @@ const Community: VFC = () => {
     </Surface>
   );
 };
-
-export const styles = StyleSheet.create({
-  container: { flex: 1 },
-  loading: { marginTop: 25 },
-});
 
 export default Community;
