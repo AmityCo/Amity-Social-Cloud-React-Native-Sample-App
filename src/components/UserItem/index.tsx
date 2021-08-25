@@ -1,19 +1,19 @@
-/* eslint-disable consistent-return */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import Moment from 'moment';
+import { format } from 'date-fns';
+import { Image } from 'react-native';
 import { Card, Paragraph } from 'react-native-paper';
-import { Image, StyleSheet, Alert } from 'react-native';
-import React, { VFC, useState, useEffect } from 'react';
+import React, { VFC, useState, useEffect, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { observeFile, getUser, observeUser } from '@amityco/ts-sdk';
+import { observeFile, observeUser } from '@amityco/ts-sdk';
 
-import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
-import getErrorMessage from 'utils/getErrorMessage';
-
-import { UserItemProps } from 'types';
-
 import HeaderMenu from '../HeaderMenu';
+
+import styles from './styles';
+
+export type UserItemProps = {
+  onPress?: () => void;
+  onEditUser?: (userId: string) => void;
+};
 
 const UserItem: VFC<{ user: Amity.User } & UserItemProps> = ({
   user: userProp,
@@ -33,56 +33,31 @@ const UserItem: VFC<{ user: Amity.User } & UserItemProps> = ({
     if (avatarFileId) {
       return observeFile(avatarFileId, fileObj => setFile(fileObj.data));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    return () => {
+      //
+    };
+  }, [avatarFileId]);
 
   useEffect(() => {
-    getCurrentUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
-
-  const getCurrentUser = async () => {
-    try {
-      const currentUser = await getUser(userId);
-
-      setUser(currentUser);
-    } catch (error) {
-      const errorText = getErrorMessage(error);
-      Alert.alert(
-        'Oooops!',
-        errorText,
-        [
-          {
-            text: t('close'),
-            onPress: async () => {
-              if (!onPress) {
-                navigation.goBack();
-              }
-            },
-          },
-        ],
-        { cancelable: false },
-      );
-    }
-  };
-
-  useEffect(
-    () => {
-      return observeUser(userId, ({ data: updatedUser }) => {
+    return observeUser(userId, ({ data: updatedUser, error }) => {
+      if (updatedUser) {
         setUser(updatedUser);
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
+      } else if (error) {
+        navigation.goBack();
+      }
+    });
+  }, [navigation, userId]);
 
-  const onEdit = () => {
+  const onEdit = useCallback(() => {
     setOpenMenu(false);
 
-    onEditUser!(userId);
-  };
+    if (onEditUser) {
+      onEditUser(userId);
+    }
+  }, [onEditUser, userId]);
 
-  const postCreateAt = Moment(user?.createdAt ?? createdAt).format('HH:mm, MMM d');
+  const userCreateAt = format(new Date(user?.createdAt ?? createdAt), 'HH:mm, MMM d');
 
   const isUser = client.userId === userId;
   const canEdit = isUser && onEditUser ? onEdit : undefined;
@@ -104,7 +79,7 @@ const UserItem: VFC<{ user: Amity.User } & UserItemProps> = ({
             : undefined
         }
         title={user?.displayName ?? displayName}
-        subtitle={postCreateAt}
+        subtitle={userCreateAt}
       />
       <Card.Content>
         <Paragraph style={styles.text}>{user?.description ?? description}</Paragraph>
@@ -112,28 +87,5 @@ const UserItem: VFC<{ user: Amity.User } & UserItemProps> = ({
     </Card>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    margin: 12,
-    borderRadius: 5,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 18,
-    marginRight: 16,
-  },
-  name: {
-    fontSize: 20,
-    fontWeight: '800',
-  },
-  ellipsis: { marginHorizontal: 10 },
-  text: { marginBottom: 10 },
-  footer: { justifyContent: 'space-between' },
-  footerLeft: { flexDirection: 'row' },
-  footerRight: { flexDirection: 'row', paddingEnd: 10 },
-});
 
 export default UserItem;
