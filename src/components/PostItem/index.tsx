@@ -1,14 +1,13 @@
-/* eslint-disable consistent-return */
-import Moment from 'moment';
-import React, { VFC, useState, useEffect } from 'react';
+import { format } from 'date-fns';
+import { Image, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Image, StyleSheet, Alert, View } from 'react-native';
+import React, { VFC, useState, useEffect, useCallback } from 'react';
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Caption, Card, useTheme, Paragraph, Button, Text } from 'react-native-paper';
 import {
   observeUser,
   observeFile,
-  getPost,
+  getPosts,
   addReaction,
   removeReaction,
   deletePost,
@@ -23,12 +22,19 @@ import {
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
-import getErrorMessage from 'utils/getErrorMessage';
+import { alertError, alertConfirmation } from 'utils/alerts';
 
-import { ReactionsType, PostItemProps } from 'types';
+import { ReactionsType } from 'types';
 
 import CardTitle from '../CardTitle';
 import HeaderMenu from '../HeaderMenu';
+
+import styles from './styles';
+
+export type PostItemProps = {
+  onPress?: () => void;
+  onEditPost?: (postId: string) => void;
+};
 
 const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
   post: postProp,
@@ -64,57 +70,66 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
     children,
     flagCount,
     isDeleted,
-  } = post;
+  } = post as Amity.Post;
 
-  const checkIsReportedByMe = async () => {
+  const checkIsReportedByMe = useCallback(async () => {
     runQuery(createQuery(isReportedByMe, 'post', postId), result => {
       setFlaggedByMe(!!result.data);
     });
-  };
+  }, [postId]);
 
-  useEffect(
-    () => {
-      return observePost(postId, updatedPost => {
-        checkIsReportedByMe();
-        setPostResult(updatedPost);
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [postId],
-  );
+  useEffect(() => {
+    return observePost(postId, updatedPost => {
+      checkIsReportedByMe();
+      setPostResult(updatedPost);
+    });
+  }, [checkIsReportedByMe, postId]);
 
   useEffect(() => {
     return observeUser(postedUserId, ({ data: updatedUser }) => {
       setUser(updatedUser);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postedUserId]);
 
   useEffect(() => {
     if (user?.avatarFileId) {
       return observeFile(user.avatarFileId, fileObj => setFile(fileObj.data));
     }
+
+    return () => {
+      //
+    };
   }, [user]);
 
   useEffect(() => {
     if (childPost[0]) {
       return observeFile(childPost[0].data?.fileId, imgObj => setPostImage(imgObj.data));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [childPost?.length]);
+
+    return () => {
+      //
+    };
+  }, [childPost]);
+
+  const fetchChildrenPost = useCallback(async () => {
+    if (children && children?.length > 0) {
+      const query = createQuery(getPosts, children);
+
+      runQuery(query, ({ data: postData, error }) => {
+        if (postData) {
+          const posts = Object.values(postData);
+
+          setChildPost(posts);
+        } else if (error) {
+          alertError(error);
+        }
+      });
+    }
+  }, [children]);
 
   useEffect(() => {
     fetchChildrenPost();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [children?.length]);
-
-  const fetchChildrenPost = async () => {
-    if (children && children?.length > 0) {
-      const childrenPost = await getPost(children[0]);
-
-      setChildPost([childrenPost]);
-    }
-  };
+  }, [fetchChildrenPost]);
 
   const toggleReaction = async (type: ReactionsType) => {
     const api = myReactions?.includes(type) ? removeReaction : addReaction;
@@ -133,40 +148,28 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
   const onEdit = () => {
     setOpenMenu(false);
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    onEditPost!(postId);
+    if (onEditPost) {
+      onEditPost(postId);
+    }
   };
 
   const onDelete = () => {
-    Alert.alert(
-      t('are_you_sure'),
-      '',
-      [
-        { text: t('cancel'), style: 'cancel' },
-        {
-          text: t('ok'),
-          onPress: async () => {
-            try {
-              setOpenMenu(false);
+    alertConfirmation(() => {
+      setOpenMenu(false);
 
-              await deletePost(postId);
-
-              if (!onPress) {
-                navigation.goBack();
-              }
-            } catch (error) {
-              const errorText = getErrorMessage(error);
-
-              Alert.alert(errorText);
-            }
-          },
-        },
-      ],
-      { cancelable: false },
-    );
+      runQuery(createQuery(deletePost, postId), ({ data: postData, error }) => {
+        if (postData) {
+          if (!onPress) {
+            navigation.goBack();
+          }
+        } else if (error) {
+          alertError(error);
+        }
+      });
+    });
   };
 
-  const postCreateAt = Moment(createdAt).format('HH:mm, MMM d');
+  const postCreateAt = format(new Date(createdAt), 'HH:mm, MMM d');
 
   const isUser = client.userId === postedUserId;
   const canEdit = isUser && onEditPost ? onEdit : undefined;
@@ -239,28 +242,5 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
     </Card>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    margin: 12,
-    borderRadius: 5,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 18,
-    marginRight: 16,
-  },
-  name: {
-    fontSize: 20,
-    fontWeight: '800',
-  },
-  ellipsis: { marginHorizontal: 10 },
-  text: { marginBottom: 10 },
-  footer: { justifyContent: 'space-between' },
-  footerLeft: { flexDirection: 'row' },
-  footerRight: { flexDirection: 'row', paddingEnd: 10 },
-});
 
 export default PostItem;
