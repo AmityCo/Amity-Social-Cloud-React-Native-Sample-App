@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
+import * as Updates from 'expo-updates';
 import React, { FC, useState } from 'react';
 import {
   createClient,
@@ -7,7 +8,6 @@ import {
   disconnectClient,
   enableCache,
 } from '@amityco/ts-sdk';
-// import { useAsync } from 'react-use';
 
 import getErrorMessage from 'utils/getErrorMessage';
 
@@ -29,9 +29,6 @@ export const AuthContext = React.createContext<AuthContextInterface>({
   isConnecting: false,
 });
 
-// TODO persistant strategy
-// TODO error handling
-// TODO consider react native offline like  https://github.com/nandorojo/swr-react-native
 export const AuthContextProvider: FC = ({ children }) => {
   const [error, setError] = useState('');
   const [isConnecting, setLoading] = useState(false);
@@ -51,19 +48,11 @@ export const AuthContextProvider: FC = ({ children }) => {
     }
   };
 
-  // useAsync(async () => {
-  //   try {
-  //     setLoading(true);
-  //     await connectClient({ userId, displayName });
-  //   } catch (err) {
-  //     setError(getErrorMessage(err));
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, []);
-
+  // TODO
   const logout = async () => {
     await disconnectClient();
+
+    Updates.reloadAsync();
   };
 
   return (
