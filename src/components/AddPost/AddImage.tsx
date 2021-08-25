@@ -1,13 +1,15 @@
-import { createFile } from '@amityco/ts-sdk';
 import * as ImagePicker from 'expo-image-picker';
+import { View, Platform, Alert } from 'react-native';
 import React, { VFC, useState, useEffect } from 'react';
-import { View, StyleSheet, Platform, Alert } from 'react-native';
+import { createFile, runQuery, createQuery } from '@amityco/ts-sdk';
 import { Button, Text, ProgressBar, useTheme } from 'react-native-paper';
-// import FormData from 'react-native/Libraries/Network/FormData';
 
 import { t } from 'i18n';
 import { uriToBlob } from 'utils';
+import { alertError } from 'utils/alerts';
 import getErrorMessage from 'utils/getErrorMessage';
+
+import { addFileStyles } from './styles';
 
 type AddPostImageProps = {
   onAddImage: (image: Amity.File) => void;
@@ -42,7 +44,7 @@ const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
       if (!result.cancelled) {
         const blob = await uriToBlob(result.uri);
 
-        const fileData = {
+        const fileObject = {
           ...blob,
           uri: result.uri,
           name: result.uri.split('/').pop(),
@@ -50,35 +52,43 @@ const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
         };
 
         const data = new FormData();
-        data.append('file', fileData);
+        data.append('file', fileObject);
 
         data.getAll = data.getParts;
 
-        const response = await createFile(data, onProgress);
+        runQuery(createQuery(createFile, data, onProgress), ({ data: fileData, error }) => {
+          onProgress(0);
 
-        onAddImage({ ...response[0] });
+          if (fileData) {
+            onAddImage({ ...fileData[0] });
 
-        Alert.alert('file successfully uploaded!');
+            Alert.alert('file successfully uploaded!');
+          } else if (error) {
+            alertError(error);
+          }
+        });
       }
     } catch (error) {
-      const errorText = getErrorMessage(error);
-
-      Alert.alert(errorText);
+      alertError(error);
     } finally {
       onProgress(0);
     }
   };
 
   return (
-    <View style={styles.container}>
+    <View style={addFileStyles.container}>
       {progress > 0 ? (
-        <ProgressBar progress={progress / 100} style={styles.progressBar} color={primaryColor} />
+        <ProgressBar
+          progress={progress / 100}
+          style={addFileStyles.progressBar}
+          color={primaryColor}
+        />
       ) : (
         <Button
           onPress={selectFile}
           disabled={progress > 0}
           mode="outlined"
-          style={styles.btn}
+          style={addFileStyles.btn}
           compact
         >
           <Text>{t('posts.attach_image')}</Text>
@@ -87,11 +97,5 @@ const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { marginBottom: 10, alignItems: 'center' },
-  btn: { justifyContent: 'center' },
-  progressBar: { width: 100, height: 3, marginTop: 5 },
-});
 
 export default AddPostImage;
