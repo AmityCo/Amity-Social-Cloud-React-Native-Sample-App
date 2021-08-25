@@ -1,28 +1,40 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import * as React from 'react';
-import { Provider as PaperProvider, DefaultTheme, DarkTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 
-import usePreferences from 'hooks/usePreferences';
-import RootNavigator from './RootNavigator';
+import { DrawerContent } from 'components';
 
-const Navigation: React.FC = () => {
-  const { theme } = usePreferences();
+import useAuth from 'hooks/useAuth';
 
-  const themeObj =
-    theme === 'light'
-      ? {
-          ...DefaultTheme,
-          colors: { ...DefaultTheme.colors, primary: '#05be8b' },
-        }
-      : {
-          ...DarkTheme,
-          colors: { ...DarkTheme.colors, primary: '#05be8b' },
-        };
+import { DrawerContentProps } from 'types';
+
+import AppNavigator from './AppNavigator';
+import AuthNavigator from './AuthNavigator';
+import LinkingConfiguration from './LinkingConfiguration';
+
+const Drawer = createDrawerNavigator();
+
+const RootNavigator: React.FC = () => {
+  const theme = useTheme();
+  const { isConnected, client } = useAuth();
+
+  const navigationTheme = theme.dark ? DarkTheme : DefaultTheme;
 
   return (
-    <PaperProvider theme={themeObj}>
-      <RootNavigator />
-    </PaperProvider>
+    <NavigationContainer theme={navigationTheme} linking={LinkingConfiguration}>
+      {client.userId && isConnected ? (
+        <Drawer.Navigator
+          drawerContent={(props: DrawerContentProps) => <DrawerContent {...props} />}
+        >
+          <Drawer.Screen name="ASC" component={AppNavigator} />
+        </Drawer.Navigator>
+      ) : (
+        <AuthNavigator />
+      )}
+    </NavigationContainer>
   );
 };
 
-export default Navigation;
+export default RootNavigator;

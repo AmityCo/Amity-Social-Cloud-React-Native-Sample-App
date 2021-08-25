@@ -27,14 +27,6 @@ const FeedNavigator: VFC = () => {
   );
 };
 
-// const ChatNavigator: VFC = () => {
-//   return (
-//     <Stack.Navigator headerMode="screen" initialRouteName="Chat">
-//       <Stack.Screen name="Chat" component={ChatScreen} />
-//     </Stack.Navigator>
-//   );
-// };
-
 const UsersNavigator: VFC = () => {
   return (
     <Stack.Navigator headerMode="screen" initialRouteName="UserList">
@@ -77,15 +69,6 @@ const BottomTabsNavigator: VFC<Props> = ({ route }) => {
       safeAreaInsets={{ bottom: safeArea.bottom }}
       inactiveColor={theme.colors.text}
     >
-      {/* <Tab.Screen
-        name="ChatNavigator"
-        component={ChatNavigator}
-        options={{
-          tabBarIcon: routeName === 'ChatNavigator' ? 'chat' : 'chat-outline',
-          tabBarColor,
-          tabBarLabel: t('routes.chat')
-        }}
-      /> */}
       <Tab.Screen
         name="FeedNavigator"
         component={FeedNavigator}
