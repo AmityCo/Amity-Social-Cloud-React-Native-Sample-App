@@ -1,32 +1,23 @@
 import React, { FC } from 'react';
-import {
-  // Avatar,
-  // Caption,
-  Drawer,
-  // Paragraph,
-  Switch,
-  Text,
-  Title,
-  TouchableRipple,
-  // useTheme,
-} from 'react-native-paper';
 import Animated from 'react-native-reanimated';
+import { TouchableOpacity, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { StyleSheet, TouchableOpacity, View, Alert } from 'react-native';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
+import { Drawer, Switch, Text, Title, TouchableRipple } from 'react-native-paper';
 
 import usePreferences from 'hooks/usePreferences';
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
+import { alertConfirmation } from 'utils/alerts';
 
 import { DrawerContentProps } from 'types';
 
 import ASCLogo from 'assets/svg/ASCLogo';
-// import AvatarHolder from 'assets/images/avatar.png';
+
+import styles from './styles';
 
 const DrawerContent: FC<DrawerContentProps> = props => {
-  // const paperTheme = useTheme();
   const { client, logout } = useAuth();
   const { theme, toggleTheme } = usePreferences();
 
@@ -37,24 +28,13 @@ const DrawerContent: FC<DrawerContentProps> = props => {
   });
 
   const logOut = () => {
-    Alert.alert(
-      t('are_you_sure'),
-      '',
-      [
-        { text: t('cancel'), style: 'cancel' },
-        {
-          text: t('ok'),
-          onPress: () => {
-            props.navigation.toggleDrawer();
+    alertConfirmation(() => {
+      props.navigation.toggleDrawer();
 
-            setTimeout(() => {
-              logout();
-            }, 400);
-          },
-        },
-      ],
-      { cancelable: false },
-    );
+      setTimeout(() => {
+        logout();
+      }, 400);
+    });
   };
 
   return (
@@ -102,45 +82,5 @@ const DrawerContent: FC<DrawerContentProps> = props => {
     </DrawerContentScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  drawerContent: {
-    flex: 1,
-  },
-  userInfoSection: {
-    paddingLeft: 20,
-  },
-  title: {
-    marginTop: 20,
-    fontWeight: 'bold',
-  },
-  caption: {
-    fontSize: 14,
-    lineHeight: 14,
-  },
-  row: {
-    marginTop: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  section: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  paragraph: {
-    fontWeight: 'bold',
-    marginRight: 3,
-  },
-  drawerSection: {
-    marginTop: 15,
-  },
-  preference: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-});
 
 export default DrawerContent;
