@@ -10,7 +10,7 @@ import getErrorMessage from 'utils/getErrorMessage';
 
 import { LoadingState, DrawerStackHeaderProps } from 'types';
 
-import { membersStyles } from './styles';
+import styles from './styles';
 
 const QUERY_LIMIT = 10;
 
@@ -99,7 +99,7 @@ const CommunityMembersScreen: VFC = () => {
   const data = Object.values(members).sort(sortByLastCreated);
 
   return (
-    <Surface style={membersStyles.container}>
+    <Surface style={styles.container}>
       <FlatList
         data={data}
         ref={flatListRef}
@@ -116,7 +116,7 @@ const CommunityMembersScreen: VFC = () => {
           ) : null
         }
         renderItem={({ item }) => (
-          <Surface style={membersStyles.userItem}>
+          <Surface style={styles.userItem}>
             <UserItem user={item} onPress={() => onPressUserItem(item)} />
           </Surface>
         )}

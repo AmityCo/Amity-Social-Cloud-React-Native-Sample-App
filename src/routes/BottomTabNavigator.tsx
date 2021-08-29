@@ -12,7 +12,7 @@ import UsersScreen from 'screens/Users';
 import ChannelsScreen from 'screens/Channels';
 import CommunityScreen from 'screens/Community';
 import CommunitiesScreen from 'screens/Communities';
-import CommunityMembersScreen from 'screens/Community/CommunityMembers';
+import CommunityMembersScreen from 'screens/CommunityMembers';
 
 import { t } from 'i18n';
 import overlay from 'utils/overlay';
