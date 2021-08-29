@@ -15,7 +15,7 @@ export type UserItemProps = {
   onEditUser?: (userId: string) => void;
 };
 
-const UserItem: VFC<{ user: Amity.User } & UserItemProps> = ({
+const UserItem: VFC<{ user: Amity.User | Amity.Membership<'community'> } & UserItemProps> = ({
   user: userProp,
   onPress,
   onEditUser,

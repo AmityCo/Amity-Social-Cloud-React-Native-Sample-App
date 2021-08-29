@@ -12,6 +12,7 @@ import UsersScreen from 'screens/Users';
 import ChannelsScreen from 'screens/Channels';
 import CommunityScreen from 'screens/Community';
 import CommunitiesScreen from 'screens/Communities';
+import CommunityMembersScreen from 'screens/Community/CommunityMembers';
 
 import { t } from 'i18n';
 import overlay from 'utils/overlay';
@@ -55,6 +56,7 @@ const CommunitiesNavigator: VFC = () => {
       <Stack.Navigator headerMode="screen" initialRouteName="Communities">
         <Stack.Screen name="Communities" component={CommunitiesScreen} />
         <Stack.Screen name="Community" component={CommunityScreen} />
+        <Stack.Screen name="CommunityMembers" component={CommunityMembersScreen} />
       </Stack.Navigator>
     </View>
   );

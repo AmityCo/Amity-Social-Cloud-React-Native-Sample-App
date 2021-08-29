@@ -9,6 +9,7 @@
     "chat": "Chat",
     "feed": "Feed",
     "users": "User List",
+    "community": "Community",
     "communities": "Communities"
   },
   "profile": { "title": "Profile" },
