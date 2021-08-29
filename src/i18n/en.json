@@ -26,7 +26,8 @@
   },
   "community": {
     "public": "Public",
-    "private": "Private"
+    "private": "Private",
+    "add_member_user_id_placeholder": "Enter UserId"
   },
   "posts": {
     "feed_type": "Target Type",
