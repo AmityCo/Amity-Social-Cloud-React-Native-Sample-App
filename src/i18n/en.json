@@ -1,0 +1,63 @@
+{
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "username": "User Id",
+    "displayName": "Name"
+  },
+  "routes": {
+    "chat": "Chat",
+    "feed": "Feed",
+    "users": "User List",
+    "communities": "Communities"
+  },
+  "profile": { "title": "Profile" },
+  "users": {
+    "filter": "Filter",
+    "filter_all": "All",
+    "filter_flagged": "Flagged",
+    "sort_by": "Sort By",
+    "sort_by_firstCreated": "First Created",
+    "sort_by_lastCreated": "Last Created",
+    "sort_by_displayName": "Display Name",
+    "add_user_description_placeholder": "Enter Description",
+    "add_user_display_name_placeholder": "Enter Display Name"
+  },
+  "posts": {
+    "feed_type": "Target Type",
+    "feed_type_normal": "User Feed",
+    "feed_type_global": "Global Feed",
+    "sort_by": "Sort By",
+    "sort_by_firstCreated": "First Created",
+    "sort_by_lastCreated": "Last Created",
+    "include_deleted": "Only Deleted",
+    "commentsCount": {
+      "one": "1 Comment",
+      "other": "{{count}} Comments",
+      "zero": "No Comments"
+    },
+    "add_post_placeholder": "Type anything in your mind",
+    "attach_file": "Attach File",
+    "attach_image": "Attach Image"
+  },
+  "comments": {
+    "add_comment_placeholder": "Type some comment...",
+    "edit_comment": "Edit Comment",
+    "reply_to": "Reply to"
+  },
+  "are_you_sure": "Are you sure?",
+  "ok": "OK",
+  "by": "By",
+  "add": "Add",
+  "join": "Join",
+  "edit": "Edit",
+  "flag": "Flag",
+  "leave": "Leave",
+  "retry": "Retry",
+  "close": "Close",
+  "unflag": "Unflag",
+  "update": "Update",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "no_result": "No results :("
+}
