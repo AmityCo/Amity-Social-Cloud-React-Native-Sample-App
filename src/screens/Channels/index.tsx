@@ -98,8 +98,8 @@ const ChannelsScreens: VFC = () => {
   };
 
   const onPressChannelItem = useCallback(
-    chat => {
-      navigation.navigate('Chat', { chat });
+    channel => {
+      navigation.navigate('Chat', { channel });
     },
     [navigation],
   );
