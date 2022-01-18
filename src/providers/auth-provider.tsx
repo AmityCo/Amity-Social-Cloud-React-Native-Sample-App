@@ -38,7 +38,7 @@ export const AuthContextProvider: FC = ({ children }) => {
       await connectClient({ userId, displayName });
     } catch (e) {
       const errorText = getErrorMessage(e);
-      console.log({ e });
+
       setError(errorText);
     } finally {
       setLoading(false);
