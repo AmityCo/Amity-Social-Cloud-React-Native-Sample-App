@@ -13,10 +13,7 @@ import getErrorMessage from 'utils/getErrorMessage';
 
 import { AuthContextInterface } from 'types';
 
-const client = createClient(
-  'b3bee858328ef4344a308e4a5a091688d05fdee2be353a2b',
-  'https://api.staging.amity.co/',
-);
+const client = createClient('b3bee858328ef4344a308e4a5a091688d05fdee2be353a2b', 'staging');
 enableCache();
 
 // eslint-disable-next-line import/prefer-default-export
@@ -41,7 +38,7 @@ export const AuthContextProvider: FC = ({ children }) => {
       await connectClient({ userId, displayName });
     } catch (e) {
       const errorText = getErrorMessage(e);
-
+      console.log({ e });
       setError(errorText);
     } finally {
       setLoading(false);

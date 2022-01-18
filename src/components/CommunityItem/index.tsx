@@ -10,9 +10,9 @@ import {
   deleteCommunity,
   runQuery,
   createQuery,
+  observeCommunity,
 } from '@amityco/ts-sdk';
 import { Text, Card, Paragraph, Button, useTheme } from 'react-native-paper';
-import { observeCommunity } from '@amityco/ts-sdk/community/observers/observeCommunity';
 
 import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
