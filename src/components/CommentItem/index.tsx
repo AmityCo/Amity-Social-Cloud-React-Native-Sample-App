@@ -149,11 +149,11 @@ const CommentItem: VFC<CommentProps> = ({
         right={({ size }) => (
           <HeaderMenu
             key={commentId}
-            onEdit={canEdit}
             size={size / 1.5}
             visible={openMenu}
-            onDelete={canDelete}
             hasFlag={comment?.flagCount > 0}
+            onEdit={canEdit}
+            onDelete={canDelete}
             onToggleMenu={() => setOpenMenu(prev => !prev)}
           >
             {!parentId && (
@@ -198,10 +198,10 @@ const CommentItem: VFC<CommentProps> = ({
           <CommentItem
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...cm}
+            key={cm.commentId}
             postId={postId}
             onEdit={onEdit}
             onReply={onReply}
-            key={cm.commentId}
           />
         ))}
     </Card>

@@ -68,8 +68,8 @@ const UserItem: VFC<{ user: Amity.User } & UserItemProps> = ({
         right={({ size }) => (
           <HeaderMenu
             size={size}
-            onEdit={canEdit}
             visible={openMenu}
+            onEdit={canEdit}
             onToggleMenu={() => setOpenMenu(prev => !prev)}
           />
         )}

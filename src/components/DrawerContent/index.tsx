@@ -29,7 +29,8 @@ const DrawerContent: FC<DrawerContentProps> = props => {
 
   const logOut = () => {
     alertConfirmation(() => {
-      props.navigation.toggleDrawer();
+      const { navigation } = props;
+      navigation.toggleDrawer();
 
       setTimeout(() => {
         logout();
@@ -52,7 +53,8 @@ const DrawerContent: FC<DrawerContentProps> = props => {
           <TouchableOpacity
             style={{ marginLeft: 10 }}
             onPress={() => {
-              props.navigation.toggleDrawer();
+              const { navigation } = props;
+              navigation.toggleDrawer();
             }}
           >
             <ASCLogo />

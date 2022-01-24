@@ -106,17 +106,17 @@ const AddPost: VFC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) 
   };
 
   return (
-    <Modal transparent visible onDismiss={onClose} animationType="slide" onRequestClose={onClose}>
+    <Modal transparent visible animationType="slide" onDismiss={onClose} onRequestClose={onClose}>
       <Surface style={styles.container}>
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.centeredView}>
           <View style={styles.content}>
             <TextInput
               value={text}
               multiline
-              onChangeText={setText}
               style={styles.postInput}
               containerStyle={styles.postInputContainer}
               placeholder={t('posts.add_post_placeholder')}
+              onChangeText={setText}
             />
 
             {isEditId === '' && (
@@ -128,10 +128,10 @@ const AddPost: VFC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) 
 
                 <View style={styles.filesArea}>
                   {images.map(img => (
-                    <Image file={img} key={`${img.fileId}`} />
+                    <Image key={`${img.fileId}`} file={img} />
                   ))}
                   {files.map(img => (
-                    <File file={img} key={`${img.fileId}`} />
+                    <File key={`${img.fileId}`} file={img} />
                   ))}
                 </View>
               </View>
@@ -141,15 +141,15 @@ const AddPost: VFC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) 
           <View style={styles.btnArea}>
             <Button
               style={styles.btn}
-              onPress={onSubmit}
               disabled={loading}
               mode="contained"
               loading={loading}
+              onPress={onSubmit}
             >
               {t(isEditId === '' ? 'add' : 'update')}
             </Button>
 
-            <Button style={styles.btn} onPress={onClose} mode="contained">
+            <Button style={styles.btn} mode="contained" onPress={onClose}>
               <Text>{t('cancel')}</Text>
             </Button>
           </View>

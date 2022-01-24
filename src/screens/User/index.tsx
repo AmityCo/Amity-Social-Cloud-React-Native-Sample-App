@@ -62,7 +62,7 @@ const UserScreen: VFC = () => {
       {!user?.userId ? (
         <ActivityIndicator style={styles.loading} />
       ) : (
-        <>
+        <React.Fragment>
           <Feed
             targetId={userId}
             targetType="user"
@@ -70,7 +70,7 @@ const UserScreen: VFC = () => {
           />
 
           {isEditId !== '' && <UpdateUser isEditId={isEditId} onClose={onCloseUpdateUser} />}
-        </>
+        </React.Fragment>
       )}
     </Surface>
   );

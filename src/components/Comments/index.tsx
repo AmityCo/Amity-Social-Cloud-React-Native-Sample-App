@@ -114,19 +114,16 @@ const Comments: VFC<{ postId: string }> = ({ postId }) => {
     <View>
       <AddComment
         postId={postId}
-        onRefresh={onCloseAddComment}
-        onCancel={onCloseAddComment}
         isEdit={isEdit}
         isReply={isReply}
         parentUserId={parent?.userId}
+        onRefresh={onCloseAddComment}
+        onCancel={onCloseAddComment}
       />
 
       <FlatList
-        data={data}
         ref={flatListRef}
-        onRefresh={onRefresh}
-        onEndReachedThreshold={0.5}
-        onEndReached={handleLoadMore}
+        data={data}
         showsVerticalScrollIndicator={false}
         keyExtractor={comment => comment.commentId}
         refreshing={loading === LoadingState.IS_REFRESHING}
@@ -137,8 +134,11 @@ const Comments: VFC<{ postId: string }> = ({ postId }) => {
         }
         ListFooterComponent={loading === LoadingState.IS_LOADING_MORE ? <Loading /> : undefined}
         renderItem={({ item }) => (
-          <CommentItem {...item} onEdit={setIsEdit} postId={postId} onReply={setIsReply} />
+          <CommentItem {...item} postId={postId} onEdit={setIsEdit} onReply={setIsReply} />
         )}
+        onRefresh={onRefresh}
+        onEndReachedThreshold={0.5}
+        onEndReached={handleLoadMore}
       />
     </View>
   );

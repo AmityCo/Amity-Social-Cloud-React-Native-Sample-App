@@ -15,7 +15,7 @@ const TextInput: VFC<TextInputProps> = React.forwardRef(
 
     return (
       <View style={[{ height: showError ? 100 : 75 }, containerStyle]}>
-        <TextInputComponent mode={mode} dense={dense} error={error} ref={ref} {...props} />
+        <TextInputComponent ref={ref} mode={mode} dense={dense} error={error} {...props} />
         {showError && (
           <HelperText type="error" visible={showError}>
             {errorText}

@@ -140,12 +140,9 @@ const FeedComponent: VFC<FeedComponentType> = ({
 
   return (
     <FlatList
-      data={data}
       ref={flatListRef}
-      onRefresh={onRefresh}
-      onEndReachedThreshold={0.5}
+      data={data}
       ListHeaderComponent={header}
-      onEndReached={handleLoadMore}
       keyExtractor={post => post.postId}
       showsVerticalScrollIndicator={false}
       refreshing={loading === LoadingState.IS_REFRESHING}
@@ -165,6 +162,9 @@ const FeedComponent: VFC<FeedComponentType> = ({
           />
         </Surface>
       )}
+      onRefresh={onRefresh}
+      onEndReachedThreshold={0.5}
+      onEndReached={handleLoadMore}
     />
   );
 };

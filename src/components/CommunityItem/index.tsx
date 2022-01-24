@@ -112,8 +112,8 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
           !community?.isDeleted ? (
             <HeaderMenu
               size={size}
-              onEdit={canEdit}
               visible={openMenu}
+              onEdit={canEdit}
               onDelete={canDelete}
               onToggleMenu={() => setOpenMenu(prev => !prev)}
             />

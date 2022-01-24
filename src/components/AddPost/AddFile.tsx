@@ -8,7 +8,6 @@ import { Text, Button, ProgressBar, useTheme } from 'react-native-paper';
 import { t } from 'i18n';
 import { uriToBlob } from 'utils';
 import { alertError } from 'utils/alerts';
-import getErrorMessage from 'utils/getErrorMessage';
 
 import { addFileStyles } from './styles';
 
@@ -76,11 +75,11 @@ const AddPostFile: VFC<AddPostFileProps> = ({ onAddFile }) => {
         />
       ) : (
         <Button
-          onPress={selectFile}
           disabled={progress > 0}
           mode="outlined"
           style={addFileStyles.btn}
           compact
+          onPress={selectFile}
         >
           <Text>{t('posts.attach_file')}</Text>
         </Button>

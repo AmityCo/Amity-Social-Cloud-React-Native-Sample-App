@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import * as Updates from 'expo-updates';
-import React, { FC, useState } from 'react';
+import React, { FC, useMemo, useState } from 'react';
 import {
   createClient,
   connectClient,
@@ -16,7 +16,6 @@ import { AuthContextInterface } from 'types';
 const client = createClient('b3bee858328ef4344a308e4a5a091688d05fdee2be353a2b', 'staging');
 enableCache();
 
-// eslint-disable-next-line import/prefer-default-export
 export const AuthContext = React.createContext<AuthContextInterface>({
   client,
   error: '',
@@ -54,6 +53,7 @@ export const AuthContextProvider: FC = ({ children }) => {
 
   return (
     <AuthContext.Provider
+      // eslint-disable-next-line react/jsx-no-constructed-context-values
       value={{
         error,
         login,

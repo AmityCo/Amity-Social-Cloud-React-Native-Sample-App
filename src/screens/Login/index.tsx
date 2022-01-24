@@ -52,14 +52,14 @@ const LoginScreen: VFC = () => {
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               value={value}
-              onBlur={onBlur}
               autoCapitalize="none"
               autoCompleteType="off"
-              onChangeText={onChange}
               error={!!errors?.userId}
               label={t('auth.username')}
               containerStyle={styles.input}
               errorText={errors?.userId?.message}
+              onBlur={onBlur}
+              onChangeText={onChange}
             />
           )}
           name="userId"
@@ -74,12 +74,12 @@ const LoginScreen: VFC = () => {
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               value={value}
-              onBlur={onBlur}
-              onChangeText={onChange}
               error={!!errors?.displayName}
               label={t('auth.displayName')}
               containerStyle={styles.input}
               errorText={errors?.displayName?.message}
+              onBlur={onBlur}
+              onChangeText={onChange}
             />
           )}
           name="displayName"

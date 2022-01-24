@@ -181,8 +181,8 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
         right={({ size }) => (
           <HeaderMenu
             size={size}
-            onEdit={canEdit}
             visible={openMenu}
+            onEdit={canEdit}
             onDelete={canDelete}
             onToggleMenu={() => setOpenMenu(prev => !prev)}
           />
