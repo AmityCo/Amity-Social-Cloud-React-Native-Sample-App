@@ -91,38 +91,38 @@ const AddCommunity: VFC<AddCommunityType> = ({ onClose, onAddCommunity, isEditId
   };
 
   return (
-    <Modal transparent visible onDismiss={onClose} animationType="slide" onRequestClose={onClose}>
+    <Modal transparent visible animationType="slide" onDismiss={onClose} onRequestClose={onClose}>
       <Surface style={styles.container}>
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.centeredView}>
           <View style={styles.content}>
             <TextInput
               value={displayName}
-              onChangeText={setDisplayName}
               style={styles.communityInput}
               containerStyle={styles.communityInputContainer}
               placeholder={t('users.add_user_display_name_placeholder')}
+              onChangeText={setDisplayName}
             />
             <TextInput
               value={description}
               style={styles.communityInput}
-              onChangeText={setDescription}
               containerStyle={styles.communityInputContainer}
               placeholder={t('users.add_user_description_placeholder')}
+              onChangeText={setDescription}
             />
           </View>
 
           <View style={styles.btnArea}>
             <Button
               style={styles.btn}
-              onPress={onSubmit}
               disabled={loading}
               mode="contained"
               loading={loading}
+              onPress={onSubmit}
             >
               {t(isEditId === '' ? 'add' : 'update')}
             </Button>
 
-            <Button style={styles.btn} onPress={onClose} mode="contained">
+            <Button style={styles.btn} mode="contained" onPress={onClose}>
               <Text>{t('cancel')}</Text>
             </Button>
           </View>

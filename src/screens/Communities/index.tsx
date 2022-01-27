@@ -121,10 +121,8 @@ const CommunitiesScreen: VFC = () => {
   return (
     <Surface style={styles.container}>
       <FlatList
-        data={data}
         ref={flatListRef}
-        onRefresh={onRefresh}
-        onEndReached={handleLoadMore}
+        data={data}
         showsVerticalScrollIndicator={false}
         keyExtractor={item => item.communityId}
         refreshing={loading === LoadingState.IS_REFRESHING}
@@ -143,6 +141,8 @@ const CommunitiesScreen: VFC = () => {
             <EmptyComponent errorText={error ? errorText : undefined} />
           ) : null
         }
+        onRefresh={onRefresh}
+        onEndReached={handleLoadMore}
       />
 
       {visibleAddCommunity && (

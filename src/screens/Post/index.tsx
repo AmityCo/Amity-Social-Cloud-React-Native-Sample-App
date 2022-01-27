@@ -82,20 +82,20 @@ const PostScreen: VFC = () => {
       {!post?.postId ? (
         <ActivityIndicator style={styles.loading} />
       ) : (
-        <>
+        <React.Fragment>
           <PostItem post={post} onEditPost={onEditPost} />
 
           <Comments postId={postId} />
 
           {isEditId !== '' && (
             <AddPost
-              onClose={onCloseAddPost}
               isEditId={isEditId}
               targetType="user"
               targetId={targetId}
+              onClose={onCloseAddPost}
             />
           )}
-        </>
+        </React.Fragment>
       )}
     </KeyboardAwareScrollView>
   );

@@ -37,7 +37,7 @@ const Header: FC<Pick<StackHeaderProps, 'previous' | 'scene'> & HeaderProps> = (
     <Appbar.Header theme={{ colors: { primary: theme.colors.surface } }}>
       <View style={[styles.column, styles.left]}>
         {previous ? (
-          <Appbar.BackAction onPress={navigation.goBack} color={theme.colors.accent} />
+          <Appbar.BackAction color={theme.colors.accent} onPress={navigation.goBack} />
         ) : (
           left ||
           (drawer && (

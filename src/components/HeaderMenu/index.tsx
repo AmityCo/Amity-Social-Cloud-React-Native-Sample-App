@@ -1,4 +1,4 @@
-import React, { FC, ReactChild } from 'react';
+import React, { FC } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, View } from 'react-native';
 import { Menu, useTheme } from 'react-native-paper';
@@ -16,7 +16,6 @@ type HeaderMenuProps = {
   hasFlag?: boolean;
   onToggleMenu: () => void;
   visible: boolean;
-  additional?: ReactChild;
 };
 
 const HeaderMenu: FC<HeaderMenuProps> = ({
@@ -43,17 +42,17 @@ const HeaderMenu: FC<HeaderMenuProps> = ({
       {children}
       <Menu
         visible={visible}
-        onDismiss={onToggleMenu}
         anchor={
           <Pressable style={styles.ellipsis} onPress={onToggleMenu}>
             <Ionicons name="ellipsis-vertical-sharp" size={size} color={textColor} />
           </Pressable>
         }
+        onDismiss={onToggleMenu}
       >
-        {onEdit && <Menu.Item onPress={onEdit} title={t('edit')} />}
-        {onDelete && <Menu.Item onPress={onDelete} title={t('delete')} />}
-        {onFlag && hasFlag && <Menu.Item onPress={onUnflag} title={t('unflag')} />}
-        {onUnflag && !hasFlag && <Menu.Item onPress={onFlag} title={t('flag')} />}
+        {onEdit && <Menu.Item title={t('edit')} onPress={onEdit} />}
+        {onDelete && <Menu.Item title={t('delete')} onPress={onDelete} />}
+        {onFlag && hasFlag && <Menu.Item title={t('unflag')} onPress={onUnflag} />}
+        {onUnflag && !hasFlag && <Menu.Item title={t('flag')} onPress={onFlag} />}
       </Menu>
     </View>
   );

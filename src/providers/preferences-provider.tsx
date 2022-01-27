@@ -37,6 +37,7 @@ export const PreferencesContextProvider: FC = ({ children }) => {
 
   return (
     <PreferencesContext.Provider
+      // eslint-disable-next-line react/jsx-no-constructed-context-values
       value={{
         theme,
         toggleTheme: writeItemToStorage,

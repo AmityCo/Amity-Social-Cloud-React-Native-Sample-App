@@ -115,17 +115,14 @@ const UserListScreen: VFC = () => {
     <Surface style={styles.container}>
       <SearchBar
         placeholder="Search"
-        onChangeText={setSearchText}
         value={searchText}
         style={styles.searchBar}
+        onChangeText={setSearchText}
       />
 
       <FlatList
-        data={data}
         ref={flatListRef}
-        onRefresh={onRefresh}
-        onEndReachedThreshold={0.5}
-        onEndReached={handleLoadMore}
+        data={data}
         keyExtractor={user => user.userId}
         showsVerticalScrollIndicator={false}
         refreshing={loading === LoadingState.IS_REFRESHING}
@@ -140,9 +137,12 @@ const UserListScreen: VFC = () => {
             <UserItem user={item} onEditUser={setIsEditId} onPress={() => onPressUserItem(item)} />
           </Surface>
         )}
+        onRefresh={onRefresh}
+        onEndReachedThreshold={0.5}
+        onEndReached={handleLoadMore}
       />
 
-      {isEditId !== '' && <UpdateUser onClose={onCloseUpdateUser} isEditId={isEditId} />}
+      {isEditId !== '' && <UpdateUser isEditId={isEditId} onClose={onCloseUpdateUser} />}
     </Surface>
   );
 };

@@ -18,7 +18,6 @@ const FAB: VFC<FABProps> = ({ icon, onPress }) => {
       <PaperFAB
         icon={icon}
         color="white"
-        onPress={onPress}
         visible={isFocused}
         style={{
           right: 15,
@@ -30,6 +29,7 @@ const FAB: VFC<FABProps> = ({ icon, onPress }) => {
             accent: theme.colors.primary,
           },
         }}
+        onPress={onPress}
       />
     </Portal>
   );

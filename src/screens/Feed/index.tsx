@@ -60,10 +60,10 @@ const FeedScreen: VFC = () => {
 
       {showAddPostModal && (
         <AddPost
-          onClose={onCloseAddPost}
           targetType="user"
           isEditId={isEditId}
           targetId={targetId}
+          onClose={onCloseAddPost}
         />
       )}
 

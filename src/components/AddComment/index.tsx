@@ -144,19 +144,19 @@ const AddComment: VFC<AddCommentType> = ({
       )}
       <View style={styles.inputArea}>
         <TextInput
+          ref={textInputRef}
           mode="flat"
           value={text}
-          ref={textInputRef}
           autoCorrect={false}
           autoCapitalize="none"
-          onChangeText={setText}
           style={styles.textInput}
           outlineColor="transparent"
           underlineColor="transparent"
           containerStyle={styles.textInputContainer}
           placeholder={t('comments.add_comment_placeholder')}
+          onChangeText={setText}
         />
-        <Button onPress={onComment} disabled={loading} style={styles.btn}>
+        <Button disabled={loading} style={styles.btn} onPress={onComment}>
           {loading ? (
             <ActivityIndicator size={30} />
           ) : (
