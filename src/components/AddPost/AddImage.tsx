@@ -7,6 +7,7 @@ import { Button, Text, ProgressBar, useTheme } from 'react-native-paper';
 import { t } from 'i18n';
 import { uriToBlob } from 'utils';
 import { alertError } from 'utils/alerts';
+// import getErrorMessage from 'utils/getErrorMessage';
 
 import { addFileStyles } from './styles';
 
@@ -53,13 +54,11 @@ const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
         const data = new FormData();
         data.append('file', fileObject);
 
-        data.getAll = data.getParts;
-
         runQuery(createQuery(createFile, data, onProgress), ({ data: fileData, error }) => {
           onProgress(0);
 
           if (fileData) {
-            onAddImage({ ...fileData[0] });
+            onAddImage(fileData);
 
             Alert.alert('file successfully uploaded!');
           } else if (error) {

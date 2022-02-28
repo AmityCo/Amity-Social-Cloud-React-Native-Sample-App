@@ -12,6 +12,7 @@ export { default as CardTitle } from './CardTitle';
 export { default as UpdateUser } from './UpdateUser';
 export { default as TabBarIcon } from './TabBarIcon';
 export { default as HeaderMenu } from './HeaderMenu';
+export { default as CommentItem } from './CommentItem';
 export { default as AddCommunity } from './AddCommunity';
 export { default as CommunityItem } from './CommunityItem';
 export { default as DrawerContent } from './DrawerContent';

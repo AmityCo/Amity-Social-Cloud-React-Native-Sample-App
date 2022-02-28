@@ -3,7 +3,7 @@
     "name": "Amity Social Cloud",
     "slug": "amity-social",
     "version": "0.1.0",
-    "owner": "amity-co",
+    "owner": "amityexpo",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
     "scheme": "amity-react-native-sample-app",

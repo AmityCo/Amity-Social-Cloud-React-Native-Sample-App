@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import * as Updates from 'expo-updates';
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useState } from 'react';
+import { Alert } from 'react-native';
 import {
   createClient,
   connectClient,
@@ -46,9 +46,15 @@ export const AuthContextProvider: FC = ({ children }) => {
 
   // TODO
   const logout = async () => {
-    await disconnectClient();
+    try {
+      await disconnectClient();
+    } catch (e) {
+      const errorText = getErrorMessage(e);
 
-    Updates.reloadAsync();
+      Alert.alert(errorText);
+    }
+
+    // Updates.reloadAsync();
   };
 
   return (

@@ -1,4 +1,6 @@
 import 'react-native-gesture-handler';
+import polyfill from '@amityco/react-native-formdata-polyfill';
+
 import { LogBox } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, FC } from 'react';
@@ -10,6 +12,8 @@ import useCachedResources from 'hooks/useCachedResources';
 import { AuthContextProvider } from 'providers/auth-provider';
 import { PreferencesContextProvider } from 'providers/preferences-provider';
 import Theme from './Theme';
+
+polyfill();
 
 const App: FC = () => {
   const isLoadingComplete = useCachedResources();

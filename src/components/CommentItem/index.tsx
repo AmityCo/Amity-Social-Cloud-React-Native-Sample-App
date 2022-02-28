@@ -47,7 +47,7 @@ const CommentItem: VFC<CommentProps> = ({
   const [user, setUser] = useState<Amity.User>();
   const [openMenu, setOpenMenu] = useState(false);
   const [comment, setComment] = useState<Amity.Comment>();
-  const [comments, setComments] = useState<Record<string, Amity.Comment>>({});
+  // const [comments, setComments] = useState<Record<string, Amity.Comment>>({});
 
   const {
     colors: { text: textColor, primary: primaryColor, background: backgroundColor },
@@ -67,21 +67,19 @@ const CommentItem: VFC<CommentProps> = ({
   }, [commentId]);
 
   const onQueryComments = useCallback(async () => {
-    const queryData = {
-      postId,
-      isDeleted: false,
-      parentId: commentId,
-      page: { before: 0, limit: QUERY_LIMIT },
-    };
-
-    const query = createQuery(queryComments, queryData);
-
-    runQuery(query, ({ data: commentData }) => {
-      if (!commentData) return;
-
-      setComments(prevComments => ({ ...prevComments, ...commentData }));
-    });
-  }, [commentId, postId]);
+    // const queryData = {
+    //   isDeleted: false,
+    //   parentId: commentId,
+    //   referenceId: postId,
+    //   page: { before: 0, limit: QUERY_LIMIT },
+    //   referenceType: 'post' as 'post' | 'content',
+    // };
+    // const query = createQuery(queryComments, queryData);
+    // runQuery(query, ({ data: commentData }) => {
+    //   if (!commentData) return;
+    //   // setComments(prevComments => ({ ...prevComments, ...commentData }));
+    // });
+  }, []);
 
   useEffect(() => {
     if (postId) {
@@ -94,9 +92,9 @@ const CommentItem: VFC<CommentProps> = ({
       observeComments(postId, {
         onEvent: (action, commentData) => {
           if (commentData.parentId && commentId === commentData.parentId) {
-            setComments(prevState => {
-              return { ...prevState, [commentData.localId]: commentData };
-            });
+            // setComments(prevState => {
+            //   return { ...prevState, [commentData.localId]: commentData };
+            // });
           }
         },
       }),
@@ -119,7 +117,7 @@ const CommentItem: VFC<CommentProps> = ({
     alertConfirmation(() => {
       setOpenMenu(false);
 
-      runQuery(createQuery(deleteComment, commentId), ({ error }) => {
+      runQuery(createQuery(deleteComment, commentId, true), ({ error }) => {
         if (error) {
           alertError(error);
         }
@@ -139,7 +137,7 @@ const CommentItem: VFC<CommentProps> = ({
   const canEdit = isUser && onEdit ? onEditComment : undefined;
   const canDelete = isUser ? onDelete : undefined;
 
-  const commentsData = Object.values(comments).map(cm => cm);
+  // const commentsData = Object.values(comments).map(cm => cm);
 
   return (
     <Card style={[!!parentId && { backgroundColor }, !!parentId && styles.childComment]}>
@@ -151,9 +149,8 @@ const CommentItem: VFC<CommentProps> = ({
             key={commentId}
             size={size / 1.5}
             visible={openMenu}
-            hasFlag={comment?.flagCount > 0}
-            onEdit={canEdit}
             onDelete={canDelete}
+            hasFlag={(comment?.flagCount ?? 0) > 0}
             onToggleMenu={() => setOpenMenu(prev => !prev)}
           >
             {!parentId && (
@@ -173,7 +170,9 @@ const CommentItem: VFC<CommentProps> = ({
                     : 'thumb-up-outline'
                 }
               />
-              {reactions[ReactionsType.LIKE] > 0 && <Text>{reactions[ReactionsType.LIKE]}</Text>}
+              {(comment?.reactions ?? reactions)[ReactionsType.LIKE] > 0 && (
+                <Text>{(comment?.reactions ?? reactions)[ReactionsType.LIKE]}</Text>
+              )}
             </Pressable>
             <Pressable style={styles.icon} onPress={() => toggleReaction(ReactionsType.LOVE)}>
               <MaterialCommunityIcons
@@ -185,7 +184,9 @@ const CommentItem: VFC<CommentProps> = ({
                   comment?.myReactions?.includes(ReactionsType.LOVE) ? primaryColor : textColor
                 }
               />
-              {reactions[ReactionsType.LOVE] > 0 && <Text>{reactions[ReactionsType.LOVE]}</Text>}
+              {(comment?.reactions ?? reactions)[ReactionsType.LOVE] > 0 && (
+                <Text>{(comment?.reactions ?? reactions)[ReactionsType.LOVE]}</Text>
+              )}
             </Pressable>
           </HeaderMenu>
         )}
@@ -193,7 +194,7 @@ const CommentItem: VFC<CommentProps> = ({
       <Card.Content>
         <Paragraph style={styles.text}>{comment?.data.text ?? data.text}</Paragraph>
       </Card.Content>
-      {commentsData.length > 0 &&
+      {/* {commentsData.length > 0 &&
         commentsData.map(cm => (
           <CommentItem
             // eslint-disable-next-line react/jsx-props-no-spreading
@@ -203,7 +204,7 @@ const CommentItem: VFC<CommentProps> = ({
             onEdit={onEdit}
             onReply={onReply}
           />
-        ))}
+        ))} */}
     </Card>
   );
 };

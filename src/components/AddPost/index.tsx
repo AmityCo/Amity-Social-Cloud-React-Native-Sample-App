@@ -88,9 +88,9 @@ const AddPost: VFC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) 
       };
 
       if (images.length) {
-        data.data.images = images.map(({ fileId }) => fileId);
+        data.attachments = images.map(({ fileId }) => ({ type: 'image', fileId }));
       } else if (files.length) {
-        data.data.files = files.map(({ fileId }) => fileId);
+        data.attachments = files.map(({ fileId }) => ({ type: 'file', fileId }));
       }
 
       runQuery(createQuery(createPost, data), ({ data: postData, error, loading: loading_ }) => {

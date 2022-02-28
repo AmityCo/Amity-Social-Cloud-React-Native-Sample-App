@@ -7,25 +7,24 @@ import {
   queryPosts,
   createQuery,
   runQuery,
-  observePosts,
-  queryGlobalFeed,
+  // observePosts,
+  // queryGlobalFeed,
   sortByLastCreated,
 } from '@amityco/ts-sdk';
 
-import getErrorMessage from 'utils/getErrorMessage';
 import { LoadingState, PostFeedType, FeedTargetType } from 'types';
 
 import Loading from '../Loading';
 import PostItem from '../PostItem';
-import EmptyComponent from '../EmptyComponent';
+// import EmptyComponent from '../EmptyComponent';
 
 import styles from './styles';
 
 const QUERY_LIMIT = 10;
 
 type FeedComponentType = {
-  targetId?: string;
-  targetType?: string;
+  targetId: string;
+  targetType: string;
   isDeleted?: boolean;
   feedTargetType?: FeedTargetType;
   postFeedType?: PostFeedType;
@@ -37,16 +36,19 @@ const FeedComponent: VFC<FeedComponentType> = ({
   targetId,
   targetType,
   isDeleted = false,
-  feedTargetType = FeedTargetType.Normal,
+  // feedTargetType = FeedTargetType.Normal,
   postFeedType = PostFeedType.PUBLISHED,
 }) => {
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
 
-  const [posts, setPosts] = useState<Record<string, Amity.Post>>({});
+  const [posts, setPosts] = useState<Amity.Post[]>([]);
 
-  const [{ error, nextPage }, setMetadata] = useState<Amity.QueryMetadata & Amity.Pages>({
+  const [{ nextPage }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>({
+    error: null,
     nextPage: null,
     prevPage: null,
+    loading: false,
+    origin: 'local',
   });
 
   const flatListRef = useRef<FlatList<Amity.Post>>(null);
@@ -55,58 +57,56 @@ const FeedComponent: VFC<FeedComponentType> = ({
 
   const onQueryPost = useCallback(
     async ({ reset = false, page = { limit: QUERY_LIMIT } }) => {
-      let query = createQuery(queryGlobalFeed, { page });
+      // let query = createQuery(queryGlobalFeed, { page });
 
-      if (feedTargetType === FeedTargetType.Normal) {
-        const queryData = {
-          page,
-          targetId,
-          isDeleted,
-          targetType,
-          feedType: postFeedType,
-        };
+      // if (feedTargetType === FeedTargetType.Normal) {
+      const queryData = {
+        page,
+        isDeleted,
+        targetType,
+        targetId,
+        feedType: postFeedType,
+      };
 
-        query = createQuery(queryPosts, queryData);
-      }
+      const query = createQuery(queryPosts, queryData);
 
-      runQuery(query, ({ data, loading: loading_, ...metadata }) => {
-        if (reset) setPosts({});
+      runQuery(query, ({ data, ...metadata }) => {
+        if (data) {
+          setPosts(prevPosts => (reset ? data : [...prevPosts, ...data]));
+        }
 
-        setPosts(prevPosts => ({ ...prevPosts, ...data }));
+        // console.log(page, { data, metadata });
 
-        // @ts-ignore
         setMetadata(metadata);
 
-        if (!loading_) {
+        if (metadata?.loading === false) {
           setLoading(LoadingState.NOT_LOADING);
         }
       });
     },
-    [feedTargetType, isDeleted, postFeedType, targetId, targetType],
+    [isDeleted, postFeedType, targetId, targetType],
   );
 
-  useEffect(() => {
-    if (!targetId || !targetType) {
-      return () => {
-        //
-      };
-    }
+  // console.log({ posts, nextPage, prevPage });
 
-    return observePosts(
-      { targetId, targetType },
-      {
-        onEvent: (action, post) => {
-          setPosts(prevState => {
-            return { ...prevState, [post.localId]: post };
-          });
-
-          if (action === 'onCreate') {
-            flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
-          }
-        },
-      },
-    );
-  }, [targetId, targetType]);
+  // useEffect(
+  //   () =>
+  //     observePosts(
+  //       { targetId, targetType },
+  //       {
+  //         onEvent: (action, post) => {
+  //           // console.log('observePosts', { action, post });
+  //           // setPosts(prevState => {
+  //           //   return { ...prevState, [post.localId]: post };
+  //           // });
+  //           // if (action === 'onCreate') {
+  //           //   flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
+  //           // }
+  //         },
+  //       },
+  //     ),
+  //   [targetId, targetType],
+  // );
 
   const onRefresh = useCallback(() => {
     setLoading(LoadingState.IS_REFRESHING);
@@ -118,7 +118,7 @@ const FeedComponent: VFC<FeedComponentType> = ({
   }, [onQueryPost]);
 
   useEffect(() => {
-    const unsubscribe = navigation?.dangerouslyGetParent()?.addListener('tabPress', () => {
+    const unsubscribe = navigation?.getParent()?.addListener('tabPress', () => {
       onRefresh();
       flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
     });
@@ -133,10 +133,8 @@ const FeedComponent: VFC<FeedComponentType> = ({
     }
   };
 
-  const errorText = getErrorMessage(error);
-  const data = Object.values(posts)
-    .filter(post => (!isDeleted ? !post.isDeleted : true))
-    .sort(sortByLastCreated);
+  // const errorText = getErrorMessage(error);
+  const data = posts.filter(post => (!isDeleted ? !post.isDeleted : true)).sort(sortByLastCreated);
 
   return (
     <FlatList
@@ -147,11 +145,11 @@ const FeedComponent: VFC<FeedComponentType> = ({
       showsVerticalScrollIndicator={false}
       refreshing={loading === LoadingState.IS_REFRESHING}
       ListFooterComponent={loading === LoadingState.IS_LOADING_MORE ? <Loading /> : undefined}
-      ListEmptyComponent={
-        loading === LoadingState.NOT_LOADING ? (
-          <EmptyComponent errorText={error ? errorText : undefined} />
-        ) : null
-      }
+      // ListEmptyComponent={
+      //   loading === LoadingState.NOT_LOADING ? (
+      //     <EmptyComponent errorText={error ? errorText : undefined} />
+      //   ) : null
+      // }
       renderItem={({ item }) => (
         <Surface style={styles.postItem}>
           <PostItem

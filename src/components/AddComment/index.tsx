@@ -102,7 +102,8 @@ const AddComment: VFC<AddCommentType> = ({
     } else {
       const createCommentRequest: Parameters<typeof createComment>[0] = {
         data: { text },
-        postId,
+        referenceId: postId,
+        referenceType: 'post',
       };
 
       if (isReply !== '') {
