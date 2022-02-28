@@ -135,16 +135,12 @@ const Comments: VFC<{ postId: string }> = ({ postId }) => {
         keyExtractor={comment => comment.commentId}
         refreshing={loading === LoadingState.IS_REFRESHING}
         ListEmptyComponent={
-          <>
-            {loading === LoadingState.NOT_LOADING && (
-              <EmptyComponent errorText={error ? errorText : undefined} />
-            )}
-          </>
+          loading === LoadingState.NOT_LOADING ? (
+            <EmptyComponent errorText={error ? errorText : undefined} />
+          ) : null
         }
         ListFooterComponent={loading === LoadingState.IS_LOADING_MORE ? <Loading /> : undefined}
-        renderItem={({ item }) => (
-          <CommentItem {...item} postId={postId} onEdit={setIsEdit} onReply={setIsReply} />
-        )}
+        renderItem={({ item }) => <CommentItem {...item} postId={postId} onReply={setIsReply} />}
         onRefresh={onRefresh}
         onEndReachedThreshold={0.5}
         // onEndReached={handleLoadMore}

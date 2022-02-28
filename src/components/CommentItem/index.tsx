@@ -9,7 +9,7 @@ import {
   removeReaction,
   addReaction,
   observeComment,
-  queryComments,
+  // queryComments,
   createQuery,
   runQuery,
   observeComments,
@@ -28,10 +28,10 @@ export type CommentProps = Amity.Comment & {
   postId: string;
   selectedComment?: string;
   onReply?: (commentId: string) => void;
-  onEdit: (commentId: string) => void;
+  // onEdit: (commentId: string) => void;
 };
 
-const QUERY_LIMIT = 10;
+// const QUERY_LIMIT = 10;
 
 const CommentItem: VFC<CommentProps> = ({
   postId,
@@ -39,7 +39,7 @@ const CommentItem: VFC<CommentProps> = ({
   createdAt,
   data,
   userId,
-  onEdit,
+  // onEdit,
   onReply,
   parentId,
   reactions,
@@ -108,10 +108,10 @@ const CommentItem: VFC<CommentProps> = ({
     runQuery(query);
   };
 
-  const onEditComment = () => {
-    setOpenMenu(false);
-    onEdit(commentId);
-  };
+  // const onEditComment = () => {
+  //   setOpenMenu(false);
+  //   onEdit(commentId);
+  // };
 
   const onDelete = () => {
     alertConfirmation(() => {
@@ -134,7 +134,7 @@ const CommentItem: VFC<CommentProps> = ({
   const commentCreateAt = format(new Date(comment?.createdAt ?? createdAt), 'HH:mm, MMM d');
 
   const isUser = client.userId === userId;
-  const canEdit = isUser && onEdit ? onEditComment : undefined;
+  // const canEdit = isUser && onEdit ? onEditComment : undefined;
   const canDelete = isUser ? onDelete : undefined;
 
   // const commentsData = Object.values(comments).map(cm => cm);
@@ -149,8 +149,8 @@ const CommentItem: VFC<CommentProps> = ({
             key={commentId}
             size={size / 1.5}
             visible={openMenu}
-            onDelete={canDelete}
             hasFlag={(comment?.flagCount ?? 0) > 0}
+            onDelete={canDelete}
             onToggleMenu={() => setOpenMenu(prev => !prev)}
           >
             {!parentId && (

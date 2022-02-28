@@ -13,7 +13,7 @@ import {
 
 import { Loading, Header } from 'components';
 
-import useAuth from 'hooks/useAuth';
+// import useAuth from 'hooks/useAuth';
 // import getErrorMessage from 'utils/getErrorMessage';
 
 import { LoadingState, DrawerStackHeaderProps } from 'types';
@@ -131,25 +131,25 @@ const CommentsScreen: VFC = () => {
   return (
     <Surface style={styles.container}>
       <FlatList
-        data={data}
         ref={flatListRef}
-        onRefresh={onRefresh}
-        onEndReachedThreshold={0.5}
-        onEndReached={handleLoadMore}
+        data={data}
         keyExtractor={user => user.commentId}
         showsVerticalScrollIndicator={false}
         refreshing={loading === LoadingState.IS_REFRESHING}
         ListFooterComponent={loading === LoadingState.IS_LOADING_MORE ? <Loading /> : undefined}
-        // ListEmptyComponent={
-        //   loading === LoadingState.NOT_LOADING ? (
-        //     <EmptyComponent errorText={error ? errorText : undefined} />
-        //   ) : null
-        // }
         renderItem={() => (
           <Surface style={styles.userItem}>
             {/* <CommentItem {...item} onEdit={setIsEditId} postId={postId} onReply={setIsReply} /> */}
           </Surface>
         )}
+        onRefresh={onRefresh}
+        onEndReachedThreshold={0.5}
+        // ListEmptyComponent={
+        //   loading === LoadingState.NOT_LOADING ? (
+        //     <EmptyComponent errorText={error ? errorText : undefined} />
+        //   ) : null
+        // }
+        onEndReached={handleLoadMore}
       />
       {/*
       {isEditId !== '' && <UpdateUser onClose={onCloseUpdateUser} isEditId={isEditId} />} */}

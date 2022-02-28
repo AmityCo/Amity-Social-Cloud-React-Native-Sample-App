@@ -83,9 +83,9 @@ const Community: VFC = () => {
       ) : (
         <CommunityItem
           community={community}
-          onEditCommunity={onEditCommunity}
           subscribable
           a="community"
+          onEditCommunity={onEditCommunity}
         />
       )}
 

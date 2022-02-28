@@ -1,11 +1,10 @@
-import { AxiosError } from 'axios';
 import { Alert } from 'react-native';
 
 import { t } from 'i18n';
 
 import getErrorMessage from './getErrorMessage';
 
-export const alertError = (error: Error | AxiosError, onClose?: () => void): void => {
+export const alertError = (error: Error, onClose?: () => void): void => {
   Alert.alert(
     'Oooops!',
     getErrorMessage(error),

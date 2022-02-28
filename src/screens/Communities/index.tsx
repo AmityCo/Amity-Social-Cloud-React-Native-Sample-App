@@ -125,8 +125,8 @@ const CommunitiesScreen: VFC = () => {
   return (
     <Surface style={styles.container}>
       <FlatList
-        data={[]}
         ref={flatListRef}
+        data={[]}
         // onRefresh={onRefresh}
         // onEndReached={handleLoadMore}
         showsVerticalScrollIndicator={false}

@@ -27,12 +27,12 @@ import styles from './styles';
 
 export type CommunityItemProps = {
   onPress?: () => void;
-  onEditCommunity: (communityId: string) => void;
+  onEditCommunity?: (communityId: string) => void;
 };
 
 const CommunityItem: VFC<
   { community: Amity.Community; subscribable?: boolean; a?: string } & CommunityItemProps
-> = ({ community: communityProp, onPress, onEditCommunity, subscribable = false }) => {
+> = ({ community: communityProp, onPress, subscribable = false }) => {
   const [user, setUser] = useState<Amity.User>();
   const [loading, setLoading] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
@@ -81,11 +81,11 @@ const CommunityItem: VFC<
     });
   };
 
-  const onEdit = () => {
-    setOpenMenu(false);
+  // const onEdit = () => {
+  //   setOpenMenu(false);
 
-    onEditCommunity(communityId);
-  };
+  //   onEditCommunity(communityId);
+  // };
 
   const onDelete = useCallback(() => {
     alertConfirmation(() => {
@@ -104,62 +104,60 @@ const CommunityItem: VFC<
   const communityCreateAt = format(new Date(community?.createdAt ?? createdAt), 'HH:mm, MMM d');
 
   const isUser = client.userId === userId;
-  const canEdit = isUser && onEditCommunity ? onEdit : undefined;
+  // const canEdit = isUser && onEditCommunity ? onEdit : undefined;
   const canDelete = isUser ? onDelete : undefined;
 
   return (
-    <>
-      <Card onPress={!community?.isDeleted ? onPress : undefined}>
-        <Card.Title
-          title={<CardTitle title={community?.displayName} isDeleted={community?.isDeleted} />}
-          subtitle={
-            <View style={styles.subtitle}>
-              <Text style={styles.subtitleRow}>
-                {communityCreateAt} / {`${t('by')} ${user?.displayName ?? userId}`}
-              </Text>
-            </View>
-          }
-          right={({ size }) =>
-            !community?.isDeleted ? (
-              <HeaderMenu
-                size={size}
-                onEdit={canEdit}
-                visible={openMenu}
-                onDelete={canDelete}
-                onToggleMenu={() => setOpenMenu(prev => !prev)}
-              />
-            ) : undefined
-          }
-        />
-
-        <Card.Content>
-          <Paragraph style={styles.text}>{community?.description}</Paragraph>
-        </Card.Content>
-        <Card.Actions
-          style={styles.footer}
-          key={`Actions_${community?.membersCount}_${community?.postsCount}`}
-        >
-          <View style={styles.footerLeft}>
-            <View style={styles.subtitleRow}>
-              <MaterialCommunityIcons size={18} name="account-group" color={textColor} />
-              {!!community && <Text>{String(community?.membersCount ?? 0)}</Text>}
-            </View>
-            <View style={styles.subtitleRow}>
-              <MaterialCommunityIcons size={18} name="note-text-outline" color={textColor} />
-              {!!community && <Text>{String(community?.postsCount ?? 0)}</Text>}
-            </View>
+    <Card onPress={!community?.isDeleted ? onPress : undefined}>
+      <Card.Title
+        title={<CardTitle title={community?.displayName} isDeleted={community?.isDeleted} />}
+        subtitle={
+          <View style={styles.subtitle}>
+            <Text style={styles.subtitleRow}>
+              {communityCreateAt} / {`${t('by')} ${user?.displayName ?? userId}`}
+            </Text>
           </View>
+        }
+        right={({ size }) =>
+          !community?.isDeleted ? (
+            <HeaderMenu
+              size={size}
+              // onEdit={canEdit}
+              visible={openMenu}
+              onDelete={canDelete}
+              onToggleMenu={() => setOpenMenu(prev => !prev)}
+            />
+          ) : undefined
+        }
+      />
 
-          {!community?.isDeleted && (
-            <Pressable style={styles.footerRight} onPress={onToggleJoinCommunity}>
-              <Button compact mode="outlined" loading={loading} disabled={loading}>
-                {community?.isJoined ? t('leave') : t('join')}
-              </Button>
-            </Pressable>
-          )}
-        </Card.Actions>
-      </Card>
-    </>
+      <Card.Content>
+        <Paragraph style={styles.text}>{community?.description}</Paragraph>
+      </Card.Content>
+      <Card.Actions
+        key={`Actions_${community?.membersCount}_${community?.postsCount}`}
+        style={styles.footer}
+      >
+        <View style={styles.footerLeft}>
+          <View style={styles.subtitleRow}>
+            <MaterialCommunityIcons size={18} name="account-group" color={textColor} />
+            {!!community && <Text>{String(community?.membersCount ?? 0)}</Text>}
+          </View>
+          <View style={styles.subtitleRow}>
+            <MaterialCommunityIcons size={18} name="note-text-outline" color={textColor} />
+            {!!community && <Text>{String(community?.postsCount ?? 0)}</Text>}
+          </View>
+        </View>
+
+        {!community?.isDeleted && (
+          <Pressable style={styles.footerRight} onPress={onToggleJoinCommunity}>
+            <Button compact mode="outlined" loading={loading} disabled={loading}>
+              {community?.isJoined ? t('leave') : t('join')}
+            </Button>
+          </Pressable>
+        )}
+      </Card.Actions>
+    </Card>
   );
 };
 
