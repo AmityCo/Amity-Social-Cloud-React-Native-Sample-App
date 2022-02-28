@@ -4,7 +4,6 @@ import polyfill from '@amityco/react-native-formdata-polyfill';
 import { LogBox } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, FC } from 'react';
-import { AppearanceProvider } from 'react-native-appearance';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Navigation from 'routes';
@@ -28,16 +27,14 @@ const App: FC = () => {
 
   return (
     <SafeAreaProvider>
-      <AppearanceProvider>
-        <PreferencesContextProvider>
-          <AuthContextProvider>
-            <Theme>
-              <Navigation />
-              <StatusBar />
-            </Theme>
-          </AuthContextProvider>
-        </PreferencesContextProvider>
-      </AppearanceProvider>
+      <PreferencesContextProvider>
+        <AuthContextProvider>
+          <Theme>
+            <Navigation />
+            <StatusBar />
+          </Theme>
+        </AuthContextProvider>
+      </PreferencesContextProvider>
     </SafeAreaProvider>
   );
 };

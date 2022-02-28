@@ -1,5 +1,5 @@
 import React, { FC, useCallback } from 'react';
-import { useColorScheme, ColorSchemeName } from 'react-native-appearance';
+import { useColorScheme, ColorSchemeName } from 'react-native';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 
 import type { PreferencesContextInterface } from 'types';
