@@ -149,7 +149,7 @@ const CommunityItem: VFC<
           </View>
         </View>
 
-        {!community?.isDeleted && (
+        {!community?.isDeleted && !isUser && (
           <Pressable style={styles.footerRight} onPress={onToggleJoinCommunity}>
             <Button compact mode="outlined" loading={loading} disabled={loading}>
               {community?.isJoined ? t('leave') : t('join')}

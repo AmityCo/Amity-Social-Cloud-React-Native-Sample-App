@@ -1,35 +1,38 @@
 import { FlatList } from 'react-native';
 import { Surface } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-// import { sortByLastCreated } from '@amityco/ts-sdk';
-// import { queryCommunities, createQuery, runQuery, sortByLastCreated } from '@amityco/ts-sdk';
-import React, { VFC, useState, useLayoutEffect, useRef, useCallback } from 'react';
+import { queryCommunities, createQuery, runQuery } from '@amityco/ts-sdk';
+import React, { VFC, useState, useLayoutEffect, useRef, useCallback, useEffect } from 'react';
 
-import { Header, CommunityItem, FAB, AddCommunity, Loading } from 'components';
+import { Header, CommunityItem, FAB, AddCommunity, Loading, EmptyComponent } from 'components';
 
-import { DrawerStackHeaderProps, LoadingState } from 'types';
+import { DrawerStackHeaderProps } from 'types';
+
+import getErrorMessage from 'utils/getErrorMessage';
 
 import styles from './styles';
 
-// const QUERY_LIMIT = 10;
+const QUERY_LIMIT = 10;
 
 const CommunitiesScreen: VFC = () => {
   const [isEditId, setIsEditId] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [showAddCommunity, setShowAddCommunity] = useState(false);
-  // const [isDeleted] = React.useState<Amity.Community['isDeleted']>(false);
-  // const [membership] = useState<'member' | 'notMember' | 'all'>('member');
-  const [loading] = useState<LoadingState>(LoadingState.NOT_LOADING);
-  // const [sortBy] = React.useState<'firstCreated' | 'lastCreated' | 'displayName'>('lastCreated');
+  const [isDeleted] = React.useState<Amity.Community['isDeleted']>(false);
+  const [membership] = useState<'member' | 'notMember' | 'all'>('member');
+  const [sortBy] = React.useState<'firstCreated' | 'lastCreated' | 'displayName'>('lastCreated');
 
-  // const [communities, setCommunities] = useState<Amity.Community[]>([]);
+  const [communities, setCommunities] = useState<Amity.Community[]>([]);
 
-  // const [{ error, nextPage }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>({
-  //   nextPage: null,
-  //   prevPage: null,
-  //   error: null,
-  //   loading: false,
-  //   origin: 'local',
-  // });
+  const [{ error, nextPage, loading }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>(
+    {
+      nextPage: null,
+      prevPage: null,
+      error: null,
+      loading: false,
+      origin: 'local',
+    },
+  );
 
   const flatListRef = useRef<FlatList<Amity.Community>>(null);
 
@@ -43,62 +46,53 @@ const CommunitiesScreen: VFC = () => {
     });
   }, [navigation]);
 
-  // const onQueryCommunities = useCallback(
-  //   async ({ reset = false, page = { limit: QUERY_LIMIT } }) => {
-  //     const queryData = {
-  //       page,
-  //       sortBy,
-  //       isDeleted,
-  //       // membership,
-  //       displayName: 'rezacom',
-  //     };
+  const onQueryCommunities = useCallback(
+    async ({ reset = false, page = { limit: QUERY_LIMIT } }) => {
+      const queryData = {
+        page,
+        sortBy,
+        isDeleted,
+        membership,
+      };
 
-  //     // runQuery(
-  //     //   createQuery(queryCommunities, queryData),
-  //     //   // ({ data, loading: loading_, ...metadata }) => {
-  //     //   data => {
-  //     //     // console.log({ data });
-  //     //     // if (data) {
-  //     //     //   // @ts-ignore
-  //     //     //   setCommunities(prevCommunities => (reset ? data : [...prevCommunities, ...data]));
-  //     //     //   // console.log({ data });
-  //     //     //   // @ts-ignore
-  //     //     //   setMetadata(metadata);
-  //     //     // }
+      runQuery(createQuery(queryCommunities, queryData), ({ data, ...metadata }) => {
+        if (data) {
+          setCommunities(prevCommunities => (reset ? data : [...prevCommunities, ...data]));
 
-  //     //     // if (!loading_) {
-  //     //     //   setLoading(LoadingState.NOT_LOADING);
-  //     //     // }
-  //     //   },
-  //     // );
-  //   },
-  //   [isDeleted, sortBy],
-  // );
+          setMetadata(metadata);
+        }
 
-  // const onRefresh = useCallback(() => {
-  //   setLoading(LoadingState.IS_REFRESHING);
-  //   onQueryCommunities({ reset: true });
-  // }, [onQueryCommunities]);
+        if (!metadata.loading) {
+          setIsRefreshing(false);
+        }
+      });
+    },
+    [isDeleted, membership, sortBy],
+  );
 
-  // useEffect(() => {
-  //   onQueryCommunities({ reset: true });
-  // }, [onQueryCommunities]);
+  const onRefresh = useCallback(() => {
+    setIsRefreshing(true);
+    onQueryCommunities({ reset: true });
+  }, [onQueryCommunities]);
 
-  // React.useEffect(() => {
-  //   const unsubscribe = navigation?.dangerouslyGetParent()?.addListener('tabPress', () => {
-  //     onRefresh();
-  //     flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
-  //   });
+  useEffect(() => {
+    onQueryCommunities({ reset: true });
+  }, [onQueryCommunities]);
 
-  //   return unsubscribe;
-  // }, [navigation, onRefresh]);
+  React.useEffect(() => {
+    const unsubscribe = navigation?.dangerouslyGetParent()?.addListener('tabPress', () => {
+      onRefresh();
+      flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
+    });
 
-  // const handleLoadMore = () => {
-  //   if (nextPage) {
-  //     setLoading(LoadingState.IS_LOADING_MORE);
-  //     onQueryCommunities({ page: nextPage });
-  //   }
-  // };
+    return unsubscribe;
+  }, [navigation, onRefresh]);
+
+  const handleLoadMore = () => {
+    if (nextPage) {
+      onQueryCommunities({ page: nextPage });
+    }
+  };
 
   const onCloseAddCommunity = useCallback(() => {
     setIsEditId('');
@@ -116,45 +110,39 @@ const CommunitiesScreen: VFC = () => {
     [navigation],
   );
 
-  // const errorText = getErrorMessage(error);
-  // const data = communities
-  //   .filter(post => (!isDeleted ? !post.isDeleted : true))
-  //   .sort(sortByLastCreated);
+  const errorText = getErrorMessage(error);
   const visibleAddCommunity = showAddCommunity || isEditId !== '';
 
   return (
     <Surface style={styles.container}>
       <FlatList
         ref={flatListRef}
-        data={[]}
-        // onRefresh={onRefresh}
-        // onEndReached={handleLoadMore}
+        data={communities}
+        extraData={loading}
+        refreshing={isRefreshing}
         showsVerticalScrollIndicator={false}
         keyExtractor={item => item.communityId}
-        extraData={loading === LoadingState.NOT_LOADING}
-        refreshing={loading === LoadingState.IS_REFRESHING}
-        ListFooterComponent={loading === LoadingState.IS_LOADING_MORE ? <Loading /> : undefined}
+        ListFooterComponent={loading ? <Loading /> : undefined}
         renderItem={({ item }) => (
           <Surface style={styles.communityItem}>
             <CommunityItem
               community={item}
-              a="communities"
               onEditCommunity={onEditCommunity}
               onPress={() => onPressCommunityItem(item)}
             />
           </Surface>
         )}
-        // ListEmptyComponent={
-        //   loading === LoadingState.NOT_LOADING ? (
-        //     <EmptyComponent errorText={error ? errorText : undefined} />
-        //   ) : null
-        // }
+        ListEmptyComponent={
+          !loading ? <EmptyComponent errorText={error ? errorText : undefined} /> : null
+        }
+        onRefresh={onRefresh}
+        onEndReached={handleLoadMore}
       />
 
       {visibleAddCommunity && (
         <AddCommunity
           isEditId={isEditId}
-          // onAddCommunity={onRefresh}
+          onAddCommunity={onRefresh}
           onClose={onCloseAddCommunity}
         />
       )}
