@@ -8,12 +8,13 @@ import {
   disconnectClient,
   enableCache,
 } from '@amityco/ts-sdk';
+import Constants from 'expo-constants';
 
 import getErrorMessage from 'utils/getErrorMessage';
 
 import { AuthContextInterface } from 'types';
 
-const client = createClient('b3bee858328ef4344a308e4a5a091688d05fdee2be353a2b', 'staging');
+const client = createClient(Constants.manifest?.extra?.apiKey || '', 'staging');
 enableCache();
 
 export const AuthContext = React.createContext<AuthContextInterface>({
