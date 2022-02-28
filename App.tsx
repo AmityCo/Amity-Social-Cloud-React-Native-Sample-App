@@ -1,4 +1,4 @@
-import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import polyfill from '@amityco/react-native-formdata-polyfill';
 
 import { LogBox } from 'react-native';
@@ -26,16 +26,18 @@ const App: FC = () => {
   }
 
   return (
-    <SafeAreaProvider>
-      <PreferencesContextProvider>
-        <AuthContextProvider>
-          <Theme>
-            <Navigation />
-            <StatusBar />
-          </Theme>
-        </AuthContextProvider>
-      </PreferencesContextProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView>
+      <SafeAreaProvider>
+        <PreferencesContextProvider>
+          <AuthContextProvider>
+            <Theme>
+              <Navigation />
+              <StatusBar />
+            </Theme>
+          </AuthContextProvider>
+        </PreferencesContextProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 };
 

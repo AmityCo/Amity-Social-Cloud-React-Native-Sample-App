@@ -32,7 +32,6 @@ export default {
     web: {
       favicon: './src/assets/images/favicon.png',
     },
-    sdkVersion: '42.0.0',
     extra: {
       apiKey: process.env.API_KEY,
     },
