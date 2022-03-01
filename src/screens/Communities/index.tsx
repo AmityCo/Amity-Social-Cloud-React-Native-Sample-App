@@ -19,7 +19,7 @@ const CommunitiesScreen: VFC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showAddCommunity, setShowAddCommunity] = useState(false);
   const [isDeleted] = React.useState<Amity.Community['isDeleted']>(false);
-  const [membership] = useState<'member' | 'notMember' | 'all'>('member');
+  const [membership] = useState<'member' | 'notMember' | 'all'>('all');
   const [sortBy] = React.useState<'firstCreated' | 'lastCreated' | 'displayName'>('lastCreated');
 
   const [communities, setCommunities] = useState<Amity.Community[]>([]);
@@ -71,9 +71,11 @@ const CommunitiesScreen: VFC = () => {
   );
 
   const onRefresh = useCallback(() => {
-    setIsRefreshing(true);
-    onQueryCommunities({ reset: true });
-  }, [onQueryCommunities]);
+    if (!isRefreshing) {
+      setIsRefreshing(true);
+      onQueryCommunities({ reset: true });
+    }
+  }, [isRefreshing, onQueryCommunities]);
 
   useEffect(() => {
     onQueryCommunities({ reset: true });

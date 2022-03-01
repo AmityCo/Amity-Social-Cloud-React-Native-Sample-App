@@ -108,9 +108,11 @@ const FeedComponent: VFC<FeedComponentType> = ({
   );
 
   const onRefresh = useCallback(() => {
-    setIsRefreshing(true);
-    onQueryPost({ reset: true });
-  }, [onQueryPost]);
+    if (!isRefreshing) {
+      setIsRefreshing(true);
+      onQueryPost({ reset: true });
+    }
+  }, [isRefreshing, onQueryPost]);
 
   useEffect(() => {
     onQueryPost({ reset: true });
