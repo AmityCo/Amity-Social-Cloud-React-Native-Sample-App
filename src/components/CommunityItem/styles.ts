@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   subtitle: { flexDirection: 'row', width: '100%' },
-  subtitleRow: { flexDirection: 'row', marginEnd: 10, justifyContent: 'center' },
+  subtitleRow: { flexDirection: 'row', marginEnd: 5, justifyContent: 'center' },
   text: { marginBottom: 10 },
   footer: { justifyContent: 'space-between' },
   footerLeft: { flexDirection: 'row' },

@@ -80,12 +80,7 @@ const Community: VFC = () => {
       {loading || !community?.communityId ? (
         <ActivityIndicator style={styles.loading} />
       ) : (
-        <CommunityItem
-          community={community}
-          subscribable
-          a="community"
-          onEditCommunity={onEditCommunity}
-        />
+        <CommunityItem community={community} subscribable onEditCommunity={onEditCommunity} />
       )}
 
       {/* <Pressable onPress={addUser}>

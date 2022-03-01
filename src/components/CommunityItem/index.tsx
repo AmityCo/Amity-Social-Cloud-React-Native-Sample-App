@@ -115,6 +115,11 @@ const CommunityItem: VFC<
           <View style={styles.subtitle}>
             <Text style={styles.subtitleRow}>
               {communityCreateAt} / {`${t('by')} ${user?.displayName ?? userId}`}
+              {community?.membersCount && (
+                <Text>
+                  {` / ${community.isPublic ? t('community.public') : t('community.private')}`}
+                </Text>
+              )}
             </Text>
           </View>
         }

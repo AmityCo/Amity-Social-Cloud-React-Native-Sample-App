@@ -23,6 +23,10 @@
     "add_user_description_placeholder": "Enter Description",
     "add_user_display_name_placeholder": "Enter Display Name"
   },
+  "community": {
+    "public": "Public",
+    "private": "Private"
+  },
   "posts": {
     "feed_type": "Target Type",
     "feed_type_normal": "User Feed",
