@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
-import { View, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { View, Pressable, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { VFC, useState, useEffect, useCallback } from 'react';
 import {
@@ -137,8 +137,11 @@ const CommunityItem: VFC<
       />
 
       <Card.Content>
-        <Paragraph style={styles.text}>{community?.description}</Paragraph>
+        <ScrollView style={styles.content}>
+          <Paragraph style={styles.text}>{community?.description}</Paragraph>
+        </ScrollView>
       </Card.Content>
+
       <Card.Actions
         key={`Actions_${community?.membersCount}_${community?.postsCount}`}
         style={styles.footer}

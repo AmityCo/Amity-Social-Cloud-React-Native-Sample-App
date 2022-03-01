@@ -9,17 +9,18 @@ type CardTitleProps = {
   title?: string;
   flagCount?: number;
   hashFlag?: boolean;
+  textLength?: number;
   isDeleted?: boolean;
 };
 
-const CardTitle: VFC<CardTitleProps> = ({ title, flagCount, isDeleted }) => {
+const CardTitle: VFC<CardTitleProps> = ({ title = '', flagCount, isDeleted, textLength = 25 }) => {
   const {
     colors: { error: errorColor },
   } = useTheme();
 
   return (
     <View style={styles.container}>
-      <Title style={styles.item}>{title}</Title>
+      <Title style={styles.item}>{title.substring(0, textLength)}</Title>
       {isDeleted && (
         <MaterialCommunityIcons
           size={16}

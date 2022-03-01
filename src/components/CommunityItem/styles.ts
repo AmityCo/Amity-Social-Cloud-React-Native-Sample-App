@@ -9,6 +9,7 @@ const styles = StyleSheet.create({
   subtitle: { flexDirection: 'row', width: '100%' },
   subtitleRow: { flexDirection: 'row', marginEnd: 5, justifyContent: 'center' },
   text: { marginBottom: 10 },
+  content: { maxHeight: 100 },
   footer: { justifyContent: 'space-between' },
   footerLeft: { flexDirection: 'row' },
   footerRight: { flexDirection: 'row', paddingEnd: 10 },
