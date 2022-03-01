@@ -4,8 +4,8 @@ import React, { useState, useEffect, VFC, useCallback } from 'react';
 import { createPost, getPost, updatePost, createQuery, runQuery } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
-import useCollection from 'hooks/useCollection';
 import { alertError } from 'utils/alerts';
+import useCollection from 'hooks/useCollection';
 
 import File from './File';
 import Image from './Image';

@@ -7,6 +7,7 @@ import {
   queryPosts,
   createQuery,
   runQuery,
+  observePosts,
   queryGlobalFeed,
   sortByLastCreated,
 } from '@amityco/ts-sdk';
@@ -89,24 +90,22 @@ const FeedComponent: VFC<FeedComponentType> = ({
     [feedTargetType, isDeleted, postFeedType, targetId, targetType],
   );
 
-  // useEffect(
-  //   () =>
-  //     observePosts(
-  //       { targetId, targetType },
-  //       {
-  //         onEvent: (action, post) => {
-  //           // console.log('observePosts', { action, post });
-  //           // setPosts(prevState => {
-  //           //   return { ...prevState, [post.localId]: post };
-  //           // });
-  //           // if (action === 'onCreate') {
-  //           //   flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
-  //           // }
-  //         },
-  //       },
-  //     ),
-  //   [targetId, targetType],
-  // );
+  useEffect(
+    () =>
+      observePosts(
+        { targetId, targetType },
+        {
+          onEvent: (action, post) => {
+            if (action === 'onCreate') {
+              setPosts(prevPosts => [post, ...prevPosts]);
+
+              flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
+            }
+          },
+        },
+      ),
+    [targetId, targetType],
+  );
 
   const onRefresh = useCallback(() => {
     setIsRefreshing(true);
