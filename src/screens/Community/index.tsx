@@ -1,6 +1,5 @@
-import { Pressable } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { ActivityIndicator, Surface, Text } from 'react-native-paper';
+import { ActivityIndicator, Surface } from 'react-native-paper';
 import { getCommunity, createQuery, runQuery } from '@amityco/ts-sdk';
 import React, { VFC, useState, useLayoutEffect, useEffect, useCallback } from 'react';
 
@@ -89,9 +88,9 @@ const Community: VFC = () => {
         />
       )}
 
-      <Pressable onPress={addUser}>
+      {/* <Pressable onPress={addUser}>
         <Text style={{ padding: 18 }}>addUser</Text>
-      </Pressable>
+      </Pressable> */}
 
       <Feed targetId={communityId} targetType="community" />
 

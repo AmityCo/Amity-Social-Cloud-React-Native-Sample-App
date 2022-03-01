@@ -11,8 +11,8 @@ import {
   runQuery,
   createQuery,
   observeCommunity,
-  subscribeTopic,
-  getCommunityTopic,
+  // subscribeTopic,
+  // getCommunityTopic,
 } from '@amityco/ts-sdk';
 import { Text, Card, Paragraph, Button, useTheme } from 'react-native-paper';
 
@@ -58,15 +58,15 @@ const CommunityItem: VFC<
     });
   }, [communityId]);
 
-  useEffect(() => {
-    if (!community?.path || !subscribable) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!community?.path || !subscribable) {
+  //     return;
+  //   }
 
-    // eslint-disable-next-line consistent-return
-    return subscribeTopic(getCommunityTopic(community));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [community?.path]);
+  //   // eslint-disable-next-line consistent-return
+  //   return subscribeTopic(getCommunityTopic(community));
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [community?.path]);
 
   const onToggleJoinCommunity = async () => {
     setLoading(true);
