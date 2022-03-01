@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { FlatList } from 'react-native';
 import { Surface } from 'react-native-paper';
+import { FlatList, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { VFC, useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
 import {
@@ -8,43 +8,42 @@ import {
   runQuery,
   createQuery,
   sortBySegmentNumber,
-  // observeComments,
+  observeComments,
 } from '@amityco/ts-sdk';
 
-import { Loading, Header } from 'components';
+import { Loading, Header, EmptyComponent, CommentItem } from 'components';
 
-// import useAuth from 'hooks/useAuth';
-// import getErrorMessage from 'utils/getErrorMessage';
+import getErrorMessage from 'utils/getErrorMessage';
 
-import { LoadingState, DrawerStackHeaderProps } from 'types';
+import { DrawerStackHeaderProps } from 'types';
 
 import styles from './styles';
 
 const QUERY_LIMIT = 10;
 
 const CommentsScreen: VFC = () => {
-  // const [isReply, setIsReply] = useState('');
-  // const [isEditId, setIsEditId] = useState('');
-  // const [filter] = useState<'all' | 'flagged'>('all');
-  const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
-  // const [sortBy] = useState<'displayName' | 'lastCreated' | 'firstCreated'>('lastCreated');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const [comments, setComments] = useState<Amity.Comment[]>([]);
 
-  const [{ prevPage }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>({
-    error: null,
-    nextPage: null,
-    prevPage: null,
-    loading: false,
-    origin: 'local',
-  });
+  const [{ prevPage, loading, error }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>(
+    {
+      error: null,
+      nextPage: null,
+      prevPage: null,
+      loading: false,
+      origin: 'local',
+    },
+  );
 
   const flatListRef = useRef<FlatList<Amity.Comment>>(null);
 
   const route = useRoute();
-  // const { client } = useAuth();
   const navigation = useNavigation();
-  const { postId } = route.params as { postId: Amity.Post['postId'] };
+  const { postId, parentId } = route.params as {
+    postId: Amity.Post['postId'];
+    parentId: Amity.Comment['commentId'];
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -59,74 +58,57 @@ const CommentsScreen: VFC = () => {
     async ({ reset = false, page = { limit: QUERY_LIMIT } }) => {
       const queryData: Parameters<typeof queryComments>[0] = {
         page,
+        parentId,
         referenceId: postId,
         referenceType: 'post',
       };
 
       runQuery(createQuery(queryComments, queryData), ({ data, ...metadata }) => {
-        // console.log({ data });
         if (data) {
-          // @ts-ignore
           setComments(prevComments => (reset ? data : [...prevComments, ...data]));
         }
 
         setMetadata(metadata);
+
         if (!metadata.loading) {
-          setLoading(LoadingState.NOT_LOADING);
+          setIsRefreshing(false);
         }
       });
     },
-    [postId],
+    [parentId, postId],
   );
 
-  // console.log({
-  //   comments,
-  //   client: Object.keys(client.cache?.lookup).filter(a => !a.indexOf('comment#')),
-  // });
-
-  // useEffect(
-  //   () =>
-  //     observeComments(postId, {
-  //       onEvent: (action, comment) => {
-  //         console.log(22, comment);
-  //         // if (!comment.parentId) {
-  //         //   setComments(prevState => {
-  //         //     console.log({ comment, prevState, lol: [...prevState, comment] });
-  //         //     // return { ...prevState, [comment.localId]: comment };
-  //         //   });
-
-  //         //   if (action === 'onCreate') {
-  //         //     flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
-  //         //   }
-  //         // }
-  //       },
-  //     }),
-  //   [comments, postId],
-  // );
+  useEffect(
+    () =>
+      observeComments(postId, {
+        onEvent: (action, comment) => {
+          if (parentId === comment.parentId) {
+            if (action === 'onCreate') setComments(prevState => [comment, ...prevState]);
+            if (action === 'onDelete')
+              setComments(prevState => prevState.filter(c => c.commentId !== comment.commentId));
+          }
+        },
+      }),
+    [comments, parentId, postId],
+  );
 
   useEffect(() => {
     onQueryComment({ reset: true });
   }, [onQueryComment]);
 
   const onRefresh = useCallback(() => {
-    setLoading(LoadingState.IS_REFRESHING);
+    setIsRefreshing(true);
     onQueryComment({ reset: true });
   }, [onQueryComment]);
 
   const handleLoadMore = () => {
-    // console.log({ nextPage, prevPage });
     if (prevPage) {
-      setLoading(LoadingState.IS_LOADING_MORE);
       onQueryComment({ page: prevPage });
     }
   };
 
-  // const onCloseUpdateUser = useCallback(() => {
-  //   setIsEditId('');
-  // }, []);
-
-  // const errorText = getErrorMessage(error);
-  const data = Object.values(comments).sort(sortBySegmentNumber).reverse();
+  const errorText = getErrorMessage(error);
+  const data = comments.sort(sortBySegmentNumber).reverse();
 
   return (
     <Surface style={styles.container}>
@@ -135,24 +117,20 @@ const CommentsScreen: VFC = () => {
         data={data}
         keyExtractor={user => user.commentId}
         showsVerticalScrollIndicator={false}
-        refreshing={loading === LoadingState.IS_REFRESHING}
-        ListFooterComponent={loading === LoadingState.IS_LOADING_MORE ? <Loading /> : undefined}
-        renderItem={() => (
-          <Surface style={styles.userItem}>
-            {/* <CommentItem {...item} onEdit={setIsEditId} postId={postId} onReply={setIsReply} /> */}
-          </Surface>
+        refreshing={isRefreshing}
+        ListFooterComponent={loading ? <Loading /> : undefined}
+        renderItem={({ item }) => (
+          <View style={styles.commentItem}>
+            <CommentItem {...item} postId={postId} />
+          </View>
         )}
+        ListEmptyComponent={
+          !loading ? <EmptyComponent errorText={error ? errorText : undefined} /> : null
+        }
         onRefresh={onRefresh}
         onEndReachedThreshold={0.5}
-        // ListEmptyComponent={
-        //   loading === LoadingState.NOT_LOADING ? (
-        //     <EmptyComponent errorText={error ? errorText : undefined} />
-        //   ) : null
-        // }
         onEndReached={handleLoadMore}
       />
-      {/*
-      {isEditId !== '' && <UpdateUser onClose={onCloseUpdateUser} isEditId={isEditId} />} */}
     </Surface>
   );
 };

@@ -7,14 +7,12 @@ import {
   queryComments,
   createQuery,
   runQuery,
-  // observeComments,
+  observeComments,
   sortBySegmentNumber,
 } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
 import getErrorMessage from 'utils/getErrorMessage';
-
-import { LoadingState } from 'types';
 
 import AddComment from '../AddComment';
 import CommentItem from '../CommentItem';
@@ -28,17 +26,18 @@ const Comments: VFC<{ postId: string }> = ({ postId }) => {
   const [isDeleted] = useState(false);
   const [isEdit, setIsEdit] = useState('');
   const [isReply, setIsReply] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
+  const [comments, setComments] = useState<Amity.Comment[]>([]);
 
-  const [comments, setComments] = useState<Record<string, Amity.Comment>>({});
-
-  const [{ error }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>({
-    nextPage: null,
-    prevPage: null,
-    loading: false,
-    origin: 'local',
-  });
+  const [{ error, loading, prevPage }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>(
+    {
+      prevPage: null,
+      nextPage: null,
+      loading: false,
+      origin: 'local',
+    },
+  );
 
   const flatListRef = useRef<FlatList<Amity.Comment>>(null);
 
@@ -53,56 +52,54 @@ const Comments: VFC<{ postId: string }> = ({ postId }) => {
         referenceType: 'post',
       };
 
-      runQuery(createQuery(queryComments, queryData), ({ loading: loading_, ...metadata }) => {
-        if (reset) setComments({});
-        // console.log({ page, data, loading: loading_, metadata });
-        // setComments(prevComments => ({ ...prevComments, ...data }));
+      runQuery(createQuery(queryComments, queryData), ({ data, ...metadata }) => {
+        if (data) {
+          setComments(prevComments => (reset ? data : [...prevComments, ...data]));
+        }
 
-        // @ts-ignore
         setMetadata(metadata);
 
-        if (!loading_) {
-          setLoading(LoadingState.NOT_LOADING);
+        if (!metadata.loading) {
+          setIsRefreshing(false);
         }
       });
     },
     [isDeleted, postId],
   );
 
-  // useEffect(
-  //   () =>
-  //     observeComments(postId, {
-  //       onEvent: (action, comment) => {
-  //         console.log(1, comment);
-  //         if (!comment.parentId) {
-  //           setComments(prevState => {
-  //             return { ...prevState, [comment.localId]: comment };
-  //           });
+  useEffect(
+    () =>
+      observeComments(postId, {
+        onEvent: (action, comment) => {
+          if (!comment.parentId) {
+            if (action === 'onCreate') {
+              setComments(prevState => [comment, ...prevState]);
 
-  //           if (action === 'onCreate') {
-  //             flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
-  //           }
-  //         }
-  //       },
-  //     }),
-  //   [postId],
-  // );
+              flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
+            } else if (action === 'onDelete')
+              setComments(prevState => prevState.filter(c => c.commentId !== comment.commentId));
+          }
+        },
+      }),
+    [postId],
+  );
 
   const onRefresh = useCallback(() => {
-    setLoading(LoadingState.IS_REFRESHING);
-    onQueryComment({ reset: true });
-  }, [onQueryComment]);
+    if (isRefreshing) {
+      setIsRefreshing(true);
+      onQueryComment({ reset: true });
+    }
+  }, [isRefreshing, onQueryComment]);
 
   useEffect(() => {
     onQueryComment({ reset: true });
   }, [onQueryComment]);
 
-  // const handleLoadMore = (isLoadingMore: boolean) => {
-  //   if (isLoadingMore && prevPage) {
-  //     setLoading(LoadingState.IS_LOADING_MORE);
-  //     onQueryComment({ page: prevPage });
-  //   }
-  // };
+  const handleLoadMore = () => {
+    if (prevPage) {
+      onQueryComment({ page: prevPage });
+    }
+  };
 
   const onCloseAddComment = useCallback(() => {
     setIsEdit('');
@@ -111,7 +108,7 @@ const Comments: VFC<{ postId: string }> = ({ postId }) => {
 
   const errorText = getErrorMessage(error);
 
-  const data = Object.values(comments)
+  const data = comments
     .filter(post => (!isDeleted ? !post.isDeleted : true))
     .sort(sortBySegmentNumber)
     .reverse();
@@ -133,27 +130,30 @@ const Comments: VFC<{ postId: string }> = ({ postId }) => {
         data={data}
         showsVerticalScrollIndicator={false}
         keyExtractor={comment => comment.commentId}
-        refreshing={loading === LoadingState.IS_REFRESHING}
+        refreshing={isRefreshing}
         ListEmptyComponent={
-          loading === LoadingState.NOT_LOADING ? (
-            <EmptyComponent errorText={error ? errorText : undefined} />
-          ) : null
+          loading ? <EmptyComponent errorText={error ? errorText : undefined} /> : null
         }
-        ListFooterComponent={loading === LoadingState.IS_LOADING_MORE ? <Loading /> : undefined}
-        renderItem={({ item }) => <CommentItem {...item} postId={postId} onReply={setIsReply} />}
+        ListFooterComponent={loading ? <Loading /> : undefined}
+        renderItem={({ item }) => (
+          <CommentItem
+            {...item}
+            postId={postId}
+            onEdit={setIsEdit}
+            onReply={setIsReply}
+            onPress={() => {
+              navigation.navigate('Comments', { postId, parentId: item.commentId });
+            }}
+          />
+        )}
         onRefresh={onRefresh}
-        onEndReachedThreshold={0.5}
-        // onEndReached={handleLoadMore}
       />
 
-      <Button
-        // mode="contained"
-        onPress={() => {
-          navigation.navigate('Comments', { postId });
-        }}
-      >
-        {t('comments.load_more')}
-      </Button>
+      {prevPage && (
+        <Button mode="contained" onPress={handleLoadMore}>
+          {t('load_more')}
+        </Button>
+      )}
     </View>
   );
 };

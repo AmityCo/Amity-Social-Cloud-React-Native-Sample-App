@@ -4,7 +4,7 @@ import { getPost, observeUser, runQuery, createQuery } from '@amityco/ts-sdk';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import React, { VFC, useLayoutEffect, useState, useEffect, useCallback } from 'react';
 
-import { Header, PostItem, AddPost } from 'components';
+import { Header, PostItem, AddPost, Comments } from 'components';
 
 import useAuth from 'hooks/useAuth';
 import { alertError } from 'utils/alerts';
@@ -85,7 +85,7 @@ const PostScreen: VFC = () => {
         <React.Fragment>
           <PostItem post={post} onEditPost={onEditPost} />
 
-          {/* <Comments postId={postId} /> */}
+          <Comments postId={postId} />
 
           {isEditId !== '' && (
             <AddPost

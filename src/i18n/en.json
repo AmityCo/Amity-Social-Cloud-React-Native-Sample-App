@@ -47,8 +47,7 @@
   "comments": {
     "add_comment_placeholder": "Type some comment...",
     "edit_comment": "Edit Comment",
-    "reply_to": "Reply to",
-    "load_more": "Load Comments..."
+    "reply_to": "Reply to"
   },
   "are_you_sure": "Are you sure?",
   "ok": "OK",
@@ -64,5 +63,6 @@
   "update": "Update",
   "cancel": "Cancel",
   "delete": "Delete",
+  "load_more": "Load More...",
   "no_result": "No results :("
 }
