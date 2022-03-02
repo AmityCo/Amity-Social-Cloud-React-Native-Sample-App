@@ -30,6 +30,7 @@ type FeedComponentType = {
   feedTargetType?: FeedTargetType;
   postFeedType?: PostFeedType;
   header?: ReactElement;
+  useCustomRanking?: boolean;
 };
 
 const FeedComponent: VFC<FeedComponentType> = ({
@@ -39,6 +40,7 @@ const FeedComponent: VFC<FeedComponentType> = ({
   isDeleted = false,
   feedTargetType = FeedTargetType.Normal,
   postFeedType = PostFeedType.PUBLISHED,
+  useCustomRanking = false,
 }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -60,7 +62,7 @@ const FeedComponent: VFC<FeedComponentType> = ({
 
   const onQueryPost = useCallback(
     async ({ reset = false, page = { limit: QUERY_LIMIT } }) => {
-      let query = createQuery(queryGlobalFeed, { page });
+      let query = createQuery(queryGlobalFeed, { page, useCustomRanking });
 
       if (feedTargetType === FeedTargetType.Normal) {
         const queryData = {
@@ -87,7 +89,7 @@ const FeedComponent: VFC<FeedComponentType> = ({
         }
       });
     },
-    [feedTargetType, isDeleted, postFeedType, targetId, targetType],
+    [feedTargetType, isDeleted, postFeedType, targetId, targetType, useCustomRanking],
   );
 
   useEffect(

@@ -17,6 +17,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   ellipsis: { marginHorizontal: 10 },
+  content: { maxHeight: 100 },
   text: { marginBottom: 10 },
   footer: { justifyContent: 'space-between' },
   footerLeft: { flexDirection: 'row' },

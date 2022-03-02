@@ -18,9 +18,11 @@ import { FeedTargetType } from 'types';
 import { filterDialogStyles } from './styles';
 
 type FeedScreenFilterDialogType = {
+  useCustomRanking?: boolean;
   targetFeedType: FeedTargetType;
   isDeleted: Amity.Post['isDeleted'];
   setIsDeleted: (status: boolean) => void;
+  setCustomRanking: (status: boolean) => void;
   setShowDialog: (showDialog: boolean) => void;
   setTargetFeedType: (targetFeedType: FeedTargetType) => void;
 };
@@ -30,7 +32,9 @@ const FeedScreenFilterDialog: VFC<FeedScreenFilterDialogType> = ({
   setIsDeleted,
   setShowDialog,
   targetFeedType,
+  setCustomRanking,
   setTargetFeedType,
+  useCustomRanking = false,
 }) => {
   return (
     <Portal>
@@ -77,6 +81,25 @@ const FeedScreenFilterDialog: VFC<FeedScreenFilterDialogType> = ({
                 <React.Fragment>
                   <Text>{t('posts.include_deleted')}</Text>
                   <Switch value={isDeleted} onValueChange={() => setIsDeleted(!isDeleted)} />
+                </React.Fragment>
+              </TouchableRipple>
+            </React.Fragment>
+          )}
+
+          {targetFeedType === FeedTargetType.Global && (
+            <React.Fragment>
+              <Divider style={filterDialogStyles.divider} />
+              <TouchableRipple
+                rippleColor="transparent"
+                style={[filterDialogStyles.radioArea, filterDialogStyles.includeDeletedArea]}
+                onPress={() => setCustomRanking(!useCustomRanking)}
+              >
+                <React.Fragment>
+                  <Text>{t('posts.custom_ranking')}</Text>
+                  <Switch
+                    value={useCustomRanking}
+                    onValueChange={() => setCustomRanking(!useCustomRanking)}
+                  />
                 </React.Fragment>
               </TouchableRipple>
             </React.Fragment>

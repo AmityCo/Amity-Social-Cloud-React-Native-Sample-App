@@ -35,6 +35,7 @@
     "sort_by_firstCreated": "First Created",
     "sort_by_lastCreated": "Last Created",
     "include_deleted": "Only Deleted",
+    "custom_ranking": "Custom Post Ranking",
     "commentsCount": {
       "one": "1 Comment",
       "other": "{{count}} Comments",

@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { Image, View } from 'react-native';
+import { Image, View, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import React, { VFC, useState, useEffect, useCallback } from 'react';
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -218,7 +218,9 @@ const PostItem: VFC<{ post: Amity.Post; subscribable?: boolean } & PostItemProps
       />
 
       <Card.Content>
-        <Paragraph style={styles.text}>{data.text}</Paragraph>
+        <ScrollView style={styles.content}>
+          <Paragraph style={styles.text}>{data.text}</Paragraph>
+        </ScrollView>
         {postImage?.fileUrl && postImage?.type === 'image' && (
           <Card.Cover source={{ uri: fileUrlWithSize(postImage?.fileUrl, 'medium') }} />
         )}
