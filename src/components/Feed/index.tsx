@@ -2,7 +2,7 @@
 import { FlatList } from 'react-native';
 import { Surface } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import React, { VFC, useState, useEffect, useRef, useCallback, ReactElement } from 'react';
+import React, { VFC, useState, useEffect, useRef, useCallback, ReactElement, useMemo } from 'react';
 import {
   queryPosts,
   createQuery,
@@ -136,7 +136,16 @@ const FeedComponent: VFC<FeedComponentType> = ({
   };
 
   const errorText = getErrorMessage(error);
-  const data = posts.filter(post => (!isDeleted ? !post.isDeleted : true)).sort(sortByLastCreated);
+
+  const data = useMemo(() => {
+    const allPosts = posts.filter(post => (!isDeleted ? !post.isDeleted : true));
+
+    if (!useCustomRanking) {
+      allPosts.sort(sortByLastCreated);
+    }
+
+    return allPosts;
+  }, [isDeleted, posts, useCustomRanking]);
 
   return (
     <FlatList
