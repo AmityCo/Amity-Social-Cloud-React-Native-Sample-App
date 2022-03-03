@@ -7,7 +7,6 @@ import { Button, Text, ProgressBar, useTheme } from 'react-native-paper';
 import { t } from 'i18n';
 import { uriToBlob } from 'utils';
 import { alertError } from 'utils/alerts';
-// import getErrorMessage from 'utils/getErrorMessage';
 
 import { addFileStyles } from './styles';
 
