@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
-import { View, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { View, Pressable, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { VFC, useState, useEffect, useCallback } from 'react';
 import {
@@ -11,6 +11,8 @@ import {
   runQuery,
   createQuery,
   observeCommunity,
+  // subscribeTopic,
+  // getCommunityTopic,
 } from '@amityco/ts-sdk';
 import { Text, Card, Paragraph, Button, useTheme } from 'react-native-paper';
 
@@ -25,14 +27,12 @@ import styles from './styles';
 
 export type CommunityItemProps = {
   onPress?: () => void;
-  onEditCommunity: (communityId: string) => void;
+  onEditCommunity?: (communityId: string) => void;
 };
 
-const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = ({
-  community: communityProp,
-  onPress,
-  onEditCommunity,
-}) => {
+const CommunityItem: VFC<
+  { community: Amity.Community; subscribable?: boolean; a?: string } & CommunityItemProps
+> = ({ community: communityProp, onPress, subscribable = false }) => {
   const [user, setUser] = useState<Amity.User>();
   const [loading, setLoading] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
@@ -58,6 +58,16 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
     });
   }, [communityId]);
 
+  // useEffect(() => {
+  //   if (!community?.path || !subscribable) {
+  //     return;
+  //   }
+
+  //   // eslint-disable-next-line consistent-return
+  //   return subscribeTopic(getCommunityTopic(community));
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [community?.path]);
+
   const onToggleJoinCommunity = async () => {
     setLoading(true);
     const api = community?.isJoined ? leaveCommunity : joinCommunity;
@@ -71,11 +81,11 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
     });
   };
 
-  const onEdit = () => {
-    setOpenMenu(false);
+  // const onEdit = () => {
+  //   setOpenMenu(false);
 
-    onEditCommunity(communityId);
-  };
+  //   onEditCommunity(communityId);
+  // };
 
   const onDelete = useCallback(() => {
     alertConfirmation(() => {
@@ -94,7 +104,7 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
   const communityCreateAt = format(new Date(community?.createdAt ?? createdAt), 'HH:mm, MMM d');
 
   const isUser = client.userId === userId;
-  const canEdit = isUser && onEditCommunity ? onEdit : undefined;
+  // const canEdit = isUser && onEditCommunity ? onEdit : undefined;
   const canDelete = isUser ? onDelete : undefined;
 
   return (
@@ -105,6 +115,11 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
           <View style={styles.subtitle}>
             <Text style={styles.subtitleRow}>
               {communityCreateAt} / {`${t('by')} ${user?.displayName ?? userId}`}
+              {community?.membersCount && (
+                <Text>
+                  {` / ${community.isPublic ? t('community.public') : t('community.private')}`}
+                </Text>
+              )}
             </Text>
           </View>
         }
@@ -112,8 +127,8 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
           !community?.isDeleted ? (
             <HeaderMenu
               size={size}
+              // onEdit={canEdit}
               visible={openMenu}
-              onEdit={canEdit}
               onDelete={canDelete}
               onToggleMenu={() => setOpenMenu(prev => !prev)}
             />
@@ -122,21 +137,27 @@ const CommunityItem: VFC<{ community: Amity.Community } & CommunityItemProps> = 
       />
 
       <Card.Content>
-        <Paragraph style={styles.text}>{community?.description}</Paragraph>
+        <ScrollView style={styles.content}>
+          <Paragraph style={styles.text}>{community?.description}</Paragraph>
+        </ScrollView>
       </Card.Content>
-      <Card.Actions style={styles.footer}>
+
+      <Card.Actions
+        key={`Actions_${community?.membersCount}_${community?.postsCount}`}
+        style={styles.footer}
+      >
         <View style={styles.footerLeft}>
           <View style={styles.subtitleRow}>
             <MaterialCommunityIcons size={18} name="account-group" color={textColor} />
-            <Text>{community?.membersCount}</Text>
+            {!!community && <Text>{String(community?.membersCount ?? 0)}</Text>}
           </View>
           <View style={styles.subtitleRow}>
             <MaterialCommunityIcons size={18} name="note-text-outline" color={textColor} />
-            <Text>{community?.postsCount}</Text>
+            {!!community && <Text>{String(community?.postsCount ?? 0)}</Text>}
           </View>
         </View>
 
-        {!community?.isDeleted && (
+        {!community?.isDeleted && !isUser && (
           <Pressable style={styles.footerRight} onPress={onToggleJoinCommunity}>
             <Button compact mode="outlined" loading={loading} disabled={loading}>
               {community?.isJoined ? t('leave') : t('join')}

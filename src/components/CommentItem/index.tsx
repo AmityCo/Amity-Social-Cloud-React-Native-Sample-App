@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { Pressable } from 'react-native';
-import React, { VFC, useState, useEffect, useCallback } from 'react';
+import React, { VFC, useState, useEffect } from 'react';
 import { Card, Paragraph, useTheme, Text } from 'react-native-paper';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import {
@@ -9,10 +9,8 @@ import {
   removeReaction,
   addReaction,
   observeComment,
-  queryComments,
   createQuery,
   runQuery,
-  observeComments,
 } from '@amityco/ts-sdk';
 
 import useAuth from 'hooks/useAuth';
@@ -27,27 +25,25 @@ import styles from './styles';
 export type CommentProps = Amity.Comment & {
   postId: string;
   selectedComment?: string;
+  onPress?: () => void;
   onReply?: (commentId: string) => void;
-  onEdit: (commentId: string) => void;
+  onEdit?: (commentId: string) => void;
 };
 
-const QUERY_LIMIT = 10;
-
 const CommentItem: VFC<CommentProps> = ({
-  postId,
   commentId,
   createdAt,
   data,
   userId,
   onEdit,
   onReply,
+  onPress,
   parentId,
   reactions,
 }) => {
   const [user, setUser] = useState<Amity.User>();
   const [openMenu, setOpenMenu] = useState(false);
   const [comment, setComment] = useState<Amity.Comment>();
-  const [comments, setComments] = useState<Record<string, Amity.Comment>>({});
 
   const {
     colors: { text: textColor, primary: primaryColor, background: backgroundColor },
@@ -61,47 +57,10 @@ const CommentItem: VFC<CommentProps> = ({
   }, [userId]);
 
   useEffect(() => {
-    return observeComment(commentId, commentData => {
-      setComment(commentData.data);
+    return observeComment(commentId, ({ data: commentData }) => {
+      setComment(commentData);
     });
   }, [commentId]);
-
-  const onQueryComments = useCallback(async () => {
-    const queryData = {
-      postId,
-      isDeleted: false,
-      parentId: commentId,
-      page: { before: 0, limit: QUERY_LIMIT },
-    };
-
-    const query = createQuery(queryComments, queryData);
-
-    runQuery(query, ({ data: commentData }) => {
-      if (!commentData) return;
-
-      setComments(prevComments => ({ ...prevComments, ...commentData }));
-    });
-  }, [commentId, postId]);
-
-  useEffect(() => {
-    if (postId) {
-      onQueryComments();
-    }
-  }, [postId, onQueryComments]);
-
-  useEffect(
-    () =>
-      observeComments(postId, {
-        onEvent: (action, commentData) => {
-          if (commentData.parentId && commentId === commentData.parentId) {
-            setComments(prevState => {
-              return { ...prevState, [commentData.localId]: commentData };
-            });
-          }
-        },
-      }),
-    [commentId, onReply, parentId, postId],
-  );
 
   const toggleReaction = async (type: ReactionsType) => {
     const api = comment?.myReactions?.includes(type) ? removeReaction : addReaction;
@@ -112,14 +71,14 @@ const CommentItem: VFC<CommentProps> = ({
 
   const onEditComment = () => {
     setOpenMenu(false);
-    onEdit(commentId);
+    onEdit && onEdit(commentId);
   };
 
   const onDelete = () => {
     alertConfirmation(() => {
       setOpenMenu(false);
 
-      runQuery(createQuery(deleteComment, commentId), ({ error }) => {
+      runQuery(createQuery(deleteComment, commentId, true), ({ error }) => {
         if (error) {
           alertError(error);
         }
@@ -139,10 +98,11 @@ const CommentItem: VFC<CommentProps> = ({
   const canEdit = isUser && onEdit ? onEditComment : undefined;
   const canDelete = isUser ? onDelete : undefined;
 
-  const commentsData = Object.values(comments).map(cm => cm);
-
   return (
-    <Card style={[!!parentId && { backgroundColor }, !!parentId && styles.childComment]}>
+    <Card
+      style={[!!parentId && { backgroundColor }, !!parentId && styles.childComment]}
+      onPress={onPress && onPress}
+    >
       <Card.Title
         subtitle={commentCreateAt}
         title={user?.displayName}
@@ -151,7 +111,7 @@ const CommentItem: VFC<CommentProps> = ({
             key={commentId}
             size={size / 1.5}
             visible={openMenu}
-            hasFlag={comment?.flagCount > 0}
+            hasFlag={(comment?.flagCount ?? 0) > 0}
             onEdit={canEdit}
             onDelete={canDelete}
             onToggleMenu={() => setOpenMenu(prev => !prev)}
@@ -173,7 +133,9 @@ const CommentItem: VFC<CommentProps> = ({
                     : 'thumb-up-outline'
                 }
               />
-              {reactions[ReactionsType.LIKE] > 0 && <Text>{reactions[ReactionsType.LIKE]}</Text>}
+              {(comment?.reactions ?? reactions)[ReactionsType.LIKE] > 0 && (
+                <Text>{(comment?.reactions ?? reactions)[ReactionsType.LIKE]}</Text>
+              )}
             </Pressable>
             <Pressable style={styles.icon} onPress={() => toggleReaction(ReactionsType.LOVE)}>
               <MaterialCommunityIcons
@@ -185,7 +147,9 @@ const CommentItem: VFC<CommentProps> = ({
                   comment?.myReactions?.includes(ReactionsType.LOVE) ? primaryColor : textColor
                 }
               />
-              {reactions[ReactionsType.LOVE] > 0 && <Text>{reactions[ReactionsType.LOVE]}</Text>}
+              {(comment?.reactions ?? reactions)[ReactionsType.LOVE] > 0 && (
+                <Text>{(comment?.reactions ?? reactions)[ReactionsType.LOVE]}</Text>
+              )}
             </Pressable>
           </HeaderMenu>
         )}
@@ -193,17 +157,6 @@ const CommentItem: VFC<CommentProps> = ({
       <Card.Content>
         <Paragraph style={styles.text}>{comment?.data.text ?? data.text}</Paragraph>
       </Card.Content>
-      {commentsData.length > 0 &&
-        commentsData.map(cm => (
-          <CommentItem
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...cm}
-            key={cm.commentId}
-            postId={postId}
-            onEdit={onEdit}
-            onReply={onReply}
-          />
-        ))}
     </Card>
   );
 };

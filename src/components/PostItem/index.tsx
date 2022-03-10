@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { Image, View } from 'react-native';
+import { Image, View, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import React, { VFC, useState, useEffect, useCallback } from 'react';
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -18,6 +18,8 @@ import {
   createReport,
   deleteReport,
   observePost,
+  getPostTopic,
+  subscribeTopic,
 } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
@@ -36,10 +38,11 @@ export type PostItemProps = {
   onEditPost?: (postId: string) => void;
 };
 
-const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
+const PostItem: VFC<{ post: Amity.Post; subscribable?: boolean } & PostItemProps> = ({
   post: postProp,
   onEditPost,
   onPress,
+  subscribable = false,
 }) => {
   const [user, setUser] = useState<Amity.User>();
   const [file, setFile] = useState<Amity.File>();
@@ -47,8 +50,10 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
   const [flaggedByMe, setFlaggedByMe] = useState(false);
   const [postImage, setPostImage] = useState<Amity.File>();
   const [childPost, setChildPost] = useState<Amity.Post[]>([]);
-  const [postResult, setPostResult] = useState<Amity.QueryResult<Amity.Post | undefined>>({
+  const [postResult, setPostResult] = useState<Amity.Snapshot<Amity.Post | undefined>>({
     data: postProp,
+    loading: false,
+    origin: 'local',
   });
 
   const { data: post } = postResult;
@@ -80,10 +85,21 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
 
   useEffect(() => {
     return observePost(postId, updatedPost => {
+      // console.log('observePost', { updatedPost });
       checkIsReportedByMe();
       setPostResult(updatedPost);
     });
   }, [checkIsReportedByMe, postId]);
+
+  useEffect(() => {
+    if (!post?.path || !subscribable) {
+      return;
+    }
+
+    // eslint-disable-next-line consistent-return
+    return subscribeTopic(getPostTopic(post));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post?.path]);
 
   useEffect(() => {
     return observeUser(postedUserId, ({ data: updatedUser }) => {
@@ -102,7 +118,7 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
   }, [user]);
 
   useEffect(() => {
-    if (childPost[0]) {
+    if (childPost[0]?.data?.fileId) {
       return observeFile(childPost[0].data?.fileId, imgObj => setPostImage(imgObj.data));
     }
 
@@ -157,12 +173,17 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
     alertConfirmation(() => {
       setOpenMenu(false);
 
-      runQuery(createQuery(deletePost, postId), ({ data: postData, error }) => {
+      // const isPermanentDelete = !!isDeleted;
+      // console.log(1);
+
+      runQuery(createQuery(deletePost, postId, true), ({ data: postData, error }) => {
+        // console.log(2, { postData, error });
         if (postData) {
           if (!onPress) {
             navigation.goBack();
           }
         } else if (error) {
+          // console.log(3, { error });
           alertError(error);
         }
       });
@@ -197,7 +218,9 @@ const PostItem: VFC<{ post: Amity.Post } & PostItemProps> = ({
       />
 
       <Card.Content>
-        <Paragraph style={styles.text}>{data.text}</Paragraph>
+        <ScrollView style={styles.content}>
+          <Paragraph style={styles.text}>{data.text}</Paragraph>
+        </ScrollView>
         {postImage?.fileUrl && postImage?.type === 'image' && (
           <Card.Cover source={{ uri: fileUrlWithSize(postImage?.fileUrl, 'medium') }} />
         )}

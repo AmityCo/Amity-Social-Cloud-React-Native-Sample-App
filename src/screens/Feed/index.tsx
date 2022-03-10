@@ -16,6 +16,7 @@ const FeedScreen: VFC = () => {
   const [isEditId, setIsEditId] = useState('');
   const [showDialog, setShowDialog] = useState(false);
   const [showAddPost, setShowAddPost] = useState(false);
+  const [useCustomRanking, setUseCustomRanking] = React.useState(false);
   const [postFeedType] = React.useState<PostFeedType>(PostFeedType.PUBLISHED);
   const [isDeleted, setIsDeleted] = React.useState<Amity.Post['isDeleted']>(false);
   const [feedTargetType, setFeedTargetType] = React.useState<FeedTargetType>(FeedTargetType.Normal);
@@ -56,6 +57,7 @@ const FeedScreen: VFC = () => {
         targetId={targetId}
         postFeedType={postFeedType}
         feedTargetType={feedTargetType}
+        useCustomRanking={useCustomRanking}
       />
 
       {showAddPostModal && (
@@ -76,6 +78,8 @@ const FeedScreen: VFC = () => {
           setShowDialog={setShowDialog}
           targetFeedType={feedTargetType}
           setTargetFeedType={setFeedTargetType}
+          useCustomRanking={useCustomRanking}
+          setCustomRanking={setUseCustomRanking}
         />
       )}
     </Surface>

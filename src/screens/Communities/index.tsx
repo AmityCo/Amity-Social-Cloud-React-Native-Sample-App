@@ -1,33 +1,38 @@
 import { FlatList } from 'react-native';
 import { Surface } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { queryCommunities, createQuery, runQuery, sortByLastCreated } from '@amityco/ts-sdk';
-import React, { VFC, useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
+import { queryCommunities, createQuery, runQuery } from '@amityco/ts-sdk';
+import React, { VFC, useState, useLayoutEffect, useRef, useCallback, useEffect } from 'react';
 
-import { Header, CommunityItem, EmptyComponent, FAB, AddCommunity, Loading } from 'components';
+import { Header, CommunityItem, FAB, AddCommunity, Loading, EmptyComponent } from 'components';
+
+import { DrawerStackHeaderProps } from 'types';
 
 import getErrorMessage from 'utils/getErrorMessage';
 
-import { DrawerStackHeaderProps, LoadingState } from 'types';
-
 import styles from './styles';
 
-const QUERY_LIMIT = 5;
+const QUERY_LIMIT = 10;
 
 const CommunitiesScreen: VFC = () => {
   const [isEditId, setIsEditId] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [showAddCommunity, setShowAddCommunity] = useState(false);
   const [isDeleted] = React.useState<Amity.Community['isDeleted']>(false);
-  const [membership] = useState<'member' | 'notMember' | 'all'>('member');
-  const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
+  const [membership] = useState<'member' | 'notMember' | 'all'>('all');
   const [sortBy] = React.useState<'firstCreated' | 'lastCreated' | 'displayName'>('lastCreated');
 
-  const [communities, setCommunities] = useState<Record<string, Amity.Community>>({});
+  const [communities, setCommunities] = useState<Amity.Community[]>([]);
 
-  const [{ error, nextPage }, setMetadata] = useState<Amity.QueryMetadata & Amity.Pages>({
-    nextPage: null,
-    prevPage: null,
-  });
+  const [{ error, nextPage, loading }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>(
+    {
+      nextPage: null,
+      prevPage: null,
+      error: null,
+      loading: false,
+      origin: 'local',
+    },
+  );
 
   const flatListRef = useRef<FlatList<Amity.Community>>(null);
 
@@ -50,31 +55,27 @@ const CommunitiesScreen: VFC = () => {
         membership,
       };
 
-      runQuery(
-        createQuery(queryCommunities, queryData),
-        ({ data, loading: loading_, ...metadata }) => {
-          if (reset) setCommunities({});
+      runQuery(createQuery(queryCommunities, queryData), ({ data, ...metadata }) => {
+        if (data) {
+          setCommunities(prevCommunities => (reset ? data : [...prevCommunities, ...data]));
 
-          if (data) {
-            setCommunities(prevCommunities => ({ ...prevCommunities, ...data }));
+          setMetadata(metadata);
+        }
 
-            // @ts-ignore
-            setMetadata(metadata);
-          }
-
-          if (!loading_) {
-            setLoading(LoadingState.NOT_LOADING);
-          }
-        },
-      );
+        if (!metadata.loading) {
+          setIsRefreshing(false);
+        }
+      });
     },
     [isDeleted, membership, sortBy],
   );
 
   const onRefresh = useCallback(() => {
-    setLoading(LoadingState.IS_REFRESHING);
-    onQueryCommunities({ reset: true });
-  }, [onQueryCommunities]);
+    if (!isRefreshing) {
+      setIsRefreshing(true);
+      onQueryCommunities({ reset: true });
+    }
+  }, [isRefreshing, onQueryCommunities]);
 
   useEffect(() => {
     onQueryCommunities({ reset: true });
@@ -91,7 +92,6 @@ const CommunitiesScreen: VFC = () => {
 
   const handleLoadMore = () => {
     if (nextPage) {
-      setLoading(LoadingState.IS_LOADING_MORE);
       onQueryCommunities({ page: nextPage });
     }
   };
@@ -113,20 +113,18 @@ const CommunitiesScreen: VFC = () => {
   );
 
   const errorText = getErrorMessage(error);
-  const data = Object.values(communities)
-    .filter(post => (!isDeleted ? !post.isDeleted : true))
-    .sort(sortByLastCreated);
   const visibleAddCommunity = showAddCommunity || isEditId !== '';
 
   return (
     <Surface style={styles.container}>
       <FlatList
         ref={flatListRef}
-        data={data}
+        data={communities}
+        extraData={loading}
+        refreshing={isRefreshing}
         showsVerticalScrollIndicator={false}
         keyExtractor={item => item.communityId}
-        refreshing={loading === LoadingState.IS_REFRESHING}
-        ListFooterComponent={loading === LoadingState.IS_LOADING_MORE ? <Loading /> : undefined}
+        ListFooterComponent={loading ? <Loading /> : undefined}
         renderItem={({ item }) => (
           <Surface style={styles.communityItem}>
             <CommunityItem
@@ -137,9 +135,7 @@ const CommunitiesScreen: VFC = () => {
           </Surface>
         )}
         ListEmptyComponent={
-          loading === LoadingState.NOT_LOADING ? (
-            <EmptyComponent errorText={error ? errorText : undefined} />
-          ) : null
+          !loading ? <EmptyComponent errorText={error ? errorText : undefined} /> : null
         }
         onRefresh={onRefresh}
         onEndReached={handleLoadMore}

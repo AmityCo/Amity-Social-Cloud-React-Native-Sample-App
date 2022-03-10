@@ -19,7 +19,7 @@ import styles from './styles';
 export type AddCommunityType = {
   isEditId: string;
   onClose: () => void;
-  onAddCommunity: () => void;
+  onAddCommunity?: () => void;
 };
 
 const AddCommunity: VFC<AddCommunityType> = ({ onClose, onAddCommunity, isEditId }) => {
@@ -78,7 +78,9 @@ const AddCommunity: VFC<AddCommunityType> = ({ onClose, onAddCommunity, isEditId
         setLoading(!!loading_);
 
         if (communityData) {
-          onAddCommunity();
+          if (onAddCommunity) {
+            onAddCommunity();
+          }
         } else if (error) {
           alertError(error, () => {
             onClose();

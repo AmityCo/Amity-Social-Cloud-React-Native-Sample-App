@@ -4,8 +4,8 @@ import React, { useState, useEffect, VFC, useCallback } from 'react';
 import { createPost, getPost, updatePost, createQuery, runQuery } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
-import useCollection from 'hooks/useCollection';
 import { alertError } from 'utils/alerts';
+import useCollection from 'hooks/useCollection';
 
 import File from './File';
 import Image from './Image';
@@ -88,9 +88,9 @@ const AddPost: VFC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) 
       };
 
       if (images.length) {
-        data.data.images = images.map(({ fileId }) => fileId);
+        data.attachments = images.map(({ fileId }) => ({ type: 'image', fileId }));
       } else if (files.length) {
-        data.data.files = files.map(({ fileId }) => fileId);
+        data.attachments = files.map(({ fileId }) => ({ type: 'file', fileId }));
       }
 
       runQuery(createQuery(createPost, data), ({ data: postData, error, loading: loading_ }) => {

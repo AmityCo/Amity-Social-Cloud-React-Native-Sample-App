@@ -2,7 +2,7 @@
 import { FlatList } from 'react-native';
 import { Surface } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import React, { VFC, useState, useEffect, useRef, useCallback, ReactElement } from 'react';
+import React, { VFC, useState, useEffect, useRef, useCallback, ReactElement, useMemo } from 'react';
 import {
   queryPosts,
   createQuery,
@@ -13,7 +13,7 @@ import {
 } from '@amityco/ts-sdk';
 
 import getErrorMessage from 'utils/getErrorMessage';
-import { LoadingState, PostFeedType, FeedTargetType } from 'types';
+import { PostFeedType, FeedTargetType } from 'types';
 
 import Loading from '../Loading';
 import PostItem from '../PostItem';
@@ -24,12 +24,13 @@ import styles from './styles';
 const QUERY_LIMIT = 10;
 
 type FeedComponentType = {
-  targetId?: string;
-  targetType?: string;
+  targetId: string;
+  targetType: string;
   isDeleted?: boolean;
   feedTargetType?: FeedTargetType;
   postFeedType?: PostFeedType;
   header?: ReactElement;
+  useCustomRanking?: boolean;
 };
 
 const FeedComponent: VFC<FeedComponentType> = ({
@@ -39,15 +40,21 @@ const FeedComponent: VFC<FeedComponentType> = ({
   isDeleted = false,
   feedTargetType = FeedTargetType.Normal,
   postFeedType = PostFeedType.PUBLISHED,
+  useCustomRanking = false,
 }) => {
-  const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const [posts, setPosts] = useState<Record<string, Amity.Post>>({});
+  const [posts, setPosts] = useState<Amity.Post[]>([]);
 
-  const [{ error, nextPage }, setMetadata] = useState<Amity.QueryMetadata & Amity.Pages>({
-    nextPage: null,
-    prevPage: null,
-  });
+  const [{ nextPage, error, loading }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>(
+    {
+      error: null,
+      nextPage: null,
+      prevPage: null,
+      loading: false,
+      origin: 'local',
+    },
+  );
 
   const flatListRef = useRef<FlatList<Amity.Post>>(null);
 
@@ -55,70 +62,66 @@ const FeedComponent: VFC<FeedComponentType> = ({
 
   const onQueryPost = useCallback(
     async ({ reset = false, page = { limit: QUERY_LIMIT } }) => {
-      let query = createQuery(queryGlobalFeed, { page });
+      let query = createQuery(queryGlobalFeed, { page, useCustomRanking });
 
       if (feedTargetType === FeedTargetType.Normal) {
         const queryData = {
           page,
-          targetId,
           isDeleted,
           targetType,
+          targetId,
           feedType: postFeedType,
         };
 
+        // @ts-ignore
         query = createQuery(queryPosts, queryData);
       }
 
-      runQuery(query, ({ data, loading: loading_, ...metadata }) => {
-        if (reset) setPosts({});
+      runQuery(query, ({ data, ...metadata }) => {
+        if (data) {
+          setPosts(prevPosts => (reset ? data : [...prevPosts, ...data]));
+        }
 
-        setPosts(prevPosts => ({ ...prevPosts, ...data }));
-
-        // @ts-ignore
         setMetadata(metadata);
 
-        if (!loading_) {
-          setLoading(LoadingState.NOT_LOADING);
+        if (metadata?.loading === false) {
+          setIsRefreshing(false);
         }
       });
     },
-    [feedTargetType, isDeleted, postFeedType, targetId, targetType],
+    [feedTargetType, isDeleted, postFeedType, targetId, targetType, useCustomRanking],
   );
 
-  useEffect(() => {
-    if (!targetId || !targetType) {
-      return () => {
-        //
-      };
-    }
+  useEffect(
+    () =>
+      observePosts(
+        { targetId, targetType },
+        {
+          onEvent: (action, post) => {
+            if (action === 'onCreate') {
+              setPosts(prevPosts => [post, ...prevPosts]);
 
-    return observePosts(
-      { targetId, targetType },
-      {
-        onEvent: (action, post) => {
-          setPosts(prevState => {
-            return { ...prevState, [post.localId]: post };
-          });
-
-          if (action === 'onCreate') {
-            flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
-          }
+              flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
+            }
+          },
         },
-      },
-    );
-  }, [targetId, targetType]);
+      ),
+    [targetId, targetType],
+  );
 
   const onRefresh = useCallback(() => {
-    setLoading(LoadingState.IS_REFRESHING);
-    onQueryPost({ reset: true });
-  }, [onQueryPost]);
+    if (!isRefreshing) {
+      setIsRefreshing(true);
+      onQueryPost({ reset: true });
+    }
+  }, [isRefreshing, onQueryPost]);
 
   useEffect(() => {
     onQueryPost({ reset: true });
   }, [onQueryPost]);
 
   useEffect(() => {
-    const unsubscribe = navigation?.dangerouslyGetParent()?.addListener('tabPress', () => {
+    const unsubscribe = navigation?.getParent()?.addListener('tabPress', () => {
       onRefresh();
       flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
     });
@@ -128,15 +131,21 @@ const FeedComponent: VFC<FeedComponentType> = ({
 
   const handleLoadMore = () => {
     if (nextPage) {
-      setLoading(LoadingState.IS_LOADING_MORE);
       onQueryPost({ page: nextPage });
     }
   };
 
   const errorText = getErrorMessage(error);
-  const data = Object.values(posts)
-    .filter(post => (!isDeleted ? !post.isDeleted : true))
-    .sort(sortByLastCreated);
+
+  const data = useMemo(() => {
+    const allPosts = posts.filter(post => (!isDeleted ? !post.isDeleted : true));
+
+    if (!useCustomRanking) {
+      allPosts.sort(sortByLastCreated);
+    }
+
+    return allPosts;
+  }, [isDeleted, posts, useCustomRanking]);
 
   return (
     <FlatList
@@ -145,12 +154,10 @@ const FeedComponent: VFC<FeedComponentType> = ({
       ListHeaderComponent={header}
       keyExtractor={post => post.postId}
       showsVerticalScrollIndicator={false}
-      refreshing={loading === LoadingState.IS_REFRESHING}
-      ListFooterComponent={loading === LoadingState.IS_LOADING_MORE ? <Loading /> : undefined}
+      refreshing={isRefreshing}
+      ListFooterComponent={loading ? <Loading /> : undefined}
       ListEmptyComponent={
-        loading === LoadingState.NOT_LOADING ? (
-          <EmptyComponent errorText={error ? errorText : undefined} />
-        ) : null
+        loading ? <EmptyComponent errorText={error ? errorText : undefined} /> : null
       }
       renderItem={({ item }) => (
         <Surface style={styles.postItem}>

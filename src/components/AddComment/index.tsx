@@ -1,4 +1,5 @@
 import { Button } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { VFC, useState, useEffect, useRef, useCallback } from 'react';
 import {
@@ -44,6 +45,8 @@ const AddComment: VFC<AddCommentType> = ({
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<Amity.User>();
   const textInputRef = useRef<TextInputType>(null);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (isReply !== '' && parentUserId) {
@@ -102,7 +105,8 @@ const AddComment: VFC<AddCommentType> = ({
     } else {
       const createCommentRequest: Parameters<typeof createComment>[0] = {
         data: { text },
-        postId,
+        referenceId: postId,
+        referenceType: 'post',
       };
 
       if (isReply !== '') {
@@ -116,6 +120,10 @@ const AddComment: VFC<AddCommentType> = ({
         if (data) {
           setText('');
           onRefresh();
+
+          if (isReply !== '') {
+            navigation.navigate('Comments', { postId, parentId: isReply });
+          }
         } else if (error) {
           alertError(error);
         }

@@ -44,13 +44,12 @@ const AddPostFile: VFC<AddPostFileProps> = ({ onAddFile }) => {
         const data = new FormData();
 
         data.append('file', fileObject);
-        data.getAll = data.getParts;
 
         runQuery(createQuery(createFile, data, onProgress), ({ data: fileData, error }) => {
           onProgress(0);
 
           if (fileData) {
-            onAddFile(fileData[0]);
+            onAddFile(fileData);
 
             Alert.alert('file successfully uploaded!');
           } else if (error) {

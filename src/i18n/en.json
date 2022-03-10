@@ -23,6 +23,10 @@
     "add_user_description_placeholder": "Enter Description",
     "add_user_display_name_placeholder": "Enter Display Name"
   },
+  "community": {
+    "public": "Public",
+    "private": "Private"
+  },
   "posts": {
     "feed_type": "Target Type",
     "feed_type_normal": "User Feed",
@@ -31,6 +35,7 @@
     "sort_by_firstCreated": "First Created",
     "sort_by_lastCreated": "Last Created",
     "include_deleted": "Only Deleted",
+    "custom_ranking": "Custom Post Ranking",
     "commentsCount": {
       "one": "1 Comment",
       "other": "{{count}} Comments",
@@ -59,5 +64,6 @@
   "update": "Update",
   "cancel": "Cancel",
   "delete": "Delete",
+  "load_more": "Load More...",
   "no_result": "No results :("
 }

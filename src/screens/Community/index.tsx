@@ -1,9 +1,9 @@
-import { ActivityIndicator, Surface } from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { ActivityIndicator, Surface } from 'react-native-paper';
 import { getCommunity, createQuery, runQuery } from '@amityco/ts-sdk';
 import React, { VFC, useState, useLayoutEffect, useEffect, useCallback } from 'react';
 
-import { Header, CommunityItem, AddPost, FAB, Feed } from 'components';
+import { Header, CommunityItem, AddPost, FAB, AddCommunity, Feed } from 'components';
 
 import { alertError } from 'utils/alerts';
 
@@ -12,7 +12,7 @@ import { DrawerStackHeaderProps } from 'types';
 import styles from './styles';
 
 const Community: VFC = () => {
-  // const [isEditId, setIsEditId] = useState('');
+  const [isEditId, setIsEditId] = useState('');
   const [loading, setLoading] = useState(false);
   const [showAddPost, setShowAddPost] = useState(false);
   const [community, setCommunity] = useState<Amity.Community>();
@@ -25,7 +25,7 @@ const Community: VFC = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: displayName || 'Commuity',
+      headerTitle: displayName || 'Community',
       header: ({ scene, previous, navigation: nav }: DrawerStackHeaderProps) => (
         <Header scene={scene} navigation={nav} previous={previous} />
       ),
@@ -54,6 +54,13 @@ const Community: VFC = () => {
     });
   }, [communityId, navigation]);
 
+  const addUser = useCallback(async () => {
+    // const query = createQuery(removeCommunityMembers, communityId, ['Noor']);
+    // runQuery(query, data => {
+    //   console.log({ data });
+    // });
+  }, []);
+
   useEffect(() => {
     getCurrentCommunity();
   }, [communityId, getCurrentCommunity]);
@@ -63,18 +70,26 @@ const Community: VFC = () => {
   }, []);
 
   const onEditCommunity = useCallback(() => {
-    // setIsEditId(id);
-  }, []);
+    if (community?.communityId) {
+      setIsEditId(community.communityId);
+    }
+  }, [community]);
 
   return (
     <Surface style={styles.container}>
       {loading || !community?.communityId ? (
         <ActivityIndicator style={styles.loading} />
       ) : (
-        <CommunityItem community={community} onEditCommunity={onEditCommunity} />
+        <CommunityItem community={community} subscribable onEditCommunity={onEditCommunity} />
       )}
 
+      {/* <Pressable onPress={addUser}>
+        <Text style={{ padding: 18 }}>addUser</Text>
+      </Pressable> */}
+
       <Feed targetId={communityId} targetType="community" />
+
+      {isEditId !== '' && <AddCommunity isEditId={isEditId} onClose={() => setIsEditId('')} />}
 
       {showAddPost && (
         <AddPost

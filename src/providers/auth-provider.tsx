@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import * as Updates from 'expo-updates';
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useState } from 'react';
+import { Alert } from 'react-native';
 import {
   createClient,
   connectClient,
@@ -8,12 +8,13 @@ import {
   disconnectClient,
   enableCache,
 } from '@amityco/ts-sdk';
+import Constants from 'expo-constants';
 
 import getErrorMessage from 'utils/getErrorMessage';
 
 import { AuthContextInterface } from 'types';
 
-const client = createClient('b3bee858328ef4344a308e4a5a091688d05fdee2be353a2b', 'staging');
+const client = createClient(Constants.manifest?.extra?.apiKey || '', 'staging');
 enableCache();
 
 export const AuthContext = React.createContext<AuthContextInterface>({
@@ -46,9 +47,15 @@ export const AuthContextProvider: FC = ({ children }) => {
 
   // TODO
   const logout = async () => {
-    await disconnectClient();
+    try {
+      await disconnectClient();
+    } catch (e) {
+      const errorText = getErrorMessage(e);
 
-    Updates.reloadAsync();
+      Alert.alert(errorText);
+    }
+
+    // Updates.reloadAsync();
   };
 
   return (

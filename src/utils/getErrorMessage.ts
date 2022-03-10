@@ -1,6 +1,6 @@
-import { AxiosError } from 'axios';
+// import { AxiosError } from 'axios';
 
-const getErrorMessage = (error: Error | AxiosError | undefined): string => {
+const getErrorMessage = (error: Error | undefined): string => {
   return error?.message ?? 'Error while handling request!';
 };
 

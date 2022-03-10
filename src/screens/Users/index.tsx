@@ -1,7 +1,7 @@
 import { FlatList } from 'react-native';
 import { useDebounce } from 'use-debounce';
 import { useNavigation } from '@react-navigation/native';
-import { Surface, Searchbar as SearchBar } from 'react-native-paper';
+import { Surface } from 'react-native-paper';
 import { queryUsers, runQuery, createQuery, sortByLastCreated } from '@amityco/ts-sdk';
 import React, { VFC, useState, useLayoutEffect, useEffect, useRef, useCallback } from 'react';
 
@@ -22,14 +22,17 @@ const UserListScreen: VFC = () => {
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
   const [sortBy] = useState<'displayName' | 'lastCreated' | 'firstCreated'>('lastCreated');
 
-  const [users, setUsers] = useState<Record<string, Amity.User>>({});
+  // const [{ data: users }, setData] = useState<Amity.Snapshot<Amity.User>>({});
+  const [users, setUsers] = useState<Amity.User[]>([]);
 
-  const [{ error, nextPage }, setMetadata] = useState<Amity.QueryMetadata & Amity.Pages>({
+  const [{ error, nextPage }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>({
     nextPage: null,
     prevPage: null,
+    loading: false,
+    origin: 'local',
   });
 
-  const [searchText, setSearchText] = useState('');
+  const [searchText] = useState('Fifa'); // , setSearchText
   const [debouncedDisplayName] = useDebounce(searchText, 1000);
 
   const flatListRef = useRef<FlatList<Amity.User>>(null);
@@ -56,15 +59,15 @@ const UserListScreen: VFC = () => {
         displayName: debouncedDisplayName,
       };
 
-      runQuery(createQuery(queryUsers, queryData), ({ data, loading: loading_, ...metadata }) => {
-        if (reset) setUsers({});
+      // let uniqueObjArray = [...new Map(objArray.map((item) => [item["id"], item])).values()];
+      runQuery(createQuery(queryUsers, queryData), ({ data, ...metadata }) => {
+        if (data) {
+          setUsers(prevUsers => (reset ? data : [...prevUsers, ...data]));
+        }
+        // console.log({ data, metadata });
+        setMetadata({ ...metadata });
 
-        setUsers(prevUsers => ({ ...prevUsers, ...data }));
-
-        // @ts-ignore
-        setMetadata(metadata);
-
-        if (!loading_) {
+        if (metadata?.loading === false) {
           setLoading(LoadingState.NOT_LOADING);
         }
       });
@@ -82,7 +85,7 @@ const UserListScreen: VFC = () => {
   }, [onQueryUsers]);
 
   useEffect(() => {
-    const unsubscribe = navigation?.dangerouslyGetParent()?.addListener('tabPress', () => {
+    const unsubscribe = navigation?.getParent()?.addListener('tabPress', () => {
       onRefresh();
       flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
     });
@@ -109,16 +112,17 @@ const UserListScreen: VFC = () => {
   );
 
   const errorText = getErrorMessage(error);
-  const data = Object.values(users).sort(sortByLastCreated);
+  const data = users.sort(sortByLastCreated);
+
+  // console.log({ users, data });
 
   return (
     <Surface style={styles.container}>
-      <SearchBar
+      {/* <SearchBar
         placeholder="Search"
         value={searchText}
         style={styles.searchBar}
-        onChangeText={setSearchText}
-      />
+      /> */}
 
       <FlatList
         ref={flatListRef}

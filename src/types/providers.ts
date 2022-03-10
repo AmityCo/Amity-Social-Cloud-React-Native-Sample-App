@@ -1,5 +1,5 @@
 import { connectClient } from '@amityco/ts-sdk';
-import { ColorSchemeName } from 'react-native-appearance';
+import { ColorSchemeName } from 'react-native';
 
 type LoginFormData = Parameters<typeof connectClient>[0];
 

@@ -1,5 +1,5 @@
 import { ActivityIndicator, useTheme } from 'react-native-paper';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { getPost, observeUser, runQuery, createQuery } from '@amityco/ts-sdk';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import React, { VFC, useLayoutEffect, useState, useEffect, useCallback } from 'react';
@@ -16,7 +16,7 @@ import styles from './styles';
 const PostScreen: VFC = () => {
   const [isEditId, setIsEditId] = useState('');
   const [post, setPost] = useState<Amity.Post>();
-  const [user, setUser] = useState<Amity.User | undefined>();
+  const [user, setUser] = useState<Amity.User>();
 
   const route = useRoute();
   const { client } = useAuth();
@@ -30,8 +30,8 @@ const PostScreen: VFC = () => {
   } = route.params as { post: Amity.Post };
 
   useEffect(() => {
-    return observeUser(postedUserId, ({ data: updatedUser }) => {
-      setUser(updatedUser);
+    return observeUser(postedUserId, ({ data }) => {
+      setUser(data);
     });
   }, [postedUserId]);
 
@@ -53,11 +53,11 @@ const PostScreen: VFC = () => {
 
   useEffect(() => {
     getCurrentPost();
-  }, [getCurrentPost, postId]);
+  }, [getCurrentPost]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: user?.data?.displayName ? `${user.data.displayName}'s Post` : 'Post',
+      headerTitle: user?.displayName ? `${user.displayName}'s Post` : 'Post',
       header: ({ scene, previous, navigation: nav }: DrawerStackHeaderProps) => (
         <Header scene={scene} navigation={nav} previous={previous} />
       ),
@@ -69,8 +69,8 @@ const PostScreen: VFC = () => {
   }, []);
 
   const onEditPost = useCallback(() => {
-    setIsEditId(postId);
-  }, [postId]);
+    // setIsEditId(postId);
+  }, []);
 
   const targetId = client.userId ?? '';
 
