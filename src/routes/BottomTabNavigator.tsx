@@ -1,4 +1,5 @@
 import React, { VFC } from 'react';
+import { View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -21,27 +22,33 @@ const Tab = createMaterialBottomTabNavigator();
 
 const FeedNavigator: VFC = () => {
   return (
-    <Stack.Navigator headerMode="screen" initialRouteName="Feed">
-      <Stack.Screen name="Feed" component={FeedScreen} />
-    </Stack.Navigator>
+    <View style={{ flex: 1 }} collapsable={false}>
+      <Stack.Navigator headerMode="screen" initialRouteName="Feed">
+        <Stack.Screen name="Feed" component={FeedScreen} />
+      </Stack.Navigator>
+    </View>
   );
 };
 
 const UsersNavigator: VFC = () => {
   return (
-    <Stack.Navigator headerMode="screen" initialRouteName="UserList">
-      <Stack.Screen name="Users" component={UsersScreen} />
-      <Stack.Screen name="User" component={UserScreen} />
-    </Stack.Navigator>
+    <View style={{ flex: 1 }} collapsable={false}>
+      <Stack.Navigator headerMode="screen" initialRouteName="UserList">
+        <Stack.Screen name="Users" component={UsersScreen} />
+        <Stack.Screen name="User" component={UserScreen} />
+      </Stack.Navigator>
+    </View>
   );
 };
 
 const CommunitiesNavigator: VFC = () => {
   return (
-    <Stack.Navigator headerMode="screen" initialRouteName="Communities">
-      <Stack.Screen name="Communities" component={CommunitiesScreen} />
-      <Stack.Screen name="Community" component={CommunityScreen} />
-    </Stack.Navigator>
+    <View style={{ flex: 1 }} collapsable={false}>
+      <Stack.Navigator headerMode="screen" initialRouteName="Communities">
+        <Stack.Screen name="Communities" component={CommunitiesScreen} />
+        <Stack.Screen name="Community" component={CommunityScreen} />
+      </Stack.Navigator>
+    </View>
   );
 };
 
