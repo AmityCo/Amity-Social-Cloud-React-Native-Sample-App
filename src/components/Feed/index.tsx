@@ -45,22 +45,16 @@ const FeedComponent: VFC<FeedComponentType> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const [posts, setPosts] = useState<Amity.Post[]>([]);
+  const [options, setOptions] =
+    useState<Amity.RunQueryOptions<typeof queryPosts | typeof queryGlobalFeed>>();
 
-  const [{ nextPage, error, loading }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>(
-    {
-      error: null,
-      nextPage: null,
-      prevPage: null,
-      loading: false,
-      origin: 'local',
-    },
-  );
+  const { loading, nextPage, error } = options ?? {};
 
   const flatListRef = useRef<FlatList<Amity.Post>>(null);
 
   const navigation = useNavigation();
 
-  const onQueryPost = useCallback(
+  const onQueryPosts = useCallback(
     async ({ reset = false, page = { limit: QUERY_LIMIT } }) => {
       let query = createQuery(queryGlobalFeed, { page, useCustomRanking });
 
@@ -82,7 +76,7 @@ const FeedComponent: VFC<FeedComponentType> = ({
           setPosts(prevPosts => (reset ? data : [...prevPosts, ...data]));
         }
 
-        setMetadata(metadata);
+        setOptions(metadata);
 
         if (metadata?.loading === false) {
           setIsRefreshing(false);
@@ -91,6 +85,12 @@ const FeedComponent: VFC<FeedComponentType> = ({
     },
     [feedTargetType, isDeleted, postFeedType, targetId, targetType, useCustomRanking],
   );
+
+  const handleLoadMore = () => {
+    if (nextPage) {
+      onQueryPosts({ page: nextPage });
+    }
+  };
 
   useEffect(
     () =>
@@ -103,6 +103,7 @@ const FeedComponent: VFC<FeedComponentType> = ({
 
               flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
             }
+            // list of actions : ...
           },
         },
       ),
@@ -112,15 +113,16 @@ const FeedComponent: VFC<FeedComponentType> = ({
   const onRefresh = useCallback(() => {
     if (!isRefreshing) {
       setIsRefreshing(true);
-      onQueryPost({ reset: true });
+      onQueryPosts({ reset: true });
     }
-  }, [isRefreshing, onQueryPost]);
+  }, [isRefreshing, onQueryPosts]);
 
   useEffect(() => {
-    onQueryPost({ reset: true });
-  }, [onQueryPost]);
+    onQueryPosts({ reset: true });
+  }, [onQueryPosts]);
 
   useEffect(() => {
+    // @ts-ignore
     const unsubscribe = navigation?.getParent()?.addListener('tabPress', () => {
       onRefresh();
       flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
@@ -129,23 +131,17 @@ const FeedComponent: VFC<FeedComponentType> = ({
     return unsubscribe;
   }, [navigation, onRefresh]);
 
-  const handleLoadMore = () => {
-    if (nextPage) {
-      onQueryPost({ page: nextPage });
-    }
-  };
-
   const errorText = getErrorMessage(error);
 
   const data = useMemo(() => {
     const allPosts = posts.filter(post => (!isDeleted ? !post.isDeleted : true));
 
-    if (!useCustomRanking) {
+    if (feedTargetType === FeedTargetType.Normal) {
       allPosts.sort(sortByLastCreated);
     }
 
     return allPosts;
-  }, [isDeleted, posts, useCustomRanking]);
+  }, [feedTargetType, isDeleted, posts]);
 
   return (
     <FlatList
