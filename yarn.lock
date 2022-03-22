@@ -9,10 +9,10 @@
   dependencies:
     eslint-plugin-import "^2.25.2"
 
-"@amityco/ts-sdk@^0.0.1-beta.14":
-  version "0.0.1-beta.14"
-  resolved "https://registry.yarnpkg.com/@amityco/ts-sdk/-/ts-sdk-0.0.1-beta.14.tgz#50579979043dfa3ee58fca1792a9549156a48514"
-  integrity sha512-1gtHv2mNjgy4MdaOg9pRXZrOYqSmjDPOIwG4mb5ciEqK/JtSK36nn/q4X71gipjs64VI8YjAKzBVKkxuC2lhHg==
+"@amityco/ts-sdk@^0.0.1-beta.16":
+  version "0.0.1-beta.16"
+  resolved "https://registry.yarnpkg.com/@amityco/ts-sdk/-/ts-sdk-0.0.1-beta.16.tgz#ff594720c221dcffce9f676ca85533b40f2097fb"
+  integrity sha512-gJ7THWi7ar2MrTJ/SVmZ3IKYtSzyQ8mRIm7W2l6AeO8PaDIyBBSAq82GT9VJsSjNNlj/ssQUwVhFaydr/BPDSw==
   dependencies:
     "@react-native-async-storage/async-storage" "^1.15.5"
     agentkeepalive "^4.1.3"
