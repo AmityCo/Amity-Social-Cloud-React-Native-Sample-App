@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { Surface } from 'react-native-paper';
+import { Surface, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import React, { VFC, useLayoutEffect } from 'react';
 
@@ -22,7 +22,9 @@ const ChatScreen: VFC = () => {
 
   return (
     <Surface style={styles.container}>
-      <View />
+      <View>
+        <Text>Soon...</Text>
+      </View>
     </Surface>
   );
 };

@@ -7,26 +7,24 @@ import React, { VFC, useState, useEffect, useLayoutEffect, useRef, useCallback }
 
 import { Header, ChannelItem, EmptyComponent, Loading } from 'components';
 
-import getErrorMessage from 'utils/getErrorMessage';
-
 import { DrawerStackHeaderProps, LoadingState } from 'types';
+
+import getErrorMessage from 'utils/getErrorMessage';
 
 import styles from './styles';
 
 const QUERY_LIMIT = 10;
 
 const ChannelsScreens: VFC = () => {
-  const [isDeleted] = React.useState<Amity.Channel['isDeleted']>(false);
+  const [isDeleted] = useState<Amity.Channel['isDeleted']>(false);
   const [membership] = useState<'member' | 'notMember' | 'all'>('all');
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
-  const [sortBy] = React.useState<'firstCreated' | 'lastCreated' | 'displayName'>('lastCreated');
+  const [sortBy] = useState<'firstCreated' | 'lastCreated' | 'displayName'>('lastCreated');
 
-  const [channels, setChannels] = useState<Record<string, Amity.Channel>>({});
+  const [channels, setChannels] = useState<Amity.Channel[]>([]);
 
-  const [{ error, nextPage }, setMetadata] = useState<Amity.QueryMetadata & Amity.Pages>({
-    nextPage: null,
-    prevPage: null,
-  });
+  const [options, setOptions] = useState<Amity.SnapshotOptions & Amity.Pages<Amity.Page>>();
+  const { nextPage, error } = options ?? {};
 
   const [searchText, setSearchText] = useState('');
   const [debouncedDisplayName] = useDebounce(searchText, 1000);
@@ -52,22 +50,17 @@ const ChannelsScreens: VFC = () => {
         displayName: debouncedDisplayName,
       };
 
-      runQuery(
-        createQuery(queryChannels, queryData),
-        ({ data, loading: loading_, ...metadata }) => {
-          if (reset) setChannels({});
-          if (data) {
-            setChannels(prevChannels => ({ ...prevChannels, ...data }));
+      runQuery(createQuery(queryChannels, queryData), ({ data, ...metadata }) => {
+        if (data) {
+          setChannels(prevChannels => (reset ? data : [...prevChannels, ...data]));
 
-            // @ts-ignore
-            setMetadata(metadata);
-          }
+          setOptions(metadata);
+        }
 
-          if (!loading_) {
-            setLoading(LoadingState.NOT_LOADING);
-          }
-        },
-      );
+        if (!metadata.loading) {
+          setLoading(LoadingState.NOT_LOADING);
+        }
+      });
     },
     [debouncedDisplayName, membership, sortBy],
   );
@@ -104,25 +97,23 @@ const ChannelsScreens: VFC = () => {
     [navigation],
   );
 
+  const data = channels.filter(post => (!isDeleted ? !post.isDeleted : true));
+
   const errorText = getErrorMessage(error);
-  const data = Object.values(channels)
-    .filter(post => (!isDeleted ? !post.isDeleted : true))
-    .sort(sortByLastCreated);
 
   return (
     <Surface style={styles.container}>
       <SearchBar
-        placeholder="Search"
-        onChangeText={setSearchText}
         value={searchText}
+        placeholder="Search"
+        autoComplete={false}
         style={styles.searchBar}
+        onChangeText={setSearchText}
       />
 
       <FlatList
-        data={data}
         ref={flatListRef}
-        onRefresh={onRefresh}
-        onEndReached={handleLoadMore}
+        data={data}
         showsVerticalScrollIndicator={false}
         keyExtractor={item => item.channelId}
         refreshing={loading === LoadingState.IS_REFRESHING}
@@ -137,6 +128,8 @@ const ChannelsScreens: VFC = () => {
             <EmptyComponent errorText={error ? errorText : undefined} />
           ) : null
         }
+        onRefresh={onRefresh}
+        onEndReached={handleLoadMore}
       />
     </Surface>
   );
