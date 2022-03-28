@@ -11,8 +11,6 @@ import {
   runQuery,
   createQuery,
   observeCommunity,
-  // subscribeTopic,
-  // getCommunityTopic,
 } from '@amityco/ts-sdk';
 import { Text, Card, Paragraph, Button, useTheme } from 'react-native-paper';
 

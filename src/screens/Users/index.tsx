@@ -1,8 +1,8 @@
 import { FlatList } from 'react-native';
 import { useDebounce } from 'use-debounce';
+import { Surface, Searchbar as SearchBar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { Surface } from 'react-native-paper';
-import { queryUsers, runQuery, createQuery, sortByLastCreated } from '@amityco/ts-sdk';
+import { queryUsers, runQuery, createQuery } from '@amityco/ts-sdk';
 import React, { VFC, useState, useLayoutEffect, useEffect, useRef, useCallback } from 'react';
 
 import { Header, EmptyComponent, UserItem, UpdateUser, Loading } from 'components';
@@ -22,17 +22,12 @@ const UserListScreen: VFC = () => {
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
   const [sortBy] = useState<'displayName' | 'lastCreated' | 'firstCreated'>('lastCreated');
 
-  // const [{ data: users }, setData] = useState<Amity.Snapshot<Amity.User>>({});
   const [users, setUsers] = useState<Amity.User[]>([]);
 
-  const [{ error, nextPage }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>({
-    nextPage: null,
-    prevPage: null,
-    loading: false,
-    origin: 'local',
-  });
+  const [options, setOptions] = useState<Amity.SnapshotOptions & Amity.Pages<Amity.Page>>();
+  const { nextPage, error } = options ?? {};
 
-  const [searchText] = useState('Fifa'); // , setSearchText
+  const [searchText, setSearchText] = useState('Fifa');
   const [debouncedDisplayName] = useDebounce(searchText, 1000);
 
   const flatListRef = useRef<FlatList<Amity.User>>(null);
@@ -59,13 +54,12 @@ const UserListScreen: VFC = () => {
         displayName: debouncedDisplayName,
       };
 
-      // let uniqueObjArray = [...new Map(objArray.map((item) => [item["id"], item])).values()];
       runQuery(createQuery(queryUsers, queryData), ({ data, ...metadata }) => {
         if (data) {
           setUsers(prevUsers => (reset ? data : [...prevUsers, ...data]));
         }
-        // console.log({ data, metadata });
-        setMetadata({ ...metadata });
+
+        setOptions(metadata);
 
         if (metadata?.loading === false) {
           setLoading(LoadingState.NOT_LOADING);
@@ -112,21 +106,19 @@ const UserListScreen: VFC = () => {
   );
 
   const errorText = getErrorMessage(error);
-  const data = users.sort(sortByLastCreated);
-
-  // console.log({ users, data });
 
   return (
     <Surface style={styles.container}>
-      {/* <SearchBar
+      <SearchBar
         placeholder="Search"
         value={searchText}
         style={styles.searchBar}
-      /> */}
+        onChangeText={setSearchText}
+      />
 
       <FlatList
         ref={flatListRef}
-        data={data}
+        data={users}
         keyExtractor={user => user.userId}
         showsVerticalScrollIndicator={false}
         refreshing={loading === LoadingState.IS_REFRESHING}

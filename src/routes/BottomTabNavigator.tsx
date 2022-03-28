@@ -7,9 +7,9 @@ import { RouteProp, getFocusedRouteNameFromRoute } from '@react-navigation/nativ
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
 import FeedScreen from 'screens/Feed';
-// import ChatScreen from 'screens/Chat';
 import UserScreen from 'screens/User';
 import UsersScreen from 'screens/Users';
+import ChannelsScreen from 'screens/Channels';
 import CommunityScreen from 'screens/Community';
 import CommunitiesScreen from 'screens/Communities';
 
@@ -27,6 +27,14 @@ const FeedNavigator: VFC = () => {
         <Stack.Screen name="Feed" component={FeedScreen} />
       </Stack.Navigator>
     </View>
+  );
+};
+
+const ChatNavigator: VFC = () => {
+  return (
+    <Stack.Navigator headerMode="screen" initialRouteName="Channels">
+      <Stack.Screen name="Channels" component={ChannelsScreen} />
+    </Stack.Navigator>
   );
 };
 
@@ -83,6 +91,15 @@ const BottomTabsNavigator: VFC<Props> = ({ route }) => {
           tabBarIcon: routeName === 'FeedNavigator' ? 'message-text' : 'message-text-outline',
           tabBarColor,
           tabBarLabel: t('routes.feed'),
+        }}
+      />
+      <Tab.Screen
+        name="ChatNavigator"
+        component={ChatNavigator}
+        options={{
+          tabBarIcon: routeName === 'ChatNavigator' ? 'message-bulleted' : 'message',
+          tabBarColor,
+          tabBarLabel: t('routes.chat'),
         }}
       />
       <Tab.Screen
