@@ -24,15 +24,8 @@ const CommunitiesScreen: VFC = () => {
 
   const [communities, setCommunities] = useState<Amity.Community[]>([]);
 
-  const [{ error, nextPage, loading }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>(
-    {
-      nextPage: null,
-      prevPage: null,
-      error: null,
-      loading: false,
-      origin: 'local',
-    },
-  );
+  const [options, setOptions] = useState<Amity.RunQueryOptions<typeof queryCommunities>>();
+  const { error, nextPage, loading } = options ?? {};
 
   const flatListRef = useRef<FlatList<Amity.Community>>(null);
 
@@ -58,9 +51,9 @@ const CommunitiesScreen: VFC = () => {
       runQuery(createQuery(queryCommunities, queryData), ({ data, ...metadata }) => {
         if (data) {
           setCommunities(prevCommunities => (reset ? data : [...prevCommunities, ...data]));
-
-          setMetadata(metadata);
         }
+
+        setOptions(metadata);
 
         if (!metadata.loading) {
           setIsRefreshing(false);
@@ -82,7 +75,7 @@ const CommunitiesScreen: VFC = () => {
   }, [onQueryCommunities]);
 
   React.useEffect(() => {
-    const unsubscribe = navigation?.dangerouslyGetParent()?.addListener('tabPress', () => {
+    const unsubscribe = navigation?.getParent()?.addListener('tabPress', () => {
       onRefresh();
       flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
     });

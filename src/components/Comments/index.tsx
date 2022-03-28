@@ -30,14 +30,8 @@ const Comments: VFC<{ postId: string }> = ({ postId }) => {
 
   const [comments, setComments] = useState<Amity.Comment[]>([]);
 
-  const [{ error, loading, prevPage }, setMetadata] = useState<Amity.SnapshotOptions & Amity.Pages>(
-    {
-      prevPage: null,
-      nextPage: null,
-      loading: false,
-      origin: 'local',
-    },
-  );
+  const [options, setOptions] = useState<Amity.RunQueryOptions<typeof queryComments>>();
+  const { error, loading, prevPage } = options ?? {};
 
   const flatListRef = useRef<FlatList<Amity.Comment>>(null);
 
@@ -57,7 +51,7 @@ const Comments: VFC<{ postId: string }> = ({ postId }) => {
           setComments(prevComments => (reset ? data : [...prevComments, ...data]));
         }
 
-        setMetadata(metadata);
+        setOptions(metadata);
 
         if (!metadata.loading) {
           setIsRefreshing(false);
