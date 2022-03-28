@@ -75,7 +75,7 @@ const ChannelsScreens: VFC = () => {
   }, [onQueryChannels]);
 
   useEffect(() => {
-    const unsubscribe = navigation?.dangerouslyGetParent()?.addListener('tabPress', () => {
+    const unsubscribe = navigation?.getParent()?.addListener('tabPress', () => {
       onRefresh();
       flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
     });

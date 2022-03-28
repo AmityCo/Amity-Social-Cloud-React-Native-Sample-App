@@ -1,30 +1,29 @@
 import { FlatList } from 'react-native';
 import { Surface } from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { runQuery, createQuery, queryCommunityMembers } from '@amityco/ts-sdk';
 import React, { VFC, useState, useLayoutEffect, useEffect, useRef, useCallback } from 'react';
-import { runQuery, createQuery, sortByLastCreated, queryCommunityMembers } from '@amityco/ts-sdk';
 
 import { Header, EmptyComponent, UserItem, Loading } from 'components';
 
 import getErrorMessage from 'utils/getErrorMessage';
 
-import { LoadingState, DrawerStackHeaderProps } from 'types';
+import { DrawerStackHeaderProps } from 'types';
 
 import styles from './styles';
 
 const QUERY_LIMIT = 10;
 
 const CommunityMembersScreen: VFC = () => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [membership] = useState<('member' | 'banned')[]>(['member']);
   const [isDeleted] = React.useState<Amity.Community['isDeleted']>(false);
   const [sortBy] = React.useState<'firstCreated' | 'lastCreated'>('lastCreated');
-  const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
 
-  const [members, setMembers] = useState<Record<string, Amity.Membership<'community'>>>({});
+  const [members, setMembers] = useState<Amity.Membership<'community'>[]>([]);
 
-  const [{ error, nextPage }, setMetaData] = useState<
-    Amity.QueryResult<Amity.Paged<Amity.Community>>
-  >({ nextPage: null, prevPage: null });
+  const [options, setOptions] = useState<Amity.SnapshotOptions & Amity.Pages<Amity.Page>>();
+  const { error, nextPage, loading } = options ?? {};
 
   const route = useRoute();
   const navigation = useNavigation();
@@ -51,29 +50,23 @@ const CommunityMembersScreen: VFC = () => {
         membership,
       };
 
-      runQuery(
-        createQuery(queryCommunityMembers, queryData),
-        ({ data, loading: loading_, ...metadata }) => {
-          if (reset) setMembers({});
+      runQuery(createQuery(queryCommunityMembers, queryData), ({ data, ...metadata }) => {
+        if (data) {
+          setMembers(prevMembers => (reset ? data : [...prevMembers, ...data]));
 
-          if (data) {
-            setMembers(prevUsers => ({ ...prevUsers, ...data }));
-          }
+          setOptions(metadata);
+        }
 
-          // @ts-ignore
-          setMetaData(metadata);
-
-          if (!loading_) {
-            setLoading(LoadingState.NOT_LOADING);
-          }
-        },
-      );
+        if (!metadata.loading) {
+          setIsRefreshing(false);
+        }
+      });
     },
     [communityId, isDeleted, membership, sortBy],
   );
 
   const onRefresh = useCallback(() => {
-    setLoading(LoadingState.IS_REFRESHING);
+    setIsRefreshing(true);
     onQueryUsers({ reset: true });
   }, [onQueryUsers]);
 
@@ -83,7 +76,6 @@ const CommunityMembersScreen: VFC = () => {
 
   const handleLoadMore = () => {
     if (nextPage) {
-      setLoading(LoadingState.IS_LOADING_MORE);
       onQueryUsers({ page: nextPage });
     }
   };
@@ -96,30 +88,27 @@ const CommunityMembersScreen: VFC = () => {
   );
 
   const errorText = getErrorMessage(error);
-  const data = Object.values(members).sort(sortByLastCreated);
 
   return (
     <Surface style={styles.container}>
       <FlatList
-        data={data}
         ref={flatListRef}
-        onRefresh={onRefresh}
-        onEndReachedThreshold={0.5}
-        onEndReached={handleLoadMore}
+        data={members}
         keyExtractor={user => user.userId}
         showsVerticalScrollIndicator={false}
-        refreshing={loading === LoadingState.IS_REFRESHING}
-        ListFooterComponent={loading === LoadingState.IS_LOADING_MORE ? <Loading /> : undefined}
+        refreshing={isRefreshing}
+        ListFooterComponent={loading ? <Loading /> : undefined}
         ListEmptyComponent={
-          loading === LoadingState.NOT_LOADING ? (
-            <EmptyComponent errorText={error ? errorText : undefined} />
-          ) : null
+          !loading ? <EmptyComponent errorText={error ? errorText : undefined} /> : null
         }
         renderItem={({ item }) => (
           <Surface style={styles.userItem}>
             <UserItem user={item} onPress={() => onPressUserItem(item)} />
           </Surface>
         )}
+        onRefresh={onRefresh}
+        onEndReachedThreshold={0.5}
+        onEndReached={handleLoadMore}
       />
     </Surface>
   );

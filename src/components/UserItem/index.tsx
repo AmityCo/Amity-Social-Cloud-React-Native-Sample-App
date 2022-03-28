@@ -20,11 +20,11 @@ const UserItem: VFC<{ user: Amity.User | Amity.Membership<'community'> } & UserI
   onPress,
   onEditUser,
 }) => {
-  const [user, setUser] = useState<Amity.User>();
   const [file, setFile] = useState<Amity.File>();
   const [openMenu, setOpenMenu] = useState(false);
+  const [user, setUser] = useState<Amity.User | Amity.Membership<'community'>>(userProp);
 
-  const { userId, displayName, createdAt, description, avatarFileId } = userProp;
+  const { userId, displayName, createdAt, description, avatarFileId } = user;
 
   const { client } = useAuth();
   const navigation = useNavigation();

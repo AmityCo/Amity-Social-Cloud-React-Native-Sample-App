@@ -7,7 +7,6 @@ import { RouteProp, getFocusedRouteNameFromRoute } from '@react-navigation/nativ
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
 import FeedScreen from 'screens/Feed';
-import UserScreen from 'screens/User';
 import UsersScreen from 'screens/Users';
 import ChannelsScreen from 'screens/Channels';
 import CommunityScreen from 'screens/Community';
@@ -44,7 +43,6 @@ const UsersNavigator: VFC = () => {
     <View style={{ flex: 1 }} collapsable={false}>
       <Stack.Navigator headerMode="screen" initialRouteName="UserList">
         <Stack.Screen name="Users" component={UsersScreen} />
-        <Stack.Screen name="User" component={UserScreen} />
       </Stack.Navigator>
     </View>
   );
