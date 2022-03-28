@@ -2,7 +2,7 @@ import { FlatList } from 'react-native';
 import { useDebounce } from 'use-debounce';
 import { useNavigation } from '@react-navigation/native';
 import { Surface, Searchbar as SearchBar } from 'react-native-paper';
-import { queryChannels, createQuery, runQuery, sortByLastCreated } from '@amityco/ts-sdk';
+import { queryChannels, createQuery, runQuery } from '@amityco/ts-sdk';
 import React, { VFC, useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 
 import { Header, ChannelItem, EmptyComponent, Loading } from 'components';
@@ -23,7 +23,7 @@ const ChannelsScreens: VFC = () => {
 
   const [channels, setChannels] = useState<Amity.Channel[]>([]);
 
-  const [options, setOptions] = useState<Amity.SnapshotOptions & Amity.Pages<Amity.Page>>();
+  const [options, setOptions] = useState<Amity.RunQueryOptions<typeof queryChannels>>();
   const { nextPage, error } = options ?? {};
 
   const [searchText, setSearchText] = useState('');
@@ -53,9 +53,9 @@ const ChannelsScreens: VFC = () => {
       runQuery(createQuery(queryChannels, queryData), ({ data, ...metadata }) => {
         if (data) {
           setChannels(prevChannels => (reset ? data : [...prevChannels, ...data]));
-
-          setOptions(metadata);
         }
+
+        setOptions(metadata);
 
         if (!metadata.loading) {
           setLoading(LoadingState.NOT_LOADING);

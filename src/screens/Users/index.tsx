@@ -24,7 +24,7 @@ const UserListScreen: VFC = () => {
 
   const [users, setUsers] = useState<Amity.User[]>([]);
 
-  const [options, setOptions] = useState<Amity.SnapshotOptions & Amity.Pages<Amity.Page>>();
+  const [options, setOptions] = useState<Amity.RunQueryOptions<typeof queryUsers>>();
   const { nextPage, error } = options ?? {};
 
   const [searchText, setSearchText] = useState('Fifa');

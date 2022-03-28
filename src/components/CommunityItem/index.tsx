@@ -30,7 +30,7 @@ export type CommunityItemProps = {
 
 const CommunityItem: VFC<
   { community: Amity.Community; subscribable?: boolean; a?: string } & CommunityItemProps
-> = ({ community: communityProp, onPress, subscribable = false }) => {
+> = ({ community: communityProp, onPress }) => {
   const [user, setUser] = useState<Amity.User>();
   const [loading, setLoading] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);

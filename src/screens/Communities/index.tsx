@@ -24,7 +24,7 @@ const CommunitiesScreen: VFC = () => {
 
   const [communities, setCommunities] = useState<Amity.Community[]>([]);
 
-  const [options, setOptions] = useState<Amity.SnapshotOptions & Amity.Pages<Amity.Page>>();
+  const [options, setOptions] = useState<Amity.RunQueryOptions<typeof queryCommunities>>();
   const { error, nextPage, loading } = options ?? {};
 
   const flatListRef = useRef<FlatList<Amity.Community>>(null);
@@ -51,9 +51,9 @@ const CommunitiesScreen: VFC = () => {
       runQuery(createQuery(queryCommunities, queryData), ({ data, ...metadata }) => {
         if (data) {
           setCommunities(prevCommunities => (reset ? data : [...prevCommunities, ...data]));
-
-          setOptions(metadata);
         }
+
+        setOptions(metadata);
 
         if (!metadata.loading) {
           setIsRefreshing(false);

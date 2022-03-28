@@ -22,7 +22,7 @@ const CommunityMembersScreen: VFC = () => {
 
   const [members, setMembers] = useState<Amity.Membership<'community'>[]>([]);
 
-  const [options, setOptions] = useState<Amity.SnapshotOptions & Amity.Pages<Amity.Page>>();
+  const [options, setOptions] = useState<Amity.RunQueryOptions<typeof queryCommunityMembers>>();
   const { error, nextPage, loading } = options ?? {};
 
   const route = useRoute();
@@ -53,9 +53,9 @@ const CommunityMembersScreen: VFC = () => {
       runQuery(createQuery(queryCommunityMembers, queryData), ({ data, ...metadata }) => {
         if (data) {
           setMembers(prevMembers => (reset ? data : [...prevMembers, ...data]));
-
-          setOptions(metadata);
         }
+
+        setOptions(metadata);
 
         if (!metadata.loading) {
           setIsRefreshing(false);
