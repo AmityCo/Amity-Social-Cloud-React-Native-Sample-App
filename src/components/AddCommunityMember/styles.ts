@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
 
   communityInputContainer: {
     width: '90%',
-    height: 160,
+    height: 70,
     textAlignVertical: 'top',
     padding: 10,
     marginBottom: 20,

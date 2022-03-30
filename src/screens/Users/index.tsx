@@ -130,12 +130,7 @@ const UserListScreen: VFC = () => {
         }
         renderItem={({ item }) => (
           <Surface style={styles.userItem}>
-            <UserItem
-              user={item}
-              type="users"
-              onEditUser={setIsEditId}
-              onPress={() => onPressUserItem(item)}
-            />
+            <UserItem user={item} onEditUser={setIsEditId} onPress={() => onPressUserItem(item)} />
           </Surface>
         )}
         onRefresh={onRefresh}

@@ -13,7 +13,6 @@ import styles from './styles';
 export type UserItemProps = {
   canDelete?: boolean;
   onPress?: () => void;
-  type: 'users' | 'community';
   onEditUser?: (userId: string) => void;
   onDeleteUser?: (userId: string) => void;
 };
