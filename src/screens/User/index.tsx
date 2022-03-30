@@ -66,7 +66,7 @@ const UserScreen: VFC = () => {
           <Feed
             targetId={userId}
             targetType="user"
-            header={<UserItem user={user} onEditUser={onEditUser} type="users" />}
+            header={<UserItem user={user} onEditUser={onEditUser} />}
           />
 
           {isEditId !== '' && <UpdateUser isEditId={isEditId} onClose={onCloseUpdateUser} />}

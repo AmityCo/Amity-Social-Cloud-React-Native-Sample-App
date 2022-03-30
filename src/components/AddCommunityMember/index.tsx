@@ -1,7 +1,7 @@
 import React, { useState, useEffect, VFC, useCallback } from 'react';
 import { Text, Surface, Button } from 'react-native-paper';
 import { Alert, View, Modal, ScrollView } from 'react-native';
-import { addCommunityUser, createQuery, runQuery } from '@amityco/ts-sdk';
+import { addCommunityMembers, createQuery, runQuery } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
 import { alertError } from 'utils/alerts';
@@ -32,7 +32,7 @@ const AddCommunityMember: VFC<AddCommunityMemberType> = ({ onClose, onAddMember,
 
     setLoading(true);
 
-    const query = createQuery(addCommunityUser, communityId, [userId]);
+    const query = createQuery(addCommunityMembers, communityId, [userId]);
 
     runQuery(query, ({ data: communityData, error, loading: loading_ }) => {
       setLoading(!!loading_);
@@ -50,34 +50,35 @@ const AddCommunityMember: VFC<AddCommunityMemberType> = ({ onClose, onAddMember,
   };
 
   return (
-    <Modal transparent visible onDismiss={onClose} animationType="slide" onRequestClose={onClose}>
+    <Modal transparent visible animationType="slide" onDismiss={onClose} onRequestClose={onClose}>
       <Surface style={styles.container}>
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.centeredView}>
           <View style={styles.content}>
             <TextInput
               value={userId}
+              numberOfLines={1}
               spellCheck={false}
               autoCapitalize="none"
-              autoCompleteType="off"
-              onChangeText={setUserId}
+              autoComplete={false}
               style={styles.communityInput}
               containerStyle={styles.communityInputContainer}
               placeholder={t('community.add_member_user_id_placeholder')}
+              onChangeText={setUserId}
             />
           </View>
 
           <View style={styles.btnArea}>
             <Button
               style={styles.btn}
-              onPress={onSubmit}
               disabled={loading}
               mode="contained"
               loading={loading}
+              onPress={onSubmit}
             >
               {t('add')}
             </Button>
 
-            <Button style={styles.btn} onPress={onClose} mode="contained">
+            <Button style={styles.btn} mode="contained" onPress={onClose}>
               <Text>{t('cancel')}</Text>
             </Button>
           </View>

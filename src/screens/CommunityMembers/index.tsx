@@ -6,7 +6,6 @@ import {
   createQuery,
   queryCommunityMembers,
   removeCommunityMembers,
-  addCommunityMembers,
 } from '@amityco/ts-sdk';
 import React, { VFC, useState, useLayoutEffect, useEffect, useRef, useCallback } from 'react';
 
@@ -134,7 +133,6 @@ const CommunityMembersScreen: VFC = () => {
           <Surface style={styles.userItem}>
             <UserItem
               user={item}
-              type="community"
               canDelete={isOwner}
               onDeleteUser={onDeleteUser}
               onPress={() => onPressUserItem(item)}
