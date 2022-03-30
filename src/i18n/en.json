@@ -51,6 +51,9 @@
     "edit_comment": "Edit Comment",
     "reply_to": "Reply to"
   },
+  "community": {
+    "add_member_user_id_placeholder": "Enter UserId"
+  },
   "are_you_sure": "Are you sure?",
   "ok": "OK",
   "by": "By",

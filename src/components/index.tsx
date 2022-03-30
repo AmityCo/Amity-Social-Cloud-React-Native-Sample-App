@@ -18,3 +18,4 @@ export { default as AddCommunity } from './AddCommunity';
 export { default as CommunityItem } from './CommunityItem';
 export { default as DrawerContent } from './DrawerContent';
 export { default as EmptyComponent } from './EmptyComponent';
+export { default as AddCommunityMember } from './AddCommunityMember';
