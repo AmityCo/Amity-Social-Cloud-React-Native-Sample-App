@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState, useRef } from 'react';
 import { Alert } from 'react-native';
 import {
   createClient,
@@ -8,27 +8,38 @@ import {
   disconnectClient,
   enableCache,
 } from '@amityco/ts-sdk';
-import Constants from 'expo-constants';
 
 import getErrorMessage from 'utils/getErrorMessage';
 
 import { AuthContextInterface } from 'types';
-
-const client = createClient(Constants.manifest?.extra?.apiKey || '', 'staging');
-enableCache();
+import usePreferences from 'hooks/usePreferences';
 
 export const AuthContext = React.createContext<AuthContextInterface>({
-  client,
   error: '',
   login: () => {},
   logout: () => {},
+  client: undefined,
   isConnected: false,
   isConnecting: false,
 });
 
 export const AuthContextProvider: FC = ({ children }) => {
   const [error, setError] = useState('');
+  const [loaded, setLoaded] = useState(false);
   const [isConnecting, setLoading] = useState(false);
+
+  const client = useRef<Amity.Client>();
+
+  const { apiKey, apiRegion } = usePreferences();
+
+  useEffect(() => {
+    if (apiKey !== '' && apiRegion !== '') {
+      client.current = createClient(apiKey, apiRegion);
+      enableCache();
+
+      setLoaded(true);
+    }
+  }, [apiKey, apiRegion]);
 
   const login = async ({ userId, displayName }: Parameters<typeof connectClient>[0]) => {
     setError('');
@@ -58,21 +69,21 @@ export const AuthContextProvider: FC = ({ children }) => {
     // Updates.reloadAsync();
   };
 
-  return (
+  return loaded ? (
     <AuthContext.Provider
       // eslint-disable-next-line react/jsx-no-constructed-context-values
       value={{
         error,
         login,
-        client,
         logout,
         isConnecting,
+        client: client.current,
         isConnected: isConnected(),
       }}
     >
       {children}
     </AuthContext.Provider>
-  );
+  ) : null;
 };
 
 export default AuthContext;

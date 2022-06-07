@@ -5,11 +5,15 @@ import { PreferencesContext } from 'providers/preferences-provider';
 import type { PreferencesContextInterface } from 'types';
 
 const usePreferences = (): PreferencesContextInterface => {
-  const { theme, toggleTheme } = useContext(PreferencesContext);
+  const { apiKey, apiRegion, theme, toggleTheme, setClientCredentials } =
+    useContext(PreferencesContext);
 
   return {
     theme,
+    apiKey,
+    apiRegion,
     toggleTheme,
+    setClientCredentials,
   };
 };
 

@@ -15,6 +15,7 @@ export { default as HeaderMenu } from './HeaderMenu';
 export { default as CommentItem } from './CommentItem';
 export { default as ChannelItem } from './ChannelItem';
 export { default as MessageItem } from './MessageItem';
+export { default as CreateClient } from './CreateClient';
 export { default as AddCommunity } from './AddCommunity';
 export { default as CommunityItem } from './CommunityItem';
 export { default as DrawerContent } from './DrawerContent';
