@@ -34,6 +34,7 @@ export default {
     },
     extra: {
       apiKey: process.env.API_KEY,
+      apiRegion: process.env.API_REGION,
     },
   },
 };
