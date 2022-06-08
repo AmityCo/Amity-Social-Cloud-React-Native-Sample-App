@@ -51,6 +51,9 @@
     "edit_comment": "Edit Comment",
     "reply_to": "Reply to"
   },
+  "chat": {
+    "emptyMessage": "There is no message yet!"
+  },
   "are_you_sure": "Are you sure?",
   "ok": "OK",
   "by": "By",

@@ -26,7 +26,14 @@ module.exports = function (api) {
           extensions: ['.ts', '.tsx'],
         },
       ],
-      ['react-native-reanimated/plugin'],
+      'react-native-reanimated/plugin',
+      [
+        '@nozbe/zacs/babel',
+        {
+          platform: 'native', // "web" or "native"
+          production: true, // pass `false` to enable debug attributes
+        },
+      ],
     ],
   };
 };
