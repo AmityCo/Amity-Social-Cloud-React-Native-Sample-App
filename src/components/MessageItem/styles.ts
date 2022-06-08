@@ -24,6 +24,12 @@ export const messageStyles = StyleSheet.create({
   containerRight: {
     alignItems: 'flex-end',
   },
+  message: {
+    marginTop: 20,
+  },
+  messageMe: {
+    marginTop: 2,
+  },
   avatar: {
     marginEnd: 10,
   },

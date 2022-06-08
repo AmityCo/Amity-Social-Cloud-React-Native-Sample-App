@@ -6,7 +6,7 @@ import {
   runQuery,
   createQuery,
   queryMessages,
-  observeMessages,
+  // observeMessages,
   sortByChannelSegment,
 } from '@amityco/ts-sdk';
 
@@ -94,7 +94,7 @@ const ChatScreen: VFC = () => {
 
   const handleLoadMore = () => {
     if (prevPage) {
-      setLoading(LoadingState.IS_LOADING_MORE);
+      setLoading(true);
       onQueryMessages({ page: prevPage });
     }
   };
@@ -111,7 +111,7 @@ const ChatScreen: VFC = () => {
   );
 
   const renderFooter = () => {
-    if (loading === LoadingState.NOT_LOADING || !prevPage) {
+    if (!loading) {
       return null;
     }
 
@@ -147,9 +147,7 @@ const ChatScreen: VFC = () => {
             ListFooterComponent={renderFooter}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
-              loading === LoadingState.NOT_LOADING ? (
-                <Text style={styles.emptyMessage}>{t('chat.emptyMessage')}</Text>
-              ) : null
+              !loading ? <Text style={styles.emptyMessage}>{t('chat.emptyMessage')}</Text> : null
             }
             onEndReachedThreshold={0.3}
             onEndReached={handleLoadMore}

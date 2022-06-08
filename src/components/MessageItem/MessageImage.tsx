@@ -13,20 +13,18 @@ const MessageImage: VFC<{ message: Amity.Message }> = ({ message }) => {
 
   return (
     <View style={messageImageStyles.container}>
-      {image?.fileUrl ? (
+      {image?.fileUrl && (
         <Lightbox
           activeProps={{
             style: messageImageStyles.imageActive,
           }}
         >
           <ExpoFastImage
-            uri={image.fileUrl}
+            uri={`${image.fileUrl}?size=medium`}
             style={messageImageStyles.image}
             cacheKey={message.fileId}
           />
         </Lightbox>
-      ) : (
-        <View />
       )}
     </View>
   );
