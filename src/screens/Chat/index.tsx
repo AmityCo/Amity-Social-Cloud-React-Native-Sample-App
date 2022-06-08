@@ -49,22 +49,22 @@ const ChatScreen: VFC = () => {
     });
   }, [channelId, displayName, navigation]);
 
-  useEffect(
-    () =>
-      observeMessages(channelId, {
-        onEvent: (action, message) => {
-          console.log({ action, message });
-          // if (action === 'onCreate' && !!message.data) {
-          //   setMessages(prevState => [message.data]);
+  // useEffect(
+  //   () =>
+  //     observeMessages(channelId, {
+  //       onEvent: (action, message) => {
+  //         console.log({ action, message });
+  //         // if (action === 'onCreate' && !!message.data) {
+  //         //   setMessages(prevState => [message.data]);
 
-          //   // flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
-          // } else if (action === 'onDelete')
-          //   setMessages(prevState => prevState.filter(c => c.messageId !== message.messageId));
-          // },
-        },
-      }),
-    [channelId],
-  );
+  //         //   // flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
+  //         // } else if (action === 'onDelete')
+  //         //   setMessages(prevState => prevState.filter(c => c.messageId !== message.messageId));
+  //         // },
+  //       },
+  //     }),
+  //   [channelId],
+  // );
 
   const onQueryMessages = useCallback(
     async ({ reset = false, page = { limit: QUERY_LIMIT } }) => {
