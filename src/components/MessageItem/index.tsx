@@ -186,18 +186,19 @@ const MessageItem: VFC<{
           {/* <Pressable style={pressableStyle}>
             {messageData && type === 'text' && ( */}
           <Bubble currentUser={currentUserId === userId} guestUser={currentUserId !== userId}>
-            {type === 'text' && messageData && (
+            {/* {type === 'text' && messageData && (
               <MessageText
                 message={messageData}
                 textStyle={{ color: colors.text, fontFamily: regularFont }}
               />
-            )}
+            )} */}
             {/* {messageData && type === 'image' && <MessageImage message={messageData} />}
 
             <View style={leftArrowStyle} />
             <Animated.View style={leftArrowOverlapStyle} />
           </Pressable> */}
 
+            {type === 'text' && messageData && <MessageText message={messageData} />}
             {type === 'image' && messageData && <MessageImage message={messageData} />}
 
             <LeftArrow

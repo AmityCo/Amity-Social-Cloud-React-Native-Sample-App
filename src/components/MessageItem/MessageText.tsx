@@ -1,14 +1,11 @@
+import { View } from 'react-native';
 import React, { VFC, memo } from 'react';
-import { View, TextStyle } from 'react-native';
-import ParsedText from 'react-native-parsed-text';
+import { Text } from 'react-native-paper';
 
-const MessageText: VFC<{ message: Amity.Message; textStyle: TextStyle }> = ({
-  message,
-  textStyle,
-}) => {
+const MessageText: VFC<{ message: Amity.Message }> = ({ message }) => {
   return (
     <View>
-      <ParsedText childrenProps={textStyle}>{message?.data?.text ?? ''}</ParsedText>
+      <Text>{message?.data?.text ?? ''}</Text>
     </View>
   );
 };
