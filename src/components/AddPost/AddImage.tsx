@@ -51,9 +51,9 @@ const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
         };
 
         const data = new FormData();
-        data.append('file', fileObject);
+        data.append('files', fileObject);
 
-        runQuery(createQuery(createFile, data, onProgress), ({ data: fileData, error }) => {
+        runQuery(createQuery(createImage, data, onProgress), ({ data: fileData, error }) => {
           onProgress(0);
 
           if (fileData) {
