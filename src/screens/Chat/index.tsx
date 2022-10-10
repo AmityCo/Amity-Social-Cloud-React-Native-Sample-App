@@ -10,7 +10,7 @@ import { t } from 'i18n';
 import useAuth from 'hooks/useAuth';
 import getErrorMessage from 'utils/getErrorMessage';
 
-import { DrawerStackHeaderProps, LoadingState } from 'types';
+import { DrawerStackHeaderProps } from 'types';
 
 import styles from './styles';
 
@@ -19,10 +19,9 @@ const QUERY_LIMIT = 10;
 const ChatScreen: FC = () => {
   const flatListRef = useRef(null);
   const [messages, setMessages] = useState<Amity.Message[]>([]);
-  const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
 
   const [options, setOptions] = useState<Amity.RunQueryOptions<typeof queryMessages>>();
-  const { prevPage, error } = options ?? {};
+  const { prevPage, error, loading } = options ?? {};
 
   const route = useRoute();
   const { client } = useAuth();
@@ -56,10 +55,6 @@ const ChatScreen: FC = () => {
         }
 
         setOptions(metadata);
-
-        if (!metadata.loading) {
-          setLoading(LoadingState.NOT_LOADING);
-        }
       });
     },
     [channelId],
@@ -71,7 +66,6 @@ const ChatScreen: FC = () => {
 
   const handleLoadMore = () => {
     if (prevPage) {
-      setLoading(true);
       onQueryMessages({ page: prevPage });
     }
   };
