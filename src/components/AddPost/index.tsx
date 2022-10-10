@@ -64,7 +64,7 @@ const AddPost: FC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) =
     setLoading(true);
 
     if (isEditId !== '') {
-      const data = { data: { text } };
+      const data = { data: { text: text.trim() } };
 
       runQuery(
         createQuery(updatePost, isEditId, data),
@@ -82,13 +82,13 @@ const AddPost: FC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) =
       );
     } else {
       const data: Parameters<typeof createPost>[0] = {
-        data: { text },
+        data: { text: text.trim() },
         targetType,
         targetId,
       };
 
-      if ((!text || text === '') && !images.length && !files.length) {
-        Alert.alert('input some text!');
+      if (!text.trim() && !images.length && !files.length) {
+        Alert.alert('Text cannot be empty!');
         setLoading(false);
         return;
       }
