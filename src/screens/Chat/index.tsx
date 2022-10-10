@@ -1,14 +1,8 @@
 import { Surface, HelperText, Text } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { KeyboardAvoidingView, Platform, View, FlatList } from 'react-native';
-import React, { VFC, useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
-import {
-  runQuery,
-  createQuery,
-  queryMessages,
-  // observeMessages,
-  sortByChannelSegment,
-} from '@amityco/ts-sdk';
+import React, { FC, useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import { runQuery, createQuery, queryMessages, sortByChannelSegment } from '@amityco/ts-sdk';
 
 import { Header, MessageItem, Loading } from 'components';
 
@@ -22,7 +16,7 @@ import styles from './styles';
 
 const QUERY_LIMIT = 10;
 
-const ChatScreen: VFC = () => {
+const ChatScreen: FC = () => {
   const flatListRef = useRef(null);
   const [messages, setMessages] = useState<Amity.Message[]>([]);
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NOT_LOADING);
@@ -48,23 +42,6 @@ const ChatScreen: VFC = () => {
       ),
     });
   }, [channelId, displayName, navigation]);
-
-  // useEffect(
-  //   () =>
-  //     observeMessages(channelId, {
-  //       onEvent: (action, message) => {
-  //         console.log({ action, message });
-  //         // if (action === 'onCreate' && !!message.data) {
-  //         //   setMessages(prevState => [message.data]);
-
-  //         //   // flatListRef?.current?.scrollToOffset({ animated: true, offset: 0 });
-  //         // } else if (action === 'onDelete')
-  //         //   setMessages(prevState => prevState.filter(c => c.messageId !== message.messageId));
-  //         // },
-  //       },
-  //     }),
-  //   [channelId],
-  // );
 
   const onQueryMessages = useCallback(
     async ({ reset = false, page = { limit: QUERY_LIMIT } }) => {
