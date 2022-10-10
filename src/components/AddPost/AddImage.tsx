@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { View, Platform, Alert } from 'react-native';
-import React, { VFC, useState, useEffect } from 'react';
-import { createFile, runQuery, createQuery } from '@amityco/ts-sdk';
+import React, { FC, useState, useEffect } from 'react';
+import { createImage, runQuery, createQuery } from '@amityco/ts-sdk';
 import { Button, Text, ProgressBar, useTheme } from 'react-native-paper';
 
 import { t } from 'i18n';
@@ -11,10 +11,10 @@ import { alertError } from 'utils/alerts';
 import { addFileStyles } from './styles';
 
 type AddPostImageProps = {
-  onAddImage: (image: Amity.File) => void;
+  onAddImage: (image: Amity.File[]) => void;
 };
 
-const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
+const AddPostImage: FC<AddPostImageProps> = ({ onAddImage }) => {
   const [progress, onProgress] = useState(0);
 
   const {
@@ -51,9 +51,9 @@ const AddPostImage: VFC<AddPostImageProps> = ({ onAddImage }) => {
         };
 
         const data = new FormData();
-        data.append('file', fileObject);
+        data.append('files', fileObject);
 
-        runQuery(createQuery(createFile, data, onProgress), ({ data: fileData, error }) => {
+        runQuery(createQuery(createImage, data, onProgress), ({ data: fileData, error }) => {
           onProgress(0);
 
           if (fileData) {
