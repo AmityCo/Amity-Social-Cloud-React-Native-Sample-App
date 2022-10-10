@@ -1,6 +1,6 @@
 import MimeTypes from 'mime-types';
 import { View, Alert } from 'react-native';
-import React, { VFC, useState } from 'react';
+import React, { FC, useState } from 'react';
 import * as DocumentPicker from 'expo-document-picker';
 import { createFile, runQuery, createQuery } from '@amityco/ts-sdk';
 import { Text, Button, ProgressBar, useTheme } from 'react-native-paper';
@@ -12,10 +12,10 @@ import { alertError } from 'utils/alerts';
 import { addFileStyles } from './styles';
 
 type AddPostFileProps = {
-  onAddFile: (image: Amity.File) => void;
+  onAddFile: (image: Amity.File[]) => void;
 };
 
-const AddPostFile: VFC<AddPostFileProps> = ({ onAddFile }) => {
+const AddPostFile: FC<AddPostFileProps> = ({ onAddFile }) => {
   const [progress, onProgress] = useState(0);
 
   const {
@@ -43,7 +43,7 @@ const AddPostFile: VFC<AddPostFileProps> = ({ onAddFile }) => {
 
         const data = new FormData();
 
-        data.append('file', fileObject);
+        data.append('files', fileObject);
 
         runQuery(createQuery(createFile, data, onProgress), ({ data: fileData, error }) => {
           onProgress(0);

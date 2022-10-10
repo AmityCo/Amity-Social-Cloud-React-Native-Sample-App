@@ -1,6 +1,6 @@
-import { View, Modal, ScrollView } from 'react-native';
 import { Text, Surface, Button } from 'react-native-paper';
-import React, { useState, useEffect, VFC, useCallback } from 'react';
+import { View, Modal, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect, FC, useCallback } from 'react';
 import { createPost, getPost, updatePost, createQuery, runQuery } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
@@ -22,7 +22,7 @@ export type AddPostType = {
   targetId: string;
 };
 
-const AddPost: VFC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) => {
+const AddPost: FC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) => {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -87,6 +87,12 @@ const AddPost: VFC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) 
         targetId,
       };
 
+      if ((!text || text === '') && !images.length && !files.length) {
+        Alert.alert('input some text!');
+        setLoading(false);
+        return;
+      }
+
       if (images.length) {
         data.attachments = images.map(({ fileId }) => ({ type: 'image', fileId }));
       } else if (files.length) {
@@ -122,8 +128,12 @@ const AddPost: VFC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) 
             {isEditId === '' && (
               <View style={styles.filesContainer}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-                  {images.length === 0 && <AddFile onAddFile={addFile} />}
-                  {files.length === 0 && <AddImage onAddImage={addImage} />}
+                  {files.length === 0 && (
+                    <AddImage onAddImage={imgs => imgs.map(img => addImage(img))} />
+                  )}
+                  {images.length === 0 && (
+                    <AddFile onAddFile={fils => fils.map(file => addFile(file))} />
+                  )}
                 </View>
 
                 <View style={styles.filesArea}>
