@@ -1,6 +1,6 @@
-import { View, Modal, ScrollView } from 'react-native';
 import { Text, Surface, Button } from 'react-native-paper';
-import React, { useState, useEffect, VFC, useCallback } from 'react';
+import { View, Modal, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect, FC, useCallback } from 'react';
 import { createPost, getPost, updatePost, createQuery, runQuery } from '@amityco/ts-sdk';
 
 import { t } from 'i18n';
@@ -22,7 +22,7 @@ export type AddPostType = {
   targetId: string;
 };
 
-const AddPost: VFC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) => {
+const AddPost: FC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) => {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -64,7 +64,7 @@ const AddPost: VFC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) 
     setLoading(true);
 
     if (isEditId !== '') {
-      const data = { data: { text } };
+      const data = { data: { text: text.trim() } };
 
       runQuery(
         createQuery(updatePost, isEditId, data),
@@ -82,10 +82,16 @@ const AddPost: VFC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) 
       );
     } else {
       const data: Parameters<typeof createPost>[0] = {
-        data: { text },
+        data: { text: text.trim() },
         targetType,
         targetId,
       };
+
+      if (!text.trim() && !images.length && !files.length) {
+        Alert.alert('Text cannot be empty!');
+        setLoading(false);
+        return;
+      }
 
       if (images.length) {
         data.attachments = images.map(({ fileId }) => ({ type: 'image', fileId }));
@@ -122,8 +128,12 @@ const AddPost: VFC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) 
             {isEditId === '' && (
               <View style={styles.filesContainer}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-                  {images.length === 0 && <AddFile onAddFile={addFile} />}
-                  {files.length === 0 && <AddImage onAddImage={addImage} />}
+                  {files.length === 0 && (
+                    <AddImage onAddImage={imgs => imgs.map(img => addImage(img))} />
+                  )}
+                  {images.length === 0 && (
+                    <AddFile onAddFile={fils => fils.map(file => addFile(file))} />
+                  )}
                 </View>
 
                 <View style={styles.filesArea}>
