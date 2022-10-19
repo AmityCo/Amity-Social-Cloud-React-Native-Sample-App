@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { View, Platform, Alert } from 'react-native';
 import React, { FC, useState, useEffect } from 'react';
-import { createImage, runQuery, createQuery } from '@amityco/ts-sdk';
+import { createVideo, runQuery, createQuery } from '@amityco/ts-sdk';
 import { Button, Text, ProgressBar, useTheme } from 'react-native-paper';
 
 import { t } from 'i18n';
@@ -10,11 +10,11 @@ import { alertError } from 'utils/alerts';
 
 import { addFileStyles } from './styles';
 
-type AddPostImageProps = {
-  onAddImage: (image: Amity.File[]) => void;
+type AddPostVideoProps = {
+  onAddVideo: (video: Amity.File[]) => void;
 };
 
-const AddPostImage: FC<AddPostImageProps> = ({ onAddImage }) => {
+const AddPostVideo: FC<AddPostVideoProps> = ({ onAddVideo }) => {
   const [progress, onProgress] = useState(0);
 
   const {
@@ -32,11 +32,10 @@ const AddPostImage: FC<AddPostImageProps> = ({ onAddImage }) => {
     })();
   }, []);
 
-  const selectFile = async () => {
+  const selectVideo = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
         quality: 1,
       });
 
@@ -47,23 +46,25 @@ const AddPostImage: FC<AddPostImageProps> = ({ onAddImage }) => {
           ...blob,
           uri: result.uri,
           name: result.uri.split('/').pop(),
-          type: `image/${result.uri.split('.').pop()}`,
         };
 
         const data = new FormData();
         data.append('files', fileObject);
 
-        runQuery(createQuery(createImage, data, onProgress), ({ data: fileData, error }) => {
-          onProgress(0);
+        runQuery(
+          createQuery(createVideo, data, 'message', onProgress),
+          ({ data: fileData, error }) => {
+            onProgress(0);
 
-          if (fileData) {
-            onAddImage(fileData);
+            if (fileData) {
+              onAddVideo(fileData);
 
-            Alert.alert('file successfully uploaded!');
-          } else if (error) {
-            alertError(error);
-          }
-        });
+              Alert.alert('file successfully uploaded!');
+            } else if (error) {
+              alertError(error);
+            }
+          },
+        );
       }
     } catch (error) {
       alertError(error);
@@ -86,13 +87,13 @@ const AddPostImage: FC<AddPostImageProps> = ({ onAddImage }) => {
           mode="outlined"
           style={addFileStyles.btn}
           compact
-          onPress={selectFile}
+          onPress={selectVideo}
         >
-          <Text>{t('posts.attach_image')}</Text>
+          <Text>{t('posts.attach_video')}</Text>
         </Button>
       )}
     </View>
   );
 };
 
-export default AddPostImage;
+export default AddPostVideo;

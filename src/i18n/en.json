@@ -47,7 +47,8 @@
     },
     "add_post_placeholder": "Type anything in your mind",
     "attach_file": "Attach File",
-    "attach_image": "Attach Image"
+    "attach_image": "Attach Image",
+    "attach_video": "Attach Video"
   },
   "comments": {
     "add_comment_placeholder": "Type some comment...",
