@@ -3,7 +3,9 @@
     "login": "Login",
     "logout": "Logout",
     "username": "User Id",
-    "displayName": "Name"
+    "displayName": "Name",
+    "apiKey": "Api Key",
+    "apiRegion": "Api Region"
   },
   "routes": {
     "chat": "Chat",

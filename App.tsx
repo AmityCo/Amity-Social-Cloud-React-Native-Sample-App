@@ -1,11 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, FC } from 'react';
 import { LogBox, StyleSheet } from 'react-native';
+import React, { useEffect, FC, useState } from 'react';
 import polyfill from '@amityco/react-native-formdata-polyfill';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import Navigation from 'routes';
+import { CreateClient } from 'components';
 import useCachedResources from 'hooks/useCachedResources';
 import { AuthContextProvider } from 'providers/auth-provider';
 import { PreferencesContextProvider } from 'providers/preferences-provider';
@@ -16,6 +17,7 @@ polyfill();
 
 const App: FC = () => {
   const isLoadingComplete = useCachedResources();
+  const [showCreateClient, setShowCreateClient] = useState(true);
 
   useEffect(() => {
     LogBox.ignoreLogs(['Animated: `useNativeDriver`']);
@@ -35,6 +37,8 @@ const App: FC = () => {
               <StatusBar />
             </Theme>
           </AuthContextProvider>
+
+          {showCreateClient && <CreateClient onClose={() => setShowCreateClient(false)} />}
         </PreferencesContextProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
