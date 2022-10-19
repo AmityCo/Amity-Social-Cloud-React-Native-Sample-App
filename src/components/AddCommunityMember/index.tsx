@@ -20,10 +20,6 @@ const AddCommunityMember: VFC<AddCommunityMemberType> = ({ onClose, onAddMember,
   const [userId, setUserId] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setUserId('');
-  }, []);
-
   const onSubmit = async () => {
     if (userId === '') {
       Alert.alert('Please input User ID!');
