@@ -8,8 +8,10 @@ import { alertError } from 'utils/alerts';
 import useCollection from 'hooks/useCollection';
 
 import File from './File';
+import Video from './Video';
 import Image from './Image';
 import AddFile from './AddFile';
+import AddVideo from './AddVideo';
 import AddImage from './AddImage';
 import TextInput from '../TextInput';
 
@@ -34,11 +36,16 @@ const AddPost: FC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) =
     arr.findIndex(({ fileId }) => fileId === el.fileId),
   );
 
+  const [videos, addVideo, , , resetVideos] = useCollection<Amity.File>([], (arr, el) =>
+    arr.findIndex(({ fileId }) => fileId === el.fileId),
+  );
+
   useEffect(() => {
     setText('');
     resetFiles();
+    resetVideos();
     resetImages();
-  }, [resetFiles, resetImages]);
+  }, [resetFiles, resetImages, resetVideos]);
 
   const getCurrentPost = useCallback(async () => {
     const query = createQuery(getPost, isEditId);
@@ -87,7 +94,7 @@ const AddPost: FC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) =
         targetId,
       };
 
-      if (!text.trim() && !images.length && !files.length) {
+      if (!text.trim() && !images.length && !files.length && !videos.length) {
         Alert.alert('Text cannot be empty!');
         setLoading(false);
         return;
@@ -97,6 +104,8 @@ const AddPost: FC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) =
         data.attachments = images.map(({ fileId }) => ({ type: 'image', fileId }));
       } else if (files.length) {
         data.attachments = files.map(({ fileId }) => ({ type: 'file', fileId }));
+      } else if (videos.length) {
+        data.attachments = videos.map(({ fileId }) => ({ type: 'video', fileId }));
       }
 
       runQuery(createQuery(createPost, data), ({ data: postData, error, loading: loading_ }) => {
@@ -128,11 +137,14 @@ const AddPost: FC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) =
             {isEditId === '' && (
               <View style={styles.filesContainer}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-                  {files.length === 0 && (
+                  {files.length === 0 && videos.length === 0 && (
                     <AddImage onAddImage={imgs => imgs.map(img => addImage(img))} />
                   )}
-                  {images.length === 0 && (
+                  {images.length === 0 && videos.length === 0 && (
                     <AddFile onAddFile={fils => fils.map(file => addFile(file))} />
+                  )}
+                  {images.length === 0 && files.length === 0 && (
+                    <AddVideo onAddVideo={fils => fils.map(file => addVideo(file))} />
                   )}
                 </View>
 
@@ -142,6 +154,9 @@ const AddPost: FC<AddPostType> = ({ onClose, isEditId, targetType, targetId }) =
                   ))}
                   {files.map(img => (
                     <File key={`${img.fileId}`} file={img} />
+                  ))}
+                  {videos.map(img => (
+                    <Video key={`${img.fileId}`} file={img} />
                   ))}
                 </View>
               </View>
