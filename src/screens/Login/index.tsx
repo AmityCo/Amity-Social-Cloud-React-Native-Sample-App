@@ -32,7 +32,9 @@ const LoginScreen: VFC = () => {
     const deviceId =
       Platform.OS === 'android'
         ? Application.androidId
-        : await Application.getIosIdForVendorAsync();
+        : Platform.OS === 'ios'
+        ? await Application?.getIosIdForVendorAsync()
+        : undefined;
     const data = { ...formData, deviceId: deviceId || undefined };
 
     await login(data);
